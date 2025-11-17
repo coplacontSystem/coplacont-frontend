@@ -78,4 +78,18 @@ export class TablaService {
   static async getTiposOperacion(): Promise<TablaDetalleResponse[]> {
     return this.getTablaDetalles(12);
   }
+
+  /**
+   * Obtiene los detalles de tablas por sus IDs
+   * @param ids - Coma separada lista de IDs
+   * @returns Promise con la lista de detalles
+   */
+  static async getTablasByIds(ids: string): Promise<TablaDetalleResponse[]> {
+    try {
+      const response = await tablaApi.getTablasByIds(ids);
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  }
 }

@@ -12,6 +12,7 @@ export const tablaApi = {
     getTablaByNumber: (numeroTabla: number) => apiClient.get(`${TABLA_ENDPOINTS.GET_TABLA_BY_NUMBER}/${numeroTabla}`),
     getTablaDetalles: (numeroTabla: number) => apiClient.get(`${TABLA_ENDPOINTS.GET_TABLA_DETALLES}/${numeroTabla}/detalles`),
     getTablaDetalleByCode: (numeroTabla: number, codigo: string) => apiClient.get(`${TABLA_ENDPOINTS.GET_TABLA_DETALLE_BY_CODE}/${numeroTabla}/detalles/${codigo}`),
+    getTablasByIds: (ids: string) => apiClient.get(`${TABLA_ENDPOINTS.GET_TABLA_DETALLES}/detalles/by-ids?ids=${ids}`),
 } as const;
 
 export type TablaApi = typeof tablaApi;

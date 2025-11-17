@@ -180,8 +180,7 @@ export const CreateOperationForm = () => {
   };
 
   const monedaOptions = [
-    { value: MonedaEnum.SOL, label: "Soles (S/)" },
-    { value: MonedaEnum.DOLAR, label: "Dólares ($)" },
+    { value: MonedaEnum.SOL, label: "Soles" },
   ];
 
   // Manejar envío del formulario
@@ -395,22 +394,6 @@ export const CreateOperationForm = () => {
               name="moneda"
               value={formState.moneda}
               onChange={handleComboBoxChange("moneda")}
-            />
-          </div>
-
-          <div
-            className={`${styles.CreatePurchaseForm__FormField} ${styles["CreatePurchaseForm__FormField--third"]}`}
-          >
-            <Text size="xs" color="neutral-primary">
-              Tipo de cambio
-            </Text>
-            <Input
-              size="xs"
-              type="number"
-              variant="createSale"
-              value={formState.tipoCambio}
-              onChange={handleInputChange("tipoCambio")}
-              placeholder="1.00"
             />
           </div>
         </div>

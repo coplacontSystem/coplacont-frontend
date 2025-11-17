@@ -87,7 +87,7 @@ export const CreateSaleForm = () => {
     // Cargar tipos de comprobante desde la API
     const loadTiposComprobante = async () => {
       try {
-        const tipos = await TablaService.getTiposComprobante();
+        const tipos = await TablaService.getTablasByIds("2,4,5,8,9");
         setTiposComprobante(tipos);
       } catch (error) {
         console.error("Error al cargar tipos de comprobante:", error);

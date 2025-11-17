@@ -329,7 +329,7 @@ export const CreatePurchaseForm = () => {
   useEffect(() => {
     const loadTiposComprobante = async () => {
       try {
-        const tiposComprobanteData = await TablaService.getTiposComprobante();
+        const tiposComprobanteData = await TablaService.getTablasByIds("2,4,5,8,9");
         setTiposComprobante(tiposComprobanteData);
       } catch (error) {
         console.error("Error al cargar tipos de comprobante:", error);
