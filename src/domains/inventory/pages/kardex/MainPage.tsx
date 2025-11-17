@@ -398,9 +398,9 @@ export const MainPage: React.FC = () => {
       ["APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL:", "", "", "", empresa.razonSocial || empresa.nombreEmpresa],
       ["ESTABLECIMIENTO (1):", "", "", "", `${kardexResponse.almacen}`],
       ["CÓDIGO DE LA EXISTENCIA:", "", "", "", codigoProducto],
-      ["TIPO (TABLA 5):", "", "", "", "✓"],
+      ["TIPO (TABLA 5):", "", "", "", "01"],
       ["DESCRIPCIÓN:", "", "", "", kardexResponse.producto],
-      ["CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):", "", "", "", "✓"],
+      ["CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):", "", "", "", "01"],
       ["MÉTODO DE VALUACIÓN:", "", "", "", "PEPS"],
       [],
       // Encabezados de la tabla
@@ -677,9 +677,9 @@ export const MainPage: React.FC = () => {
       ["APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL:", "", "", "", "", "", empresa.razonSocial || empresa.nombreEmpresa],
       ["ESTABLECIMIENTO (1):", "", "", "", "", "", `${kardexResponse.almacen}`],
       ["CÓDIGO DE LA EXISTENCIA:", "", "", "", "", "", codigoProducto],
-      ["TIPO (TABLA 5):", "", "", "", "", "", "✓"],
+      ["TIPO (TABLA 5):", "", "", "", "", "", "01"],
       ["DESCRIPCIÓN:", "", "", "", "", "", kardexResponse.producto],
-      ["CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):", "", "", "", "", "", "✓"],
+      ["CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):", "", "", "", "", "", "01"],
       [],
       // Encabezados de la tabla simplificada
       [
@@ -946,9 +946,9 @@ export const MainPage: React.FC = () => {
           <p><strong>APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL:</strong> ${empresa.nombreEmpresa || ""}</p>
           <p><strong>ESTABLECIMIENTO (1):</strong> ${kardexResponse.almacen || ""}</p>
           <p><strong>CÓDIGO DE LA EXISTENCIA:</strong> ${codigoProducto}</p>
-          <p><strong>TIPO (TABLA 5):</strong></p>
+          <p><strong>TIPO (TABLA 5):01</strong></p>
           <p><strong>DESCRIPCIÓN:</strong> ${kardexResponse.producto || ""}</p>
-          <p><strong>CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):</strong></p>
+          <p><strong>CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):01</strong></p>
         </div>
         
         <table>
@@ -1144,9 +1144,9 @@ export const MainPage: React.FC = () => {
             <p><strong>APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL:</strong> ${empresa.nombreEmpresa || ""}</p>
             <p><strong>ESTABLECIMIENTO (1):</strong> ${kardexResponse.almacen || ""}</p>
             <p><strong>CÓDIGO DE LA EXISTENCIA:</strong> ${codigoProducto}</p>
-            <p><strong>TIPO (TABLA 5):</strong></p>
+            <p><strong>TIPO (TABLA 5):</strong>01</p>
             <p><strong>DESCRIPCIÓN:</strong> ${kardexResponse.producto || ""}</p>
-            <p><strong>CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):</strong></p>
+            <p><strong>CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):01</strong></p>
           </div>
           
           <table>
