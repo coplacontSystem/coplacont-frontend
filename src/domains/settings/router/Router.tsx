@@ -32,9 +32,9 @@ export const Router = () => {
           <ValuationMethodsRouter />
         </RoleBasedRoute>
       } />
-      {/* Mi Cuenta: disponible para ADMIN */}
+      {/* Mi Cuenta: disponible para ADMIN y EMPRESA */}
       <Route path={`${SETTINGS_ROUTES.MY_ACCOUNT}/*`} element={
-        <RoleBasedRoute requiredRoles={[USER_ROLES.ADMIN]}>
+        <RoleBasedRoute requiredRoles={[USER_ROLES.ADMIN, USER_ROLES.EMPRESA]}>
           <MyAccountRouter />
         </RoleBasedRoute>
       } />

@@ -35,7 +35,9 @@ const ROLE_DISPLAY_NAMES: Record<string, string> = {
   [UserRoleType.EMPRESA]: "Empresa",
 };
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {}
+
+export const Sidebar: React.FC<SidebarProps> = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
@@ -415,6 +417,20 @@ export const Sidebar: React.FC = () => {
                     }
                   >
                     Parámetros
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to={`${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.MY_ACCOUNT}`}
+                    className={
+                      isActiveLink(
+                        `${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.MY_ACCOUNT}`
+                      )
+                        ? styles.active
+                        : ""
+                    }
+                  >
+                    Mi cuenta
                   </Link>
                 </li>
               </>
