@@ -46,6 +46,7 @@ export interface CreateSaleFormState {
   serie: string;
   numero: string;
   fechaVencimiento: string;
+  idComprobanteAfecto?: string;
 }
 
 

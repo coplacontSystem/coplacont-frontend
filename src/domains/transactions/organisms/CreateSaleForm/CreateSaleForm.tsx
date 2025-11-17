@@ -23,6 +23,7 @@ import {
 } from "@/domains/maintainers/services";
 import { InventoryService } from "@/domains/inventory/services/InventoryService";
 import type { Product, Warehouse } from "@/domains/maintainers/types";
+import type { InventoryItem } from "@/domains/inventory/services/types";
 import type {
   Entidad,
   EntidadParcial,
@@ -30,6 +31,7 @@ import type {
 import { FormEntidad } from "@/domains/maintainers/organisms/FormEntidad/FormEntidad";
 import { MAIN_ROUTES, TRANSACTIONS_ROUTES, COMMON_ROUTES } from "@/router";
 import { TipoComprobanteEnum, MonedaEnum } from "./enums";
+import type { Transaction, RegisterSalePayload } from "../../services/types";
 import type {
   TipoComprobanteType,
   MonedaType,
@@ -64,7 +66,7 @@ export const CreateSaleForm = () => {
   const [detalleVenta, setDetalleVenta] = useState<DetalleVentaItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [tiposComprobante, setTiposComprobante] = useState<TablaDetalleResponse[]>([]);
-  const [ventasRegistradas, setVentasRegistradas] = useState<any[]>([]);
+  const [ventasRegistradas, setVentasRegistradas] = useState<Transaction[]>([]);
   const [apiError, setApiError] = useState<IApiError | null>(null);
 
   // Obtener el correlativo al montar el componente
@@ -172,7 +174,7 @@ export const CreateSaleForm = () => {
   };
 
   const getComprobantesAfectosOptions = () => {
-    return ventasRegistradas.map((venta: any) => ({
+    return ventasRegistradas.map((venta: Transaction) => ({
       value: venta.idComprobante.toString(),
       label: `${venta.serie}-${venta.numero} - ${venta.fechaEmision}`,
     }));
@@ -408,7 +410,7 @@ export const CreateSaleForm = () => {
         igv,
         isv,
         total,
-        idInventario: productoInventario.id,
+        idInventario: Number(productoInventario.id),
       };
 
       // Agregar al detalle
@@ -446,15 +448,12 @@ export const CreateSaleForm = () => {
 
       const seleccionado = tiposComprobante.find(t => t.idTablaDetalle.toString() === formState.tipoComprobante);
       const descSel = seleccionado?.descripcion?.toUpperCase() || '';
-      const esNotaCredito = descSel.includes('NOTA DE CRÉDITO') || descSel.includes('NOTA DE CREDITO');
-      const esNotaDebito = descSel.includes('NOTA DE DÉBITO') || descSel.includes('NOTA DE DEBITO');
-      const idTipoOperacion = esNotaCredito ? 8 : esNotaDebito ? 9 : 13;
 
-      const ventaData: any = {
+      const ventaData: RegisterSalePayload = {
         correlativo: formState.correlativo,
         idPersona: getSelectedClientId() || 1,
-        idTipoOperacion,
-        idTipoComprobante: parseInt(formState.tipoComprobante) || 1, // Usar ID del tipo de comprobante seleccionado
+        tipoOperacion: descSel,
+        tipoComprobante: seleccionado?.descripcion || "",
         fechaEmision: fechaEmisionValida
           ? new Date(formState.fechaEmision).toISOString()
           : new Date().toISOString(),
@@ -506,15 +505,12 @@ export const CreateSaleForm = () => {
 
       const seleccionado2 = tiposComprobante.find(t => t.idTablaDetalle.toString() === formState.tipoComprobante);
       const descSel2 = seleccionado2?.descripcion?.toUpperCase() || '';
-      const esNotaCredito2 = descSel2.includes('NOTA DE CRÉDITO') || descSel2.includes('NOTA DE CREDITO');
-      const esNotaDebito2 = descSel2.includes('NOTA DE DÉBITO') || descSel2.includes('NOTA DE DEBITO');
-      const idTipoOperacion2 = esNotaCredito2 ? 8 : esNotaDebito2 ? 9 : 13;
 
-      const ventaData: any = {
+      const ventaData2: RegisterSalePayload = {
         correlativo: formState.correlativo || "CORR-12345", // Usar valor del form o fake
         idPersona: getSelectedClientId() || 1, // Usar ID del cliente seleccionado o valor por defecto
-        idTipoOperacion: idTipoOperacion2,
-        idTipoComprobante: parseInt(formState.tipoComprobante) || 1, // Usar ID del tipo de comprobante seleccionado
+        tipoOperacion: descSel2,
+        tipoComprobante: seleccionado2?.descripcion || "",
         fechaEmision: fechaEmisionValida
           ? new Date(formState.fechaEmision).toISOString()
           : new Date().toISOString(),
@@ -528,12 +524,12 @@ export const CreateSaleForm = () => {
 
       // Solo agregar fechaVencimiento si es válida
       if (fechaVencimientoValida) {
-        ventaData.fechaVencimiento = new Date(
+        ventaData2.fechaVencimiento = new Date(
           formState.fechaVencimiento
         ).toISOString();
       }
 
-      await TransactionsService.registerSale(ventaData);
+      await TransactionsService.registerSale(ventaData2);
 
       setFormState({
         correlativo: "",
@@ -648,7 +644,7 @@ export const CreateSaleForm = () => {
   console.log(products);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   console.log(warehouses);
-  const [inventarioProductos, setInventarioProductos] = useState<any[]>([]);
+  const [inventarioProductos, setInventarioProductos] = useState<InventoryItem[]>([]);
   const [almacenSeleccionado, setAlmacenSeleccionado] = useState<string>("");
 
   // Estados para el modal de nuevo cliente
@@ -731,7 +727,7 @@ export const CreateSaleForm = () => {
     const productosEnDetalle = detalleVenta.map((item) => item.producto);
     return inventarioProductos
       .filter(
-        (item) => !productosEnDetalle.includes(item.producto.id.toString())
+        (item) => !productosEnDetalle.includes(item.producto.id.toString() as unknown as ProductoType)
       )
       .map((item) => ({
         value: item.producto.id.toString(),
@@ -751,19 +747,19 @@ export const CreateSaleForm = () => {
   const handleProductoInventarioChange = (value: string | number) => {
     const stringValue = String(value);
     setProductoSeleccionado(stringValue as ProductoType);
-    const selectedItem = inventarioProductos.find(
-      (item) => item.producto.id.toString() === stringValue
-    );
-    if (selectedItem) {
-      // Establecer unidad de medida del producto
-      setUnidadMedidaSeleccionada(selectedItem.producto.unidadMedida || "");
-      // Establecer precio unitario del producto
-      setPrecioUnitario(selectedItem.producto.precioVenta || 0);
-    } else {
-      // Limpiar campos si no se encuentra el producto
-      setUnidadMedidaSeleccionada("");
-      setPrecioUnitario(0);
-    }
+      const selectedItem = inventarioProductos.find(
+        (item) => item.producto.id.toString() === stringValue
+      );
+      if (selectedItem) {
+        // Establecer unidad de medida del producto
+        setUnidadMedidaSeleccionada((selectedItem.producto.unidadMedida as unknown as UnidadMedidaType) || "");
+        // Establecer precio unitario del producto
+        setPrecioUnitario(parseFloat(selectedItem.producto.precio) || 0);
+      } else {
+        // Limpiar campos si no se encuentra el producto
+        setUnidadMedidaSeleccionada("");
+        setPrecioUnitario(0);
+      }
   };
 
   const clientesOptionsFromAPI = getFilteredClientOptions();
@@ -869,7 +865,7 @@ export const CreateSaleForm = () => {
       } else {
         setNewClientError(response.message);
       }
-    } catch (error) {
+    } catch {
       setNewClientError("Error al crear el cliente");
     } finally {
       setNewClientLoading(false);
@@ -1026,8 +1022,8 @@ export const CreateSaleForm = () => {
                 options={getComprobantesAfectosOptions()}
                 variant="createSale"
                 name="idComprobanteAfecto"
-                value={(formState as any).idComprobanteAfecto || ''}
-                onChange={(v) => (setFormState((prev: any) => ({...prev, idComprobanteAfecto: String(v)})))}
+                value={formState.idComprobanteAfecto || ''}
+                onChange={(v) => (setFormState((prev) => ({...prev, idComprobanteAfecto: String(v)})))}
               />
             </div>
           )}

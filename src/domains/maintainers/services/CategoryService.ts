@@ -18,9 +18,9 @@ export class CategoryService {
         return response.data;
     }
 
-    static async update(id: number, category: UpdateCategoryPayload): Promise<Category> {
-        const response = await CategoryApi.patchCategory(id, category);
-        return response.data;
+    static async update(id: number, category: Partial<UpdateCategoryPayload>): Promise<Category> {
+      const response = await CategoryApi.patchCategory(id, category);
+      return response.data;
     }
 
     static async delete(id: number): Promise<void> {

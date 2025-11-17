@@ -95,12 +95,11 @@ export const UserManagement = ({ persona, onUpdate }: UserManagementProps) => {
       setIsCreateModalOpen(false);
       resetNewUserForm();
       onUpdate?.();
-    } catch (error) {
-      console.error('Error al crear usuario:', error);
-      
-      // Manejar errores específicos del backend
-      if (error?.response?.status === 409 || 
-          error?.message?.includes('duplicate') || 
+    } catch (err) {
+      console.error('Error al crear usuario:', err);
+      const error = err as { response?: { status?: number }; message?: string };
+      if (error?.response?.status === 409 ||
+          error?.message?.includes('duplicate') ||
           error?.message?.includes('already exists')) {
         setError('Este email ya está registrado en el sistema');
       } else if (error?.response?.status === 400) {

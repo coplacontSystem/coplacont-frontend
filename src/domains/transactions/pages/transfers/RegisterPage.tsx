@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { WarehouseService } from "@/domains/maintainers/services";
 import { InventoryService } from "@/domains/inventory/services/InventoryService";
 import { TransactionsService } from "../../services/TransactionsService";
+import type { InventoryItem } from "@/domains/inventory/services/types";
 import type { Product, Warehouse } from "@/domains/maintainers/types";
 import { Table, type TableRow } from "@/components/organisms/Table";
 
@@ -40,7 +41,7 @@ export const RegisterPage: React.FC = () => {
   const [almacenOrigen, setAlmacenOrigen] = useState<string>("");
   const [almacenDestino, setAlmacenDestino] = useState<string>("");
   const [productosComunes, setProductosComunes] = useState<Product[]>([]);
-  const [inventarioOrigen, setInventarioOrigen] = useState<any[]>([]);
+  const [inventarioOrigen, setInventarioOrigen] = useState<InventoryItem[]>([]);
 
   // Detalle
   const [detalle, setDetalle] = useState<TransferDetailItem[]>([]);

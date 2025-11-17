@@ -22,6 +22,7 @@ import {
 } from "@/domains/maintainers/services";
 import { InventoryService } from "@/domains/inventory/services/InventoryService";
 import type { Product, Warehouse } from "@/domains/maintainers/types";
+import type { InventoryItem } from "@/domains/inventory/services/types";
 import type {
   Entidad,
   EntidadParcial,
@@ -153,7 +154,7 @@ export const CreatePurchaseForm = () => {
   console.log(productos);
   const [almacenes, setAlmacenes] = useState<Warehouse[]>([]);
   console.log(almacenes);
-  const [inventarioProductos, setInventarioProductos] = useState<any[]>([]);
+  const [inventarioProductos, setInventarioProductos] = useState<InventoryItem[]>([]);
   const [tiposComprobante, setTiposComprobante] = useState<TablaDetalleResponse[]>([]);
 
   // Estado para tipo de cambio automático
@@ -723,7 +724,7 @@ export const CreatePurchaseForm = () => {
       almacen:
         almacenes.find((a) => a.id.toString() === almacenSeleccionado)
           ?.nombre || almacenSeleccionado,
-      idInventario: productoInventario.id,
+      idInventario: Number(productoInventario.id),
     };
 
     setDetalleCompra((prev) => [...prev, nuevoProducto]);
@@ -796,15 +797,12 @@ export const CreatePurchaseForm = () => {
 
       const seleccionado = tiposComprobante.find(t => t.idTablaDetalle.toString() === formState.tipoComprobante);
       const descSel = seleccionado?.descripcion?.toUpperCase() || '';
-      const esNotaCredito = descSel.includes('NOTA DE CRÉDITO') || descSel.includes('NOTA DE CREDITO');
-      const esNotaDebito = descSel.includes('NOTA DE DÉBITO') || descSel.includes('NOTA DE DEBITO');
-      const idTipoOperacion = esNotaCredito ? 8 : esNotaDebito ? 9 : 14;
 
-      const compraData: any = {
+      const compraData: import("../../services/types").RegisterPurchasePayload = {
         correlativo: formState.correlativo,
         idPersona: getSelectedProviderId() || 1, // Usar ID del proveedor seleccionado o valor por defecto
-        idTipoOperacion,
-        idTipoComprobante: parseInt(formState.tipoComprobante) || 1, // Usar ID del tipo de comprobante seleccionado
+        tipoOperacion: descSel,
+        tipoComprobante: seleccionado?.descripcion || "",
         fechaEmision: fechaEmisionValida
           ? new Date(formState.fechaEmision).toISOString()
           : new Date().toISOString(),
@@ -824,9 +822,7 @@ export const CreatePurchaseForm = () => {
 
       // Solo agregar idComprobanteAfecto si existe
       if (formState.idComprobanteAfecto) {
-        compraData.idComprobanteAfecto = parseInt(
-          formState.idComprobanteAfecto
-        );
+        compraData.idComprobanteAfecto = parseInt(formState.idComprobanteAfecto);
       }
 
       await TransactionsService.registerPurchase(compraData);
@@ -881,15 +877,12 @@ export const CreatePurchaseForm = () => {
 
       const seleccionado2 = tiposComprobante.find(t => t.idTablaDetalle.toString() === formState.tipoComprobante);
       const descSel2 = seleccionado2?.descripcion?.toUpperCase() || '';
-      const esNotaCredito2 = descSel2.includes('NOTA DE CRÉDITO') || descSel2.includes('NOTA DE CREDITO');
-      const esNotaDebito2 = descSel2.includes('NOTA DE DÉBITO') || descSel2.includes('NOTA DE DEBITO');
-      const idTipoOperacion2 = esNotaCredito2 ? 8 : esNotaDebito2 ? 9 : 13;
 
-      const compraData: any = {
+      const compraData2: import("../../services/types").RegisterPurchasePayload = {
         correlativo: formState.correlativo, // Usar valor del form o fake
         idPersona: getSelectedProviderId() || 1, // Usar ID del proveedor seleccionado o valor por defecto
-        idTipoOperacion: idTipoOperacion2,
-        idTipoComprobante: parseInt(formState.tipoComprobante) || 1, // Usar ID del tipo de comprobante seleccionado
+        tipoOperacion: descSel2,
+        tipoComprobante: seleccionado2?.descripcion || "",
         fechaEmision: fechaEmisionValida
           ? new Date(formState.fechaEmision).toISOString()
           : new Date().toISOString(),
@@ -902,19 +895,17 @@ export const CreatePurchaseForm = () => {
 
       // Solo agregar fechaVencimiento si es válida
       if (fechaVencimientoValida) {
-        compraData.fechaVencimiento = new Date(
+        compraData2.fechaVencimiento = new Date(
           formState.fechaVencimiento
         ).toISOString();
       }
 
       // Solo agregar idComprobanteAfecto si existe
       if (formState.idComprobanteAfecto) {
-        compraData.idComprobanteAfecto = parseInt(
-          formState.idComprobanteAfecto
-        );
+        compraData2.idComprobanteAfecto = parseInt(formState.idComprobanteAfecto);
       }
 
-      await TransactionsService.registerPurchase(compraData);
+      await TransactionsService.registerPurchase(compraData2);
 
       setFormState({
         correlativo: "",

@@ -100,9 +100,6 @@ export const MainPage: React.FC = () => {
         periodosData = response.data;
       } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
         periodosData = response.data.data;
-      } else if (response.data && typeof response.data === 'object' && 'id' in response.data) {
-        // Si es un objeto con id, podría ser un solo periodo
-        periodosData = [response.data];
       }
       
       console.log("Periodos procesados:", periodosData);
