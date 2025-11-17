@@ -29,6 +29,7 @@ import type {
 import type { Transaction, TablaDetalleResponse } from "../../services/types";
 import { MAIN_ROUTES, TRANSACTIONS_ROUTES, COMMON_ROUTES } from "@/router";
 import { FormEntidad } from "@/domains/maintainers/organisms/FormEntidad/FormEntidad";
+import type { IApiError } from "@/shared";
 
 const TipoCompraEnum = {
   CONTADO: "contado",
@@ -146,6 +147,7 @@ export const CreatePurchaseForm = () => {
 
   // Estado de carga
   const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState<IApiError | null>(null);
 
   // Estados para el detalle de productos
   const [detalleCompra, setDetalleCompra] = useState<DetalleCompraItem[]>([]);
@@ -779,6 +781,7 @@ export const CreatePurchaseForm = () => {
 
     try {
       setIsLoading(true);
+      setApiError(null);
 
       // Aplicar costos adicionales si existen
       let detalleConCostosAdicionales = [...detalleCompra];
@@ -811,7 +814,7 @@ export const CreatePurchaseForm = () => {
       const descSel = seleccionado?.descripcion?.toUpperCase() || '';
       const esNotaCredito = descSel.includes('NOTA DE CRÉDITO') || descSel.includes('NOTA DE CREDITO');
       const esNotaDebito = descSel.includes('NOTA DE DÉBITO') || descSel.includes('NOTA DE DEBITO');
-      const idTipoOperacion = esNotaCredito ? 8 : esNotaDebito ? 9 : 13;
+      const idTipoOperacion = esNotaCredito ? 8 : esNotaDebito ? 9 : 14;
 
       const compraData: any = {
         correlativo: formState.correlativo,
@@ -846,7 +849,7 @@ export const CreatePurchaseForm = () => {
 
       navigate(`${MAIN_ROUTES.TRANSACTIONS}${TRANSACTIONS_ROUTES.PURCHASES}`);
     } catch (error) {
-      console.error("Error al registrar la compra:", error);
+      setApiError(error as IApiError);
     } finally {
       setIsLoading(false);
     }
@@ -863,6 +866,7 @@ export const CreatePurchaseForm = () => {
 
     try {
       setIsLoading(true);
+      setApiError(null);
 
       // Aplicar costos adicionales si existen
       let detalleConCostosAdicionales = [...detalleCompra];
@@ -955,10 +959,28 @@ export const CreatePurchaseForm = () => {
 
       fetchCorrelativo();
     } catch (error) {
-      console.error("Error al registrar la compra:", error);
+      setApiError(error as IApiError);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const renderApiError = () => {
+    if (!apiError) return null;
+    const periodoText = apiError.periodo
+      ? `Período: ${apiError.periodo.inicio} → ${apiError.periodo.fin}`
+      : undefined;
+    const fechaText = apiError.fechaEmision
+      ? `Emisión: ${apiError.fechaEmision}`
+      : undefined;
+    return (
+      <div style={{ padding: "12px", borderRadius: "8px", background: "#FEE2E2", border: "1px solid #FCA5A5", marginBottom: "12px" }}>
+        <Text size="sm" color="danger">{apiError.message}</Text>
+        {(periodoText || fechaText) && (
+          <Text size="xs" color="danger">{[fechaText, periodoText].filter(Boolean).join(" • ")}</Text>
+        )}
+      </div>
+    );
   };
 
   // Configuración de la tabla
@@ -1005,6 +1027,8 @@ export const CreatePurchaseForm = () => {
       <Text size="xl" color="neutral-primary">
         Cabecera de compra
       </Text>
+
+      {renderApiError()}
 
       <div className={styles.CreatePurchaseForm__Form}>
         {/** Fila 1: Correlativo y Proveedor */}

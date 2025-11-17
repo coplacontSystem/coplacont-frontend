@@ -14,4 +14,6 @@ export interface IApiError {
   message: string;
   status: number;
   errors?: Record<string, string[]>;
+  fechaEmision?: string;
+  periodo?: { inicio: string; fin: string };
 }

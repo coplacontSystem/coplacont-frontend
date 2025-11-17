@@ -1,4 +1,5 @@
 import { PageLayout, Button, Text, Input, ComboBox, Divider, Loader } from "@/components";
+import type { IApiError } from "@/shared";
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
 import { WarehouseService } from "@/domains/maintainers/services";
@@ -48,6 +49,7 @@ export const RegisterPage: React.FC = () => {
   const [descripcionIngresada, setDescripcionIngresada] = useState<string>("");
 
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState<IApiError | null>(null);
 
   /**
    * Carga almacenes al montar
@@ -161,6 +163,7 @@ export const RegisterPage: React.FC = () => {
     }
     try {
       setLoading(true);
+      setApiError(null);
       await TransactionsService.createTransfer({
         idAlmacenOrigen: Number(almacenOrigen),
         idAlmacenDestino: Number(almacenDestino),
@@ -173,7 +176,7 @@ export const RegisterPage: React.FC = () => {
       });
       navigate(-1);
     } catch (e) {
-      console.error(e);
+      setApiError(e as IApiError);
     } finally {
       setLoading(false);
     }
@@ -202,6 +205,14 @@ export const RegisterPage: React.FC = () => {
       }
     >
       <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        {apiError && (
+          <div style={{ padding: "12px", borderRadius: "8px", background: "#FEE2E2", border: "1px solid #FCA5A5" }}>
+            <Text size="sm" color="danger">{apiError.message}</Text>
+            {(apiError.fechaEmision || apiError.periodo) && (
+              <Text size="xs" color="danger">{[apiError.fechaEmision ? `Emisión: ${apiError.fechaEmision}` : undefined, apiError.periodo ? `Período: ${apiError.periodo.inicio} → ${apiError.periodo.fin}` : undefined].filter(Boolean).join(" • ")}</Text>
+            )}
+          </div>
+        )}
         <Text size="xl" color="neutral-primary">Cabecera</Text>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
           <div>

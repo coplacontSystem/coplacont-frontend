@@ -20,6 +20,7 @@ import type {
 } from "@/domains/maintainers/services/entitiesService";
 import { FormEntidad } from "@/domains/maintainers/organisms/FormEntidad/FormEntidad";
 import { MAIN_ROUTES, TRANSACTIONS_ROUTES } from "@/router";
+import type { IApiError } from "@/shared";
 
 const TipoComprobanteEnum = {
   FACTURA: "FACTURA",
@@ -76,6 +77,7 @@ export const CreateOperationForm = () => {
 
   // Estado de carga
   const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState<IApiError | null>(null);
 
   // Estados para datos de maintainers
   const [entidades, setEntidades] = useState<Entidad[]>([]);
@@ -186,6 +188,7 @@ export const CreateOperationForm = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
+      setApiError(null);
       // Validar campos requeridos
       if (!formState.entidad || !formState.tipoOperacion || !formState.tipoComprobante || 
           !formState.fechaEmision || !formState.moneda || !formState.serie || 
@@ -218,7 +221,7 @@ export const CreateOperationForm = () => {
       // Navegar de vuelta a la lista
       navigate(`${MAIN_ROUTES.TRANSACTIONS}${TRANSACTIONS_ROUTES.OPERATIONS}`);
     } catch (error) {
-      console.error("Error al crear la operación:", error);
+      setApiError(error as IApiError);
     } finally {
       setIsLoading(false);
     }
@@ -273,6 +276,14 @@ export const CreateOperationForm = () => {
   return (
     <div className={styles.CreatePurchaseForm}>
       <div className={styles.CreatePurchaseForm__Form}>
+        {apiError && (
+          <div style={{ padding: "12px", borderRadius: "8px", background: "#FEE2E2", border: "1px solid #FCA5A5", marginBottom: "12px" }}>
+            <Text size="sm" color="danger">{apiError.message}</Text>
+            {(apiError.fechaEmision || apiError.periodo) && (
+              <Text size="xs" color="danger">{[apiError.fechaEmision ? `Emisión: ${apiError.fechaEmision}` : undefined, apiError.periodo ? `Período: ${apiError.periodo.inicio} → ${apiError.periodo.fin}` : undefined].filter(Boolean).join(" • ")}</Text>
+            )}
+          </div>
+        )}
         {/** Fila 1: Correlativo y Entidad */}
         <div className={styles.CreatePurchaseForm__FormRow}>
           <div

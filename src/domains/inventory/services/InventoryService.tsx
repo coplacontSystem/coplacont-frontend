@@ -57,7 +57,7 @@ export class InventoryService {
    * @param payload - Datos del inventario a crear
    * @returns Promise con la respuesta del servidor
    */
-  static async createInventory(payload: { idAlmacen: number; idProducto: number; stockActual: number }): Promise<InventoryItem> {
+  static async createInventory(payload: { idAlmacen: number; idProducto: number; stockInicial?: number; precioUnitario?: number }): Promise<InventoryItem> {
     try {
       const response = await inventoryApi.createInventory(payload);
       return response.data;

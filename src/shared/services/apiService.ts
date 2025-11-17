@@ -67,11 +67,13 @@ apiClient.interceptors.response.use(
 export const handleApiError = (error: unknown): IApiError => {
   // Type guard para verificar si es un error de axios
   if (error && typeof error === 'object' && 'response' in error) {
-    const axiosError = error as { response: { data?: { message?: string; errors?: Record<string, string[]> }; status: number } };
+    const axiosError = error as { response: { data?: { message?: string; errors?: Record<string, string[]>; fechaEmision?: string; periodo?: { inicio: string; fin: string } }; status: number } };
     return {
       message: axiosError.response.data?.message || 'Error en el servidor',
       status: axiosError.response.status,
       errors: axiosError.response.data?.errors,
+      fechaEmision: axiosError.response.data?.fechaEmision,
+      periodo: axiosError.response.data?.periodo,
     };
   } else if (error && typeof error === 'object' && 'request' in error) {
     return {

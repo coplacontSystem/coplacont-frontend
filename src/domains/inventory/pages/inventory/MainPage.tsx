@@ -12,7 +12,6 @@ import {
   Input,
 } from "@/components";
 import { InventoryService } from "../../services/InventoryService";
-import { InventoryLotService } from "../../services/InventoryLotService";
 import {
   ProductService,
   WarehouseService,
@@ -198,31 +197,17 @@ export const MainPage: React.FC = () => {
       setLoading(true);
       setError("");
 
-      const stockValue = selectedStock ? parseInt(selectedStock) : 0;
-      const priceValue = selectedPrice ? parseFloat(selectedPrice) : 0;
+      const stockValue = selectedStock ? Number(selectedStock) : undefined;
+      const priceValue = selectedPrice ? Number(selectedPrice) : undefined;
 
-      // Crear el payload con stockActual inicial
       const payload = {
-        idAlmacen: parseInt(selectedWarehouse),
-        idProducto: parseInt(selectedProduct),
-        stockActual: stockValue,
+        idAlmacen: Number(selectedWarehouse),
+        idProducto: Number(selectedProduct),
+        stockInicial: stockValue,
+        precioUnitario: priceValue,
       };
 
-      // Llamar al servicio para crear el inventario
-      const inventoryResponse = await InventoryService.createInventory(payload);
-
-      // Si hay stock inicial, crear un lote con el precio
-      if (stockValue > 0 && priceValue > 0) {
-        const lotPayload = {
-          idInventario: parseInt(inventoryResponse.id),
-          fechaIngreso: new Date().toISOString().split("T")[0],
-          cantidadInicial: stockValue,
-          cantidadActual: stockValue,
-          costoUnitario: priceValue,
-        };
-
-        await InventoryLotService.createInventoryLot(lotPayload);
-      }
+      await InventoryService.createInventory(payload);
 
       // Cerrar modal y refrescar inventario
       handleCloseModal();

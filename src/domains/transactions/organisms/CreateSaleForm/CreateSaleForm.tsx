@@ -14,6 +14,7 @@ import {
 } from "@/components";
 import { Table, type TableRow } from "@/components/organisms/Table";
 import { TransactionsService } from "../../services/TransactionsService";
+import type { IApiError } from "@/shared";
 import { TablaService, type TablaDetalleResponse } from "../../services";
 import { EntitiesService } from "@/domains/maintainers/services/entitiesService";
 import {
@@ -64,6 +65,7 @@ export const CreateSaleForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tiposComprobante, setTiposComprobante] = useState<TablaDetalleResponse[]>([]);
   const [ventasRegistradas, setVentasRegistradas] = useState<any[]>([]);
+  const [apiError, setApiError] = useState<IApiError | null>(null);
 
   // Obtener el correlativo al montar el componente
 
@@ -424,6 +426,7 @@ export const CreateSaleForm = () => {
   const handleAceptarVenta = async () => {
     setIsLoading(true);
     try {
+      setApiError(null);
       const detallesAPI = detalleVenta.map((item) => ({
         cantidad: item.cantidad,
         unidadMedida: item.unidadMedida.toUpperCase(),
@@ -445,7 +448,7 @@ export const CreateSaleForm = () => {
       const descSel = seleccionado?.descripcion?.toUpperCase() || '';
       const esNotaCredito = descSel.includes('NOTA DE CRÉDITO') || descSel.includes('NOTA DE CREDITO');
       const esNotaDebito = descSel.includes('NOTA DE DÉBITO') || descSel.includes('NOTA DE DEBITO');
-      const idTipoOperacion = esNotaCredito ? 8 : esNotaDebito ? 9 : 12;
+      const idTipoOperacion = esNotaCredito ? 8 : esNotaDebito ? 9 : 13;
 
       const ventaData: any = {
         correlativo: formState.correlativo,
@@ -474,7 +477,7 @@ export const CreateSaleForm = () => {
 
       navigate(`${MAIN_ROUTES.TRANSACTIONS}${TRANSACTIONS_ROUTES.SALES}`);
     } catch (error) {
-      console.error("Error al registrar la venta:", error);
+      setApiError(error as IApiError);
     } finally {
       setIsLoading(false);
     }
@@ -483,6 +486,7 @@ export const CreateSaleForm = () => {
   const handleAceptarYNuevaVenta = async () => {
     setIsLoading(true);
     try {
+      setApiError(null);
       const detallesAPI = detalleVenta.map((item) => ({
         cantidad: item.cantidad,
         unidadMedida: item.unidadMedida.toUpperCase(),
@@ -504,7 +508,7 @@ export const CreateSaleForm = () => {
       const descSel2 = seleccionado2?.descripcion?.toUpperCase() || '';
       const esNotaCredito2 = descSel2.includes('NOTA DE CRÉDITO') || descSel2.includes('NOTA DE CREDITO');
       const esNotaDebito2 = descSel2.includes('NOTA DE DÉBITO') || descSel2.includes('NOTA DE DEBITO');
-      const idTipoOperacion2 = esNotaCredito2 ? 8 : esNotaDebito2 ? 9 : 12;
+      const idTipoOperacion2 = esNotaCredito2 ? 8 : esNotaDebito2 ? 9 : 13;
 
       const ventaData: any = {
         correlativo: formState.correlativo || "CORR-12345", // Usar valor del form o fake
@@ -555,7 +559,7 @@ export const CreateSaleForm = () => {
 
       fetchCorrelativo();
     } catch (error) {
-      console.error("Error al registrar la venta:", error);
+      setApiError(error as IApiError);
     } finally {
       setIsLoading(false);
     }
@@ -589,6 +593,24 @@ export const CreateSaleForm = () => {
       setPrecioUnitario(0);
       setPrecioTotalIngresado("");
     }
+  };
+
+  const renderApiError = () => {
+    if (!apiError) return null;
+    const periodoText = apiError.periodo
+      ? `Período: ${apiError.periodo.inicio} → ${apiError.periodo.fin}`
+      : undefined;
+    const fechaText = apiError.fechaEmision
+      ? `Emisión: ${apiError.fechaEmision}`
+      : undefined;
+    return (
+      <div style={{ padding: "12px", borderRadius: "8px", background: "#FEE2E2", border: "1px solid #FCA5A5", marginBottom: "12px" }}>
+        <Text size="sm" color="danger">{apiError.message}</Text>
+        {(periodoText || fechaText) && (
+          <Text size="xs" color="danger">{[fechaText, periodoText].filter(Boolean).join(" • ")}</Text>
+        )}
+      </div>
+    );
   };
 
   const tableRows: TableRow[] = detalleVenta.map((item, index) => {
@@ -735,7 +757,6 @@ export const CreateSaleForm = () => {
     if (selectedItem) {
       // Establecer unidad de medida del producto
       setUnidadMedidaSeleccionada(selectedItem.producto.unidadMedida || "");
-      debugger;
       // Establecer precio unitario del producto
       setPrecioUnitario(selectedItem.producto.precioVenta || 0);
     } else {
@@ -860,6 +881,8 @@ export const CreateSaleForm = () => {
       <Text size="xl" color="neutral-primary">
         Cabecera de venta
       </Text>
+
+      {renderApiError()}
 
       {/** Formulario */}
       <div className={styles.CreateSaleForm__Form}>

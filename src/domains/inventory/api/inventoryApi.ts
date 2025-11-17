@@ -5,7 +5,7 @@ export const inventoryApi = {
     getInventory: () => apiClient.get(INVENTORY_ENDPOINTS.GET_INVENTORY),
     getInventoryByWarehouseAndProduct: (idAlmacen: number, idProducto: number) => apiClient.get(INVENTORY_ENDPOINTS.GET_INVENTORY_BY_WAREHOUSE_AND_PRODUCT.replace(':idAlmacen', idAlmacen.toString()).replace(':idProducto', idProducto.toString())),
     getInventoryByWarehouse: (idAlmacen: number) => apiClient.get(INVENTORY_ENDPOINTS.GET_INVENTORY_BY_WAREHOUSE.replace(':idAlmacen', idAlmacen.toString())),
-    createInventory: (payload: { idAlmacen: number; idProducto: number; stockActual: number }) => apiClient.post(INVENTORY_ENDPOINTS.CREATE_INVENTORY, payload),
+    createInventory: (payload: { idAlmacen: number; idProducto: number; stockInicial?: number; precioUnitario?: number }) => apiClient.post(INVENTORY_ENDPOINTS.CREATE_INVENTORY, payload),
     /**
      * Obtiene los movimientos del kardex para un inventario específico en un rango de fechas
      * @param idInventario - ID del inventario
