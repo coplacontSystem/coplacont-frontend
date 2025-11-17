@@ -95,7 +95,7 @@ export const UserManagement = ({ persona, onUpdate }: UserManagementProps) => {
       setIsCreateModalOpen(false);
       resetNewUserForm();
       onUpdate?.();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error al crear usuario:', error);
       
       // Manejar errores específicos del backend

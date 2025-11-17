@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { ThemeContext } from '../../../shared/context/ThemeContext';
 
-interface IconProps extends React.SVGProps<SVGSVGElement> {}
+type IconProps = React.SVGProps<SVGSVGElement>;
 
 export const ConfiguracionIcon: React.FC<IconProps> = (props) => {
   const { theme } = useContext(ThemeContext);

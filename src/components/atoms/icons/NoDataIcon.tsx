@@ -1,4 +1,4 @@
-interface NoDataIconProps extends React.SVGProps<SVGSVGElement> {}
+type NoDataIconProps = React.SVGProps<SVGSVGElement>;
 
 export const NoDataIcon: React.FC<NoDataIconProps> = (props) => {
   return (

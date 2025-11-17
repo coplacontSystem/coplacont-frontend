@@ -22,21 +22,18 @@ import { FormEntidad } from "@/domains/maintainers/organisms/FormEntidad/FormEnt
 import { MAIN_ROUTES, TRANSACTIONS_ROUTES } from "@/router";
 import type { IApiError } from "@/shared";
 
-const TipoComprobanteEnum = {
-  FACTURA: "FACTURA",
-  BOLETA: "BOLETA",
-  NOTA_CREDITO: "NOTA DE CRÉDITO",
-  NOTA_DEBITO: "NOTA DE DÉBITO",
-  RECIBO: "RECIBO",
-  COMPROBANTE_RETENCION: "COMPROBANTE DE RETENCIÓN",
-} as const;
-
 const MonedaEnum = {
   SOL: "sol",
   DOLAR: "dol",
 } as const;
 
-type TipoComprobanteType = (typeof TipoComprobanteEnum)[keyof typeof TipoComprobanteEnum];
+type TipoComprobanteType =
+  | "FACTURA"
+  | "BOLETA"
+  | "NOTA DE CRÉDITO"
+  | "NOTA DE DÉBITO"
+  | "RECIBO"
+  | "COMPROBANTE DE RETENCIÓN";
 type MonedaType = (typeof MonedaEnum)[keyof typeof MonedaEnum];
 
 interface CreateOperationFormState {

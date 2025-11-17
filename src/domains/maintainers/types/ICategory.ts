@@ -21,4 +21,6 @@ export type CreateCategoryPayload = Pick<Category, 'nombre' | 'descripcion'|'tip
 /**
  * Payload para actualizar una categoría
  */
-export type UpdateCategoryPayload = Pick<Category, 'nombre' | 'descripcion'|'tipo'>;
+export type UpdateCategoryPayload = Pick<Category, 'nombre' | 'descripcion'|'tipo'> & {
+  estado?: boolean;
+};

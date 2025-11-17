@@ -52,20 +52,6 @@ const MonedaEnum = {
   DOLAR: "dol",
 } as const;
 
-const ProductoEnum = {
-  PRODUCTO_A: "prod-001",
-  PRODUCTO_B: "prod-002",
-  SERVICIO_A: "serv-001",
-  SERVICIO_B: "serv-002",
-} as const;
-
-const UnidadMedidaEnum = {
-  UNIDAD: "und",
-  KILOGRAMO: "kg",
-  METRO: "m",
-  LITRO: "lt",
-  CAJA: "cja",
-} as const;
 
 type TipoCompraType = (typeof TipoCompraEnum)[keyof typeof TipoCompraEnum];
 type TipoProductoCompraType =
@@ -73,10 +59,8 @@ type TipoProductoCompraType =
 type TipoComprobanteType =
   (typeof TipoComprobanteEnum)[keyof typeof TipoComprobanteEnum];
 type MonedaType = (typeof MonedaEnum)[keyof typeof MonedaEnum];
-type ProductoType = (typeof ProductoEnum)[keyof typeof ProductoEnum] | string;
-type UnidadMedidaType =
-  | (typeof UnidadMedidaEnum)[keyof typeof UnidadMedidaEnum]
-  | string;
+type ProductoType = string;
+type UnidadMedidaType = string;
 
 interface DetalleCompraItem {
   id: string;

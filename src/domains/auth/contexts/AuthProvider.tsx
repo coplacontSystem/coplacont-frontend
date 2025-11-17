@@ -1,7 +1,7 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { IAuthUser, IAuthContextState, IAuthProviderProps, IPersona, IRole } from '@/domains/auth';
 
-export const AuthContext = createContext<IAuthContextState | undefined>(undefined);
+import { AuthContext } from './context';
 
 /**
  * Proveedor del contexto de autenticación

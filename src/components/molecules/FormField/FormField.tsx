@@ -33,7 +33,6 @@ export const FormField: React.FC<FormFieldProps> = ({
   label,
   errorMessage,
   helperText,
-  required = false,
   error = false,
   id,
   ...props

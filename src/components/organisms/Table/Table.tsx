@@ -21,6 +21,9 @@ export const Table: React.FC<TableProps> = ({ headers, rows, gridTemplate, class
     return <EmptyState />;
   }
 
+  const styleProps: (React.CSSProperties & { ['--grid-template']?: string }) | undefined =
+    gridTemplate ? { ['--grid-template']: gridTemplate } : undefined;
+
   return (
     <section className={`${styles.tableWrapper} ${className ?? ''}`.trim()}>
       <div className={styles.scrollableContent}>
@@ -28,7 +31,7 @@ export const Table: React.FC<TableProps> = ({ headers, rows, gridTemplate, class
           className={styles.table}
           role="table"
           aria-label={ariaLabel}
-          style={gridTemplate ? ({ ['--grid-template' as any]: gridTemplate } as React.CSSProperties) : undefined}
+          style={styleProps}
         >
           <div className={`${styles.row} ${styles.header}`} role="row">
             {headers.map((h, i) => (

@@ -1,4 +1,4 @@
-interface CloseIconProps extends React.SVGProps<SVGSVGElement> {}
+type CloseIconProps = React.SVGProps<SVGSVGElement>;
 
 export const CloseIcon: React.FC<CloseIconProps> = (props) => {
   return (

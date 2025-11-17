@@ -59,7 +59,7 @@ export const MainPage: React.FC = () => {
       setIsModalOpen(false);
     } catch (error) {
       console.error('Error al actualizar el método de valoración:', error);
-      const msg = (error as any)?.message || 'Error al actualizar el método de valoración';
+      const msg = (error as { message?: string })?.message || 'Error al actualizar el método de valoración';
       setError(msg);
     } finally {
       setIsUpdating(false);

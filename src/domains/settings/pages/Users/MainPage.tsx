@@ -145,7 +145,7 @@ export const MainPage: React.FC = () => {
       await fetchUsers();
       resetForm();
       setIsOpen(false);
-    } catch (error) {
+    } catch {
       setError("No se pudo crear la empresa con usuario. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
@@ -162,7 +162,7 @@ export const MainPage: React.FC = () => {
       const personasData = Array.isArray(response.data) ? response.data : [];
       setPersonas(personasData);
       console.log(personasData);
-    } catch (error) {
+    } catch {
       setError("Error al cargar los usuarios.");
     } finally {
       setLoading(false);
@@ -182,7 +182,7 @@ export const MainPage: React.FC = () => {
       }
       
       await fetchUsers(); // Recargar la lista para reflejar los cambios
-    } catch (error) {
+    } catch {
       setError(`Error al ${persona.habilitado ? 'desactivar' : 'activar'} la empresa. Inténtalo de nuevo.`);
     } finally {
       setLoading(false);

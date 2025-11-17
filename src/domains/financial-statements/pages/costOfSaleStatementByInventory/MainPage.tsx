@@ -79,17 +79,11 @@ export const MainPage: React.FC = () => {
       setLoading(true);
       setError("");
 
-      const requestParams: any = {
-        año: parseInt(selectedYear),
+      const requestParams: import("../../api/financialStatementsApi").CostOfSalesParams = {
+        año: parseInt(selectedYear, 10),
+        idAlmacen: selectedWarehouseId ? parseInt(selectedWarehouseId, 10) : 0,
+        idProducto: selectedProductId ? parseInt(selectedProductId, 10) : 0,
       };
-
-      // Agregar parámetros opcionales si están seleccionados
-      if (selectedWarehouseId) {
-        requestParams.idAlmacen = parseInt(selectedWarehouseId);
-      }
-      if (selectedProductId) {
-        requestParams.idProducto = parseInt(selectedProductId);
-      }
 
       const response =
         await CostOfSalesStatementService.getCostOfSalesStatementByInventory(

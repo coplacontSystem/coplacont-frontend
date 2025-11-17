@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { ThemeContext } from '../../../shared/context/ThemeContext';
 
-interface LogoutIconProps extends React.SVGProps<SVGSVGElement> {}
+type LogoutIconProps = React.SVGProps<SVGSVGElement>;
 
 export const CerrarSesionIcon: React.FC<LogoutIconProps> = (props) => {
   const { theme } = useContext(ThemeContext);

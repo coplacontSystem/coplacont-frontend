@@ -176,14 +176,11 @@ export interface User {
  * DTO para crear empresa con usuario principal
  */
 export interface CreateEmpresaConUsuarioDto {
-  // Datos de la empresa
   nombreEmpresa: string;
   ruc: string;
   razonSocial: string;
   telefono?: string;
   direccion?: string;
-  
-  // Datos del usuario principal
   nombreUsuario: string;
   emailUsuario: string;
   idRol: number;
@@ -279,7 +276,7 @@ export interface UserInPersonaResponse {
   esPrincipal: boolean;
   roles: string[];
   createdAt: string;
-  persona?: Persona; // Agregado para compatibilidad con la tabla existente
+  persona?: Persona;
 }
 
 /**

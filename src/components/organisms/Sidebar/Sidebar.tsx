@@ -35,9 +35,7 @@ const ROLE_DISPLAY_NAMES: Record<string, string> = {
   [UserRoleType.EMPRESA]: "Empresa",
 };
 
-interface SidebarProps {}
-
-export const Sidebar: React.FC<SidebarProps> = () => {
+export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();

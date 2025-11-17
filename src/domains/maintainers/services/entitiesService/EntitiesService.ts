@@ -18,7 +18,7 @@ export class EntitiesService {
             } else {
                 return {success: false, message: response.data.message};
             }
-        } catch (error) {
+        } catch {
             return {success: false, message: 'Error al crear la entidad'};
         }
     }
@@ -30,7 +30,7 @@ export class EntitiesService {
             } else {
                 return {success: false, message: response.data.message};
             }
-        } catch (error) {
+        } catch {
             return {success: false, message: 'Error al eliminar la entidad'};
         }
     }
@@ -43,7 +43,7 @@ export class EntitiesService {
             } else {
                 return {success: false, message: response.data.message};
             }
-        } catch (error) {
+        } catch {
             return {success: false, message: 'Error al restaurar la entidad'};
         }
     }
@@ -56,7 +56,7 @@ export class EntitiesService {
             } else {
                 return {success: false, message: response.data.message};
             }
-        } catch (error) {
+        } catch {
             return {success: false, message: 'Error al actualizar la entidad'};
         }
     }

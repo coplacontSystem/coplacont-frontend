@@ -91,7 +91,7 @@ export class AuthService {
     return !!(token && user);
   }
 
-  static decodeToken(token: string): any {
+  static decodeToken<T = unknown>(token: string): T | null {
     try {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -101,7 +101,7 @@ export class AuthService {
           .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
           .join('')
       );
-      return JSON.parse(jsonPayload);
+      return JSON.parse(jsonPayload) as T;
     } catch {
       return null;
     }
@@ -113,7 +113,7 @@ export class AuthService {
    * @returns true si el token ha expirado
    */
   static isTokenExpired(token: string): boolean {
-    const decoded = this.decodeToken(token);
+    const decoded = this.decodeToken<{ exp?: number }>(token);
     if (!decoded || !decoded.exp) return true;
 
     const currentTime = Date.now() / 1000;

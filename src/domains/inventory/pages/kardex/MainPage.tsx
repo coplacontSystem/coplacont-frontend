@@ -32,7 +32,7 @@ export const MainPage: React.FC = () => {
   const [kardexData, setKardexData] = useState<KardexMovement[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const [kardexResponse, setKardexResponse] = useState<any>(null);
+  const [kardexResponse, setKardexResponse] = useState<{ producto?: string; almacen?: string } | null>(null);
 
   const [reportes, setReportes] = useState({
     cantidadActual: 0,

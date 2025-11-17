@@ -95,7 +95,7 @@ export const MainPage: React.FC = () => {
       console.log("response.data:", response.data);
       
       // Intentar diferentes estructuras de respuesta
-      let periodosData: any[] = [];
+      let periodosData: ConfiguracionPeriodo[] = [];
       if (Array.isArray(response.data)) {
         periodosData = response.data;
       } else if (response.data && response.data.data && Array.isArray(response.data.data)) {

@@ -87,7 +87,7 @@ export const FormPeriodo = ({
    */
   const handleFieldChange = (field: keyof CreateConfiguracionPeriodoDto, value: string | number) => {
     if (isEdit) {
-      let processedValue: any = value;
+      let processedValue: number | string = value as number | string;
       if (field === 'año') {
         processedValue = parseInt(String(value), 10);
       } else if (field === 'idPersona') {

@@ -89,7 +89,7 @@ export const MainPage: React.FC = () => {
     try {
       setIsLoading(true);
       const updatedData = { estado: !currentState };
-      await CategoryService.update(id, updatedData as any);
+      await CategoryService.update(id, updatedData);
       setCategories((prev) =>
         prev.map((cat) =>
           cat.id === id ? { ...cat, estado: !currentState } : cat

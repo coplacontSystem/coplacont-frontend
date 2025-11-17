@@ -106,7 +106,7 @@ export const MainPage: React.FC = () => {
       setTimeout(() => {
         setIsOpen(false);
       }, 400);
-    } catch (e) {
+    } catch {
       setError("No se pudo actualizar. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
