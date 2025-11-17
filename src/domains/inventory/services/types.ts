@@ -40,6 +40,7 @@ export interface InventoryResponse {
 export interface KardexMovement {
   fecha: string;
   tipo: string;
+  tOperacion: string;
   tComprob: string;
   nComprobante: string;
   cantidad: number;

@@ -15,7 +15,6 @@ import { ProductService } from "@/domains/maintainers/services";
 import { WarehouseService } from "@/domains/maintainers/services";
 import type { KardexMovement } from "../../services/types";
 import type { Product, Warehouse } from "@/domains/maintainers/types";
-import { downloadFile } from "@/shared/utils/downloadUtils";
 import * as XLSX from "xlsx";
 import { useAuth } from "@/domains/auth";
 
@@ -292,8 +291,9 @@ export const MainPage: React.FC = () => {
 
   const headers = [
     "Fecha",
-    "Tipo",
-    "Tipo de comprobante",
+    "Tipo de movimiento",
+    "Tipo (Tabla 10)",
+    "Tipo (Tabla 12)",
     "Cod de comprobante",
     "Cantidad",
     "Costo Unitario",
@@ -322,6 +322,7 @@ export const MainPage: React.FC = () => {
         movimiento={movement.tipo === "Entrada" ? "Entrada" : "Salida"}
       />,
       movement.tComprob,
+      movement.tOperacion,
       movement.nComprobante,
       formatNumber(movement.cantidad),
       formatNumber(movement.costoUnitario),
@@ -349,36 +350,8 @@ export const MainPage: React.FC = () => {
     },
   ];
 
-  const gridTemplate = "1fr 1.5fr 1.2fr 1.5fr 1fr 1fr 1fr 1fr";
+  const gridTemplate = "1fr 1.5fr 1.2fr 1.2fr 1.5fr 1fr 1fr 1fr 1fr";
   const reporterGridTemplate = "1.5fr 1.5fr 1.5fr 1.5fr";
-
-  /**
-   * Exporta los datos del kardex a CSV
-   */
-  const handleExportToCSV = () => {
-    if (!kardexResponse || !kardexData.length) {
-      return;
-    }
-
-    // Crear contenido CSV
-    const csvContent = generateKardexCSV(kardexResponse, kardexData, reportes);
-
-    // Agregar BOM para UTF-8 para mejor compatibilidad con Excel
-    const BOM = "\uFEFF";
-    const blob = new Blob([BOM + csvContent], {
-      type: "text/csv;charset=utf-8;",
-    });
-
-    // Generar nombre del archivo
-    const producto = kardexResponse.producto || "producto";
-    const almacen = kardexResponse.almacen || "almacen";
-    const filename = `kardex_completo_${producto.replace(/\s+/g, "_")}_${almacen.replace(
-      /\s+/g,
-      "_"
-    )}_${selectedYear}${selectedMonth ? `_${selectedMonth}` : ""}.csv`;
-
-    downloadFile(blob, filename);
-  };
 
   /**
    * Exporta los datos del kardex a Excel (.xlsx) según el formato FORMATO 13.1
@@ -474,7 +447,7 @@ export const MainPage: React.FC = () => {
     if (saldoCantidad > 0) {
       reportData.push([
         "-",
-        "", // TIPO (TABLA 10) vacío
+        "", 
         "-",
         "-",
         "-",
@@ -506,17 +479,17 @@ export const MainPage: React.FC = () => {
           saldoCostoTotal -= calculatedDetalleCostoTotal;
           saldoCostoUnitario = saldoCantidad > 0 ? saldoCostoTotal / saldoCantidad : 0;
 
-          reportData.push([
-            movement.fecha,
-            "", // TIPO (TABLA 10) vacío
-            comprobante.serie,
-            comprobante.numero,
-            movement.tComprob || "", // Tipo de operación
-            "", // Entrada cantidad
-            "", // Entrada costo unitario
-            "", // Entrada costo total
-            detalle.cantidad.toFixed(2), // Salida cantidad
-            detalle.costoUnitarioDeLote.toFixed(4), // Salida costo unitario
+        reportData.push([
+          movement.fecha,
+          movement.tComprob || "",
+          comprobante.serie,
+          comprobante.numero,
+          movement.tOperacion || "",
+          "", // Entrada cantidad
+          "", // Entrada costo unitario
+          "", // Entrada costo total
+          detalle.cantidad.toFixed(2), // Salida cantidad
+          detalle.costoUnitarioDeLote.toFixed(4), // Salida costo unitario
             calculatedDetalleCostoTotal.toFixed(2), // Salida costo total
             saldoCantidad.toFixed(2),
             saldoCostoUnitario.toFixed(4),
@@ -554,10 +527,10 @@ export const MainPage: React.FC = () => {
 
         reportData.push([
           movement.fecha,
-          "", // TIPO (TABLA 10) vacío
+          movement.tComprob || "",
           comprobante.serie,
           comprobante.numero,
-          movement.tComprob || "", // Tipo de operación
+          movement.tOperacion || "",
           entradaCantidad,
           entradaCostoUnitario,
           entradaCostoTotal,
@@ -738,7 +711,7 @@ export const MainPage: React.FC = () => {
     if (saldoCantidadSimplificado > 0) {
       simplifiedReportData.push([
         "-",
-        "", // TIPO (TABLA 10) vacío
+        "",
         "-",
         "-",
         "-",
@@ -760,10 +733,10 @@ export const MainPage: React.FC = () => {
 
           simplifiedReportData.push([
             movement.fecha,
-            "", // TIPO (TABLA 10) vacío
+            movement.tComprob || "",
             comprobante.serie,
             comprobante.numero,
-            movement.tComprob || "", // Tipo de operación
+            movement.tOperacion || "",
             "", // Entrada cantidad
             detalle.cantidad.toFixed(2), // Salida cantidad
             saldoCantidadSimplificado.toFixed(2) // Saldo cantidad
@@ -785,10 +758,10 @@ export const MainPage: React.FC = () => {
 
         simplifiedReportData.push([
           movement.fecha,
-          "", // TIPO (TABLA 10) vacío
+          movement.tComprob || "",
           comprobante.serie,
           comprobante.numero,
-          movement.tComprob || "", // Tipo de operación
+          movement.tOperacion || "",
           entradaCantidad,
           salidaCantidad,
           saldoCantidadSimplificado.toFixed(2)
@@ -1052,10 +1025,10 @@ export const MainPage: React.FC = () => {
                     html += `
                       <tr>
                         <td>${movement.fecha}</td>
-                        <td></td>
+                        <td>${movement.tComprob || ''}</td>
                         <td>${serie}</td>
                         <td>${numero}</td>
-                        <td>${movement.tipo.toUpperCase()}</td>
+                        <td>${movement.tOperacion || ''}</td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -1081,10 +1054,10 @@ export const MainPage: React.FC = () => {
                     html += `
                       <tr>
                         <td>${movement.fecha}</td>
-                        <td></td>
+                        <td>${movement.tComprob || ''}</td>
                         <td>${serie}</td>
                         <td>${numero}</td>
-                        <td>${movement.tipo.toUpperCase()}</td>
+                        <td>${movement.tOperacion || ''}</td>
                         <td>${movement.cantidad}</td>
                         <td>${movement.costoUnitario.toFixed(2)}</td>
                         <td>${calculatedCostoTotal.toFixed(2)}</td>
@@ -1104,10 +1077,10 @@ export const MainPage: React.FC = () => {
                     html += `
                       <tr>
                         <td>${movement.fecha}</td>
-                        <td></td>
+                        <td>${movement.tComprob || ''}</td>
                         <td>${serie}</td>
                         <td>${numero}</td>
-                        <td>${movement.tipo.toUpperCase()}</td>
+                        <td>${movement.tOperacion || ''}</td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -1222,10 +1195,10 @@ export const MainPage: React.FC = () => {
                       html += `
                         <tr>
                           <td>${movement.fecha}</td>
-                          <td></td>
+                          <td>${movement.tComprob || ''}</td>
                           <td>${serie}</td>
                           <td>${numero}</td>
-                          <td>${movement.tipo.toUpperCase()}</td>
+                          <td>${movement.tOperacion || ''}</td>
                           <td></td>
                           <td>${detalle.cantidad}</td>
                           <td>${saldoCantidadSimple}</td>
@@ -1237,10 +1210,10 @@ export const MainPage: React.FC = () => {
                       html += `
                         <tr>
                           <td>${movement.fecha}</td>
-                          <td></td>
+                          <td>${movement.tComprob || ''}</td>
                           <td>${serie}</td>
                           <td>${numero}</td>
-                          <td>${movement.tipo.toUpperCase()}</td>
+                          <td>${movement.tOperacion || ''}</td>
                           <td>${movement.cantidad}</td>
                           <td></td>
                           <td>${saldoCantidadSimple}</td>
@@ -1250,10 +1223,10 @@ export const MainPage: React.FC = () => {
                       html += `
                         <tr>
                           <td>${movement.fecha}</td>
-                          <td></td>
+                          <td>${movement.tComprob || ''}</td>
                           <td>${serie}</td>
                           <td>${numero}</td>
-                          <td>${movement.tipo.toUpperCase()}</td>
+                          <td>${movement.tOperacion || ''}</td>
                           <td></td>
                           <td>${movement.cantidad}</td>
                           <td>${saldoCantidadSimple}</td>
@@ -1307,181 +1280,6 @@ export const MainPage: React.FC = () => {
       printWindow.focus();
       printWindow.print();
     }
-  };
-
-  /**
-   * Función auxiliar para parsear comprobante
-   */
-  const parseComprobante = (tComprob: string, nComprobante: string) => {
-    if (!nComprobante) return { serie: "", numero: "" };
-    console.log(tComprob);
-    // Si nComprobante ya contiene el formato completo (ej: "F00-000")
-    const parts = nComprobante.split("-");
-    
-    if (parts.length >= 2) {
-      return {
-        serie: parts[0] || "",
-        numero: parts.slice(1).join("-") || ""
-      };
-    }
-    
-    // Si no tiene guión, devolver el número completo en numero y serie vacía
-    return { serie: "", numero: nComprobante };
-  };
-
-  /**
-   * Genera el contenido CSV para el kardex con ambos formatos (valorizado y simplificado)
-   */
-  const generateKardexCSV = (
-    response: any,
-    movements: KardexMovement[],
-    reportData: any
-  ) => {
-    if (!user?.persona) return "";
-
-    const empresa = user.persona;
-    const periodo = selectedMonth 
-      ? `${selectedMonth.toUpperCase()} ${selectedYear}`
-      : selectedYear;
-
-    const selectedProduct = products.find(p => p.id.toString() === selectedProductId);
-    const codigoProducto = selectedProduct?.codigo || "001";
-
-    let csv = "";
-
-    // ===== FORMATO 13.1 - KARDEX VALORIZADO =====
-    csv += `FORMATO 13.1: "REGISTRO DE INVENTARIO PERMANENTE VALORIZADO - DETALLE DEL INVENTARIO VALORIZADO"\n\n`;
-    
-    // Información de la empresa
-     csv += `PERÍODO:,${periodo}\n`;
-     csv += `RUC:,${empresa.ruc || ""}\n`;
-     csv += `APELLIDOS Y NOMBRES DENOMINACIÓN O RAZÓN SOCIAL:,${empresa.nombreEmpresa || ""}\n`;
-     csv += `ESTABLECIMIENTO (1):,${response.almacen || ""}\n`;
-     csv += `CÓDIGO DE LA EXISTENCIA:,${codigoProducto}\n`;
-     csv += `TIPO (TABLA 5):,01\n`;
-     csv += `DESCRIPCIÓN:,${response.producto || ""}\n`;
-     csv += `CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):,01\n\n`;
-
-    // Encabezados de la tabla valorizada
-    csv += `DOCUMENTO DE TRASLADO COMPROBANTE DE PAGO DOCUMENTO INTERNO O SIMILAR,,,TIPO DE OPERACIÓN (TABLA 12),ENTRADAS,,,SALIDAS,,,SALDO FINAL,,\n`;
-    csv += `FECHA,TIPO (TABLA 10),SERIE,NÚMERO,,CANTIDAD,COSTO UNITARIO,COSTO TOTAL,CANTIDAD,COSTO UNITARIO,COSTO TOTAL,CANTIDAD,COSTO UNITARIO,COSTO TOTAL\n`;
-
-    // Saldo inicial valorizado
-    const costoUnitarioInicial = reportData.inventarioInicialCantidad > 0 
-      ? reportData.inventarioInicialCostoTotal / reportData.inventarioInicialCantidad 
-      : 0;
-    
-    csv += `01/01/${selectedYear},,,,SALDO INICIAL,,,,,,,${reportData.inventarioInicialCantidad},${costoUnitarioInicial.toFixed(2)},${reportData.inventarioInicialCostoTotal.toFixed(2)}\n`;
-
-    // Variables para el saldo acumulado valorizado
-    let saldoCantidad = parseFloat(reportData.inventarioInicialCantidad.toString());
-    let saldoCostoTotal = parseFloat(reportData.inventarioInicialCostoTotal.toString());
-
-    // Procesar movimientos valorizados
-    movements.forEach((movement) => {
-      const { serie, numero } = parseComprobante(movement.tComprob, movement.nComprobante);
-      
-      if (movement.tipo === "Salida" && movement.detallesSalida && movement.detallesSalida.length > 0) {
-        movement.detallesSalida.forEach((detalle) => {
-          const calculatedDetalleCostoTotal = detalle.costoTotalDeLote && detalle.costoTotalDeLote !== 0
-            ? detalle.costoTotalDeLote
-            : detalle.cantidad * detalle.costoUnitarioDeLote;
-
-          saldoCantidad -= detalle.cantidad;
-          saldoCostoTotal -= calculatedDetalleCostoTotal;
-          
-          const saldoCostoUnitario = saldoCantidad > 0 ? saldoCostoTotal / saldoCantidad : 0;
-
-          csv += `${movement.fecha},,${serie},${numero},${movement.tipo.toUpperCase()},,,,${detalle.cantidad},${detalle.costoUnitarioDeLote.toFixed(2)},${calculatedDetalleCostoTotal.toFixed(2)},${saldoCantidad},${saldoCostoUnitario.toFixed(2)},${saldoCostoTotal.toFixed(2)}\n`;
-        });
-      } else {
-        const calculatedCostoTotal = movement.costoTotal && movement.costoTotal !== 0
-          ? movement.costoTotal
-          : movement.cantidad * movement.costoUnitario;
-
-        if (movement.tipo === "Entrada") {
-          saldoCantidad += movement.cantidad;
-          saldoCostoTotal += calculatedCostoTotal;
-          
-          const saldoCostoUnitario = saldoCantidad > 0 ? saldoCostoTotal / saldoCantidad : 0;
-
-          csv += `${movement.fecha},,${serie},${numero},${movement.tipo.toUpperCase()},${movement.cantidad},${movement.costoUnitario.toFixed(2)},${calculatedCostoTotal.toFixed(2)},,,${saldoCantidad},${saldoCostoUnitario.toFixed(2)},${saldoCostoTotal.toFixed(2)}\n`;
-        } else {
-          saldoCantidad -= movement.cantidad;
-          saldoCostoTotal -= calculatedCostoTotal;
-          
-          const saldoCostoUnitario = saldoCantidad > 0 ? saldoCostoTotal / saldoCantidad : 0;
-
-          csv += `${movement.fecha},,${serie},${numero},${movement.tipo.toUpperCase()},,,,${movement.cantidad},${movement.costoUnitario.toFixed(2)},${calculatedCostoTotal.toFixed(2)},${saldoCantidad},${saldoCostoUnitario.toFixed(2)},${saldoCostoTotal.toFixed(2)}\n`;
-        }
-      }
-    });
-
-    // Totales valorizado
-    let totalEntradas = 0;
-    let totalSalidas = 0;
-    
-    movements.forEach((movement) => {
-      if (movement.tipo === "Entrada") {
-        totalEntradas += movement.cantidad;
-      } else if (movement.detallesSalida && movement.detallesSalida.length > 0) {
-        movement.detallesSalida.forEach((detalle) => {
-          totalSalidas += detalle.cantidad;
-        });
-      } else {
-        totalSalidas += movement.cantidad;
-      }
-    });
-
-    csv += `TOTALES,,,,,${totalEntradas},,,,${totalSalidas},,,,\n\n\n`;
-
-    // ===== FORMATO 12.1 - KARDEX UNIDADES FÍSICAS =====
-    csv += `FORMATO 12.1: "REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS- DETALLE DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS"\n\n`;
-    
-    // Información de la empresa (simplificado)
-     csv += `PERÍODO:,${periodo}\n`;
-     csv += `RUC:,${empresa.ruc || ""}\n`;
-     csv += `APELLIDOS Y NOMBRES DENOMINACIÓN O RAZÓN SOCIAL:,${empresa.nombreEmpresa || ""}\n`;
-     csv += `ESTABLECIMIENTO (1):,${response.almacen || ""}\n`;
-     csv += `CÓDIGO DE LA EXISTENCIA:,${codigoProducto}\n`;
-     csv += `TIPO (TABLA 5):,\n`;
-     csv += `DESCRIPCIÓN:,${response.producto || ""}\n`;
-     csv += `CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):,\n\n`;
-
-    // Encabezados de la tabla simplificada
-    csv += `DOCUMENTO DE TRASLADO COMPROBANTE DE PAGO DOCUMENTO INTERNO O SIMILAR,,,TIPO DE OPERACIÓN (TABLA 12),ENTRADAS,SALIDAS,SALDO FINAL\n`;
-    csv += `FECHA,TIPO (TABLA 10),SERIE,NÚMERO,,CANTIDAD,CANTIDAD,CANTIDAD\n`;
-
-    // Saldo inicial simplificado
-    csv += `01/01/${selectedYear},,,,SALDO INICIAL,,,${reportData.inventarioInicialCantidad}\n`;
-
-    // Variables para el saldo acumulado simplificado
-    let saldoCantidadSimple = parseFloat(reportData.inventarioInicialCantidad.toString());
-
-    // Procesar movimientos simplificados
-    movements.forEach((movement) => {
-      const { serie, numero } = parseComprobante(movement.tComprob, movement.nComprobante);
-      
-      if (movement.tipo === "Salida" && movement.detallesSalida && movement.detallesSalida.length > 0) {
-        movement.detallesSalida.forEach((detalle) => {
-          saldoCantidadSimple -= detalle.cantidad;
-          csv += `${movement.fecha},,${serie},${numero},${movement.tipo.toUpperCase()},,${detalle.cantidad},${saldoCantidadSimple}\n`;
-        });
-      } else {
-        if (movement.tipo === "Entrada") {
-          saldoCantidadSimple += movement.cantidad;
-          csv += `${movement.fecha},,${serie},${numero},${movement.tipo.toUpperCase()},${movement.cantidad},,${saldoCantidadSimple}\n`;
-        } else {
-          saldoCantidadSimple -= movement.cantidad;
-          csv += `${movement.fecha},,${serie},${numero},${movement.tipo.toUpperCase()},,${movement.cantidad},${saldoCantidadSimple}\n`;
-        }
-      }
-    });
-
-    // Totales simplificado
-    csv += `TOTALES,,,,,${totalEntradas},${totalSalidas},\n`;
-
-    return csv;
   };
 
   // Verificar si hay inventoryId en la URL para ocultar filtros
@@ -1569,18 +1367,10 @@ export const MainPage: React.FC = () => {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr",
+                gridTemplateColumns: "1fr 1fr",
                 gap: "0.25rem",
               }}
             >
-              <Button
-                size="small"
-                variant="primary"
-                onClick={handleExportToCSV}
-                disabled={!kardexData || kardexData.length === 0}
-              >
-                Exportar como CSV
-              </Button>
               <Button
                 size="small"
                 variant="primary"
