@@ -1,0 +1,55 @@
+.container {
+  //padding: 24px;
+  //max-width: 1000px;
+  margin-top: 1rem;
+  //margin: 0 auto;
+}
+
+.section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fieldRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.valueContainer {
+  flex: 1;
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .fieldRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+.updateButton {
+  //width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: end;
+}

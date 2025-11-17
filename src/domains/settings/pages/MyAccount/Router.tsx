@@ -3,8 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { MainPage } from './MainPage';
 
 /**
- * Router para el Dashboard de Configuración
- * Define las rutas disponibles dentro del módulo de dashboard
+ * Router para la página "Mi Cuenta"
  */
 export const Router: React.FC = () => {
   return (
@@ -13,3 +12,5 @@ export const Router: React.FC = () => {
     </Routes>
   );
 };
+
+export default Router;

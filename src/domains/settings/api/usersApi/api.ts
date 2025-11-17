@@ -32,6 +32,12 @@ export const usersApi = {
     apiClient.patch<User>(USERSENDPOINTS.UPDATE_USER.replace(':id', String(id)), payload),
 
   /**
+   * Actualiza la contraseña de un usuario
+   */
+  updatePassword: (id: number, payload: { password: string }) =>
+    apiClient.patch<void>(USERSENDPOINTS.UPDATE_USER_PASSWORD.replace(':id', String(id)), payload),
+
+  /**
    * Desactiva un usuario
    */
   disableUser: (id: number) => 

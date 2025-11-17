@@ -57,8 +57,6 @@ export const MainPage: React.FC = () => {
     ...ESTADO_PERIODO_OPTIONS,
   ];
 
-
-
   // Generar opciones de años (últimos 10 años + próximos 2)
   const currentYear = new Date().getFullYear();
   const anioOptions = [
@@ -167,11 +165,6 @@ export const MainPage: React.FC = () => {
 
     if (!newPeriodo.fechaFin.trim()) {
       setError("La fecha de fin es obligatoria.");
-      return;
-    }
-
-    if (!newPeriodo.observaciones.trim()) {
-      setError("Las observaciones son obligatorias.");
       return;
     }
 

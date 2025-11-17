@@ -81,6 +81,7 @@ export const SETTINGS_ROUTES = {
   PARAMS: '/params',
   ACCOUNTING_PERIODS: '/accounting-periods',
   VALUATION_METHODS: '/valuation-methods',
+  MY_ACCOUNT: '/my-account',
 } as const;
 
 // Rutas comunes de páginas

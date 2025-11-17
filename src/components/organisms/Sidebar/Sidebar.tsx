@@ -44,7 +44,9 @@ export const Sidebar: React.FC<SidebarProps> = () => {
 
   const userName = user?.persona
     ? user.persona.nombreEmpresa
-    : user?.email || "Usuario";
+    : user?.nombre || "Usuario";
+
+    const userEmail = user?.email || "Sin email";
 
   const userRoleType =
     user?.roles && user.roles.length > 0 ? user.roles[0].nombre : "";
@@ -86,6 +88,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
 
       <div className={styles.userInfo}>
         <span className={styles.userName}>{userName}</span>
+        <span className={styles.userEmail}>{userEmail}</span>
         <span className={styles.userRole}>{userRole}</span>
       </div>
 
@@ -446,6 +449,20 @@ export const Sidebar: React.FC<SidebarProps> = () => {
                     }
                   >
                     Métodos de Valoración
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to={`${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.MY_ACCOUNT}`}
+                    className={
+                      isActiveLink(
+                        `${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.MY_ACCOUNT}`
+                      )
+                        ? styles.active
+                        : ""
+                    }
+                  >
+                    Mi cuenta
                   </Link>
                 </li>
               </>

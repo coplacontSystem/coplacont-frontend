@@ -6,7 +6,8 @@ import {
     ParamsRouter,
     AccountingPeriodRouter,
     ValuationMethodsRouter,
-    DashboardRouter
+    DashboardRouter,
+    MyAccountRouter,
 } from '../pages';
 import { SETTINGS_ROUTES } from '../../../router';
 import { USER_ROLES } from '@/shared/constants';
@@ -18,7 +19,7 @@ import { USER_ROLES } from '@/shared/constants';
 export const Router = () => {
   return (
     <Routes>
-      <Route path="/" element={<DashboardRouter />} />
+      <Route index element={<DashboardRouter />} />
       
       {/* Rutas exclusivas para ADMIN */}
       <Route path={`${SETTINGS_ROUTES.USERS}/*`} element={
@@ -29,6 +30,12 @@ export const Router = () => {
       <Route path={`${SETTINGS_ROUTES.VALUATION_METHODS}/*`} element={
         <RoleBasedRoute requiredRoles={[USER_ROLES.ADMIN]}>
           <ValuationMethodsRouter />
+        </RoleBasedRoute>
+      } />
+      {/* Mi Cuenta: disponible para ADMIN */}
+      <Route path={`${SETTINGS_ROUTES.MY_ACCOUNT}/*`} element={
+        <RoleBasedRoute requiredRoles={[USER_ROLES.ADMIN]}>
+          <MyAccountRouter />
         </RoleBasedRoute>
       } />
       

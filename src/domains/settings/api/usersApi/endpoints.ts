@@ -6,6 +6,7 @@ export const USERSENDPOINTS = {
   UPDATE_USER: '/user/:id',
   DISABLE_USER: '/user/:id/disable',
   ENABLE_USER: '/user/:id/enable',
+  UPDATE_USER_PASSWORD: '/user/:id/password',
   
   // Empresas con usuarios
   CREATE_EMPRESA_CON_USUARIO: '/user/empresa-con-usuario',

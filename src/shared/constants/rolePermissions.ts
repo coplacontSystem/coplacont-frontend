@@ -23,6 +23,7 @@ export const ADMIN_ALLOWED_ROUTES = [
   MAIN_ROUTES.HOME, // Dashboard principal
   `${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.USERS}`, // Gestión de usuarios
   `${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.VALUATION_METHODS}`, // Métodos de valoración
+  `${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.MY_ACCOUNT}`, // Mi cuenta
 ] as const;
 
 /**

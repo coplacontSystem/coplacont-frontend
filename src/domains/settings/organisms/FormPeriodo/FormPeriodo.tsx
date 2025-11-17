@@ -183,7 +183,7 @@ export const FormPeriodo = ({
       {/* Observaciones */}
       <div className={styles.FormPeriodo__FormField}>
         <Text size="xs" color="neutral-primary">
-          Observaciones
+          Observaciones (Opcional)
         </Text>
         <Input
           placeholder="Observaciones del periodo"

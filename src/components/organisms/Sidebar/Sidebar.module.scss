@@ -28,9 +28,15 @@
   background-color: transparent;
 
   .userName {
+    overflow-x: auto;
     font-size: $font-size-lg;
     font-weight: $font-weight-semibold;
     color: $text-color;
+  }
+  .userEmail{
+    font-size: $font-size-xs;
+    color: $text-color-1;
+    font-weight: $font-weight-medium;
   }
 
   .userRole {
