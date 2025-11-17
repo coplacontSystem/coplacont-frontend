@@ -1358,9 +1358,9 @@ export const MainPage: React.FC = () => {
      csv += `APELLIDOS Y NOMBRES DENOMINACIÓN O RAZÓN SOCIAL:,${empresa.nombreEmpresa || ""}\n`;
      csv += `ESTABLECIMIENTO (1):,${response.almacen || ""}\n`;
      csv += `CÓDIGO DE LA EXISTENCIA:,${codigoProducto}\n`;
-     csv += `TIPO (TABLA 5):,\n`;
+     csv += `TIPO (TABLA 5):,01\n`;
      csv += `DESCRIPCIÓN:,${response.producto || ""}\n`;
-     csv += `CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):,\n\n`;
+     csv += `CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):,01\n\n`;
 
     // Encabezados de la tabla valorizada
     csv += `DOCUMENTO DE TRASLADO COMPROBANTE DE PAGO DOCUMENTO INTERNO O SIMILAR,,,TIPO DE OPERACIÓN (TABLA 12),ENTRADAS,,,SALIDAS,,,SALDO FINAL,,\n`;
