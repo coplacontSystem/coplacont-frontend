@@ -224,7 +224,7 @@ export const RegisterPage: React.FC = () => {
             <Text size="xs" color="neutral-primary">Moneda</Text>
             <ComboBox
               size="xs"
-              options={[{ value: "PEN", label: "Sol" }, { value: "USD", label: "Dólar" }]}
+              options={[{ value: "PEN", label: "Sol" }]}
               variant="createSale"
               value={moneda}
               onChange={(v) => setMoneda(v as MonedaType)}
