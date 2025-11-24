@@ -229,7 +229,7 @@ export const CreatePurchaseForm = () => {
   };
   const fetchCorrelativo = async () => {
     try {
-      const response = await TransactionsService.getCorrelative(2); // 2 = COMPRA
+      const response = await TransactionsService.getCorrelative(14);
       setFormState((prev) => ({
         ...prev,
         correlativo: response.correlativo,
@@ -796,13 +796,12 @@ export const CreatePurchaseForm = () => {
         formState.fechaVencimiento && formState.fechaVencimiento.trim() !== "";
 
       const seleccionado = tiposComprobante.find(t => t.idTablaDetalle.toString() === formState.tipoComprobante);
-      const descSel = seleccionado?.descripcion?.toUpperCase() || '';
 
       const compraData: import("../../services/types").RegisterPurchasePayload = {
         correlativo: formState.correlativo,
         idPersona: getSelectedProviderId() || 1, // Usar ID del proveedor seleccionado o valor por defecto
-        tipoOperacion: descSel,
-        tipoComprobante: seleccionado?.descripcion || "",
+        idTipoOperacion: 14,
+        idTipoComprobante: seleccionado?.idTablaDetalle || 0,
         fechaEmision: fechaEmisionValida
           ? new Date(formState.fechaEmision).toISOString()
           : new Date().toISOString(),
@@ -824,7 +823,7 @@ export const CreatePurchaseForm = () => {
       if (formState.idComprobanteAfecto) {
         compraData.idComprobanteAfecto = parseInt(formState.idComprobanteAfecto);
       }
-
+      console.log('compraData', compraData)
       await TransactionsService.registerPurchase(compraData);
 
       navigate(`${MAIN_ROUTES.TRANSACTIONS}${TRANSACTIONS_ROUTES.PURCHASES}`);
@@ -876,13 +875,12 @@ export const CreatePurchaseForm = () => {
         formState.fechaVencimiento && formState.fechaVencimiento.trim() !== "";
 
       const seleccionado2 = tiposComprobante.find(t => t.idTablaDetalle.toString() === formState.tipoComprobante);
-      const descSel2 = seleccionado2?.descripcion?.toUpperCase() || '';
 
       const compraData2: import("../../services/types").RegisterPurchasePayload = {
         correlativo: formState.correlativo, // Usar valor del form o fake
         idPersona: getSelectedProviderId() || 1, // Usar ID del proveedor seleccionado o valor por defecto
-        tipoOperacion: descSel2,
-        tipoComprobante: seleccionado2?.descripcion || "",
+        idTipoOperacion: 14,
+        idTipoComprobante: seleccionado2?.idTablaDetalle || 0,
         fechaEmision: fechaEmisionValida
           ? new Date(formState.fechaEmision).toISOString()
           : new Date().toISOString(),

@@ -14,8 +14,8 @@ export interface SaleDetail {
 export interface RegisterSalePayload {
   correlativo: string;
   idPersona: number;
-  tipoOperacion: string;
-  tipoComprobante: string;
+  idTipoOperacion: number;
+  idTipoComprobante: number;
   fechaEmision: string;
   moneda: string;
   tipoCambio: number;
@@ -28,15 +28,15 @@ export interface RegisterSalePayload {
 export interface RegisterPurchasePayload {
   correlativo: string;
   idPersona: number;
-  tipoOperacion: string;
-  tipoComprobante: string;
+  idTipoOperacion: number;
+  idTipoComprobante: number;
   fechaEmision: string;
   moneda: string;
   tipoCambio: number;
   serie: string;
   numero: string;
-  fechaVencimiento?: string; // Opcional
-  idComprobanteAfecto?: number; // Opcional para compras
+  fechaVencimiento?: string;
+  idComprobanteAfecto?: number;
   detalles: SaleDetail[];
 }
 

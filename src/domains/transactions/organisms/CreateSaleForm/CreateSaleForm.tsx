@@ -73,7 +73,7 @@ export const CreateSaleForm = () => {
 
   const fetchCorrelativo = async () => {
     try {
-      const response = await TransactionsService.getCorrelative(1); // 1 = VENTA
+      const response = await TransactionsService.getCorrelative(13);
       setFormState((prev) => ({
         ...prev,
         correlativo: response.correlativo,
@@ -447,13 +447,12 @@ export const CreateSaleForm = () => {
         formState.fechaVencimiento && formState.fechaVencimiento.trim() !== "";
 
       const seleccionado = tiposComprobante.find(t => t.idTablaDetalle.toString() === formState.tipoComprobante);
-      const descSel = seleccionado?.descripcion?.toUpperCase() || '';
 
       const ventaData: RegisterSalePayload = {
         correlativo: formState.correlativo,
         idPersona: getSelectedClientId() || 1,
-        tipoOperacion: descSel,
-        tipoComprobante: seleccionado?.descripcion || "",
+        idTipoOperacion: 13,
+        idTipoComprobante: seleccionado?.idTablaDetalle || 0,
         fechaEmision: fechaEmisionValida
           ? new Date(formState.fechaEmision).toISOString()
           : new Date().toISOString(),
@@ -504,13 +503,12 @@ export const CreateSaleForm = () => {
         formState.fechaVencimiento && formState.fechaVencimiento.trim() !== "";
 
       const seleccionado2 = tiposComprobante.find(t => t.idTablaDetalle.toString() === formState.tipoComprobante);
-      const descSel2 = seleccionado2?.descripcion?.toUpperCase() || '';
 
       const ventaData2: RegisterSalePayload = {
         correlativo: formState.correlativo || "CORR-12345", // Usar valor del form o fake
         idPersona: getSelectedClientId() || 1, // Usar ID del cliente seleccionado o valor por defecto
-        tipoOperacion: descSel2,
-        tipoComprobante: seleccionado2?.descripcion || "",
+        idTipoOperacion: 13,
+        idTipoComprobante: seleccionado2?.idTablaDetalle || 0,
         fechaEmision: fechaEmisionValida
           ? new Date(formState.fechaEmision).toISOString()
           : new Date().toISOString(),

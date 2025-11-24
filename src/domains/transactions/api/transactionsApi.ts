@@ -5,8 +5,8 @@ export const transactionsApi = {
     registerSale: (payload: {
         correlativo: string;
         idPersona: number;
-        tipoOperacion: string;
-        tipoComprobante: string;
+        idTipoOperacion: number;
+        idTipoComprobante: number;
         fechaEmision: string;
         moneda: string;
         tipoCambio: number;
@@ -29,8 +29,8 @@ export const transactionsApi = {
     registerPurchase: (payload: {
         correlativo: string;
         idPersona: number;
-        tipoOperacion: string;
-        tipoComprobante: string;
+        idTipoOperacion: number;
+        idTipoComprobante: number;
         fechaEmision: string;
         moneda: string;
         tipoCambio: number;
