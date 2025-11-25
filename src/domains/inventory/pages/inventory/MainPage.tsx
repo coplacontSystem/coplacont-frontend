@@ -37,6 +37,18 @@ export const MainPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const [initialModalOpen, setInitialModalOpen] = useState(false);
+  const [initialModalLoading, setInitialModalLoading] = useState(false);
+  const [initialModalSaving, setInitialModalSaving] = useState(false);
+  const [initialModalError, setInitialModalError] = useState<string | null>(null);
+  const [initialEditEnabled, setInitialEditEnabled] = useState(false);
+  const [currentInventoryId, setCurrentInventoryId] = useState<number | null>(null);
+  const [initialStockInput, setInitialStockInput] = useState("");
+  const [initialPriceInput, setInitialPriceInput] = useState("");
+  const [initialOriginal, setInitialOriginal] = useState<{ stock: string; price: string }>({ stock: "", price: "" });
+  const [initialStockError, setInitialStockError] = useState<string | null>(null);
+  const [initialPriceError, setInitialPriceError] = useState<string | null>(null);
+
   const fetchInventory = async () => {
     try {
       setLoading(true);
@@ -155,6 +167,7 @@ export const MainPage: React.FC = () => {
       i.producto.codigo,
       i.producto.nombre,
       i.stockActual,
+      <div style={{ display: "flex", gap: "8px" }}>
       <Button
         size="tableItemSize"
         variant="tableItemStyle"
@@ -165,11 +178,42 @@ export const MainPage: React.FC = () => {
         }}
       >
         Ver KARDEX
-      </Button>,
+      </Button>
+      <Button
+        size="tableItemSize"
+        variant="tableItemStyle"
+        onClick={() => {
+          const invId = Number(i.id);
+          setInitialModalLoading(true);
+          setInitialModalError(null);
+          setInitialEditEnabled(false);
+          setInitialModalOpen(true);
+          setCurrentInventoryId(invId);
+          InventoryService.getInitialInventory(invId)
+            .then((data) => {
+              const stock = data.lote?.cantidadInicial ?? data.detalle?.cantidad ?? 0;
+              const price = data.lote?.costoUnitario ?? 0;
+              setInitialStockInput(String(stock));
+              setInitialPriceInput(String(price));
+              setInitialOriginal({ stock: String(stock), price: String(price) });
+              setInitialStockError(null);
+              setInitialPriceError(null);
+            })
+            .catch((err) => {
+              console.error("Error obteniendo inventario inicial:", err);
+              setInitialModalError("No se pudo cargar el inventario inicial");
+            })
+            .finally(() => setInitialModalLoading(false));
+        }}
+      >
+        Stock Inicial
+      </Button>
+      </div>
+      ,
     ],
   }));
 
-  const gridTemplate = "1fr 1.2fr 1.2fr 2fr 1fr 1fr";
+  const gridTemplate = "1fr 1.2fr 1.2fr 1.5fr 1fr 1.5fr";
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -339,6 +383,171 @@ export const MainPage: React.FC = () => {
           >
             Guardar
           </Button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={initialModalOpen}
+        onClose={() => {
+          setInitialModalOpen(false);
+          setCurrentInventoryId(null);
+          setInitialEditEnabled(false);
+          setInitialStockInput("");
+          setInitialPriceInput("");
+          setInitialModalError(null);
+          setInitialStockError(null);
+          setInitialPriceError(null);
+        }}
+        title="Stock inicial"
+        description="Consulta y edición del stock inicial y precio unitario"
+        loading={initialModalLoading || initialModalSaving}
+        buttonText="Cerrar"
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          {initialModalLoading && (
+            <Loader text="Cargando inventario inicial..." />
+          )}
+          {!initialModalLoading && initialModalError && (
+            <>
+              <Text size="xs" color="danger">{initialModalError}</Text>
+              <Button
+                size="tableItemSize"
+                variant="tableItemStyle"
+                onClick={() => {
+                  if (!currentInventoryId) return;
+                  setInitialModalLoading(true);
+                  setInitialModalError(null);
+                  InventoryService.getInitialInventory(currentInventoryId)
+                    .then((data) => {
+                      const stock = data.lote?.cantidadInicial ?? data.detalle?.cantidad ?? 0;
+                      const price = data.lote?.costoUnitario ?? 0;
+                      setInitialStockInput(String(stock));
+                      setInitialPriceInput(String(price));
+                      setInitialOriginal({ stock: String(stock), price: String(price) });
+                      setInitialStockError(null);
+                      setInitialPriceError(null);
+                    })
+                    .catch((err) => {
+                      console.error("Error obteniendo inventario inicial:", err);
+                      setInitialModalError("No se pudo cargar el inventario inicial");
+                    })
+                    .finally(() => setInitialModalLoading(false));
+                }}
+              >
+                Reintentar
+              </Button>
+            </>
+          )}
+          {!initialModalLoading && !initialModalError && (
+            <>
+              <div>
+                <Text size="xs" color="neutral-primary">Stock Inicial</Text>
+                <Input
+                  type="number"
+                  size="xs"
+                  variant="createSale"
+                  value={initialStockInput}
+                  onChange={(e) => {
+                    setInitialStockInput(e.target.value);
+                    setInitialStockError(null);
+                  }}
+                  placeholder="Stock inicial"
+                  disabled={!initialEditEnabled}
+                />
+                {initialStockError && (
+                  <Text size="xs" color="danger">{initialStockError}</Text>
+                )}
+              </div>
+              <div>
+                <Text size="xs" color="neutral-primary">Precio Unitario</Text>
+                <Input
+                  type="number"
+                  size="xs"
+                  variant="createSale"
+                  value={initialPriceInput}
+                  onChange={(e) => {
+                    setInitialPriceInput(e.target.value);
+                    setInitialPriceError(null);
+                  }}
+                  placeholder="Precio unitario"
+                  disabled={!initialEditEnabled}
+                />
+                {initialPriceError && (
+                  <Text size="xs" color="danger">{initialPriceError}</Text>
+                )}
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                {!initialEditEnabled && (
+                  <Button
+                    size="tableItemSize"
+                    variant="tableItemStyle"
+                    onClick={() => setInitialEditEnabled(true)}
+                    disabled={initialModalLoading || initialModalSaving}
+                  >
+                    Actualizar
+                  </Button>
+                )}
+                {initialEditEnabled && (
+                  <>
+                    <Button
+                      size="tableItemSize"
+                      variant="tableItemStyle"
+                      onClick={() => {
+                        setInitialStockInput(initialOriginal.stock);
+                        setInitialPriceInput(initialOriginal.price);
+                        setInitialStockError(null);
+                        setInitialPriceError(null);
+                        setInitialEditEnabled(false);
+                      }}
+                      disabled={initialModalSaving}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      size="tableItemSize"
+                      variant="tableItemStyle"
+                      onClick={async () => {
+                        if (!currentInventoryId) return;
+                        const stockNum = Number(initialStockInput);
+                        const priceNum = Number(initialPriceInput);
+                        let hasError = false;
+                        if (!isFinite(stockNum) || stockNum < 0) {
+                          setInitialStockError("Ingresa un stock válido (>= 0)");
+                          hasError = true;
+                        }
+                        if (!isFinite(priceNum) || priceNum < 0) {
+                          setInitialPriceError("Ingresa un precio válido (>= 0)");
+                          hasError = true;
+                        }
+                        if (hasError) return;
+                        try {
+                          setInitialModalSaving(true);
+                          await InventoryService.updateInitialInventory(currentInventoryId, {
+                            cantidadInicial: stockNum,
+                            costoUnitario: priceNum,
+                          });
+                          setInitialEditEnabled(false);
+                          await fetchInventory();
+                        } catch (err) {
+                          console.error("Error actualizando inventario inicial:", err);
+                        } finally {
+                          setInitialModalSaving(false);
+                        }
+                      }}
+                      disabled={
+                        initialModalSaving ||
+                        initialModalLoading ||
+                        (!initialEditEnabled) ||
+                        (initialStockInput === initialOriginal.stock && initialPriceInput === initialOriginal.price)
+                      }
+                    >
+                      Guardar
+                    </Button>
+                  </>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </Modal>
       {loading && <Loader text="Procesando..." />}

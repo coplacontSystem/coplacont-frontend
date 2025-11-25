@@ -69,3 +69,21 @@ export interface KardexResponse {
   inventarioInicialCantidad: string;
   inventarioInicialCostoTotal:string;
 }
+
+export interface InitialInventoryResponse {
+  lote: {
+    id: number;
+    fechaIngreso: string;
+    cantidadInicial: number;
+    costoUnitario: number;
+  } | null;
+  movimiento: {
+    id: number;
+    fecha: string;
+    numeroDocumento: string;
+  } | null;
+  detalle: {
+    id: number;
+    cantidad: number;
+  } | null;
+}

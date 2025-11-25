@@ -65,7 +65,9 @@ export const CreateSaleForm = () => {
   // Estados para el detalle de productos
   const [detalleVenta, setDetalleVenta] = useState<DetalleVentaItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [tiposComprobante, setTiposComprobante] = useState<TablaDetalleResponse[]>([]);
+  const [tiposComprobante, setTiposComprobante] = useState<
+    TablaDetalleResponse[]
+  >([]);
   const [ventasRegistradas, setVentasRegistradas] = useState<Transaction[]>([]);
   const [apiError, setApiError] = useState<IApiError | null>(null);
 
@@ -85,7 +87,7 @@ export const CreateSaleForm = () => {
 
   useEffect(() => {
     fetchCorrelativo();
-    
+
     // Cargar tipos de comprobante desde la API
     const loadTiposComprobante = async () => {
       try {
@@ -95,7 +97,7 @@ export const CreateSaleForm = () => {
         console.error("Error al cargar tipos de comprobante:", error);
       }
     };
-    
+
     loadTiposComprobante();
     TransactionsService.getSales().then((data) => setVentasRegistradas(data));
   }, []);
@@ -159,18 +161,17 @@ export const CreateSaleForm = () => {
     return formState.fechaEmision !== "";
   };
 
-  const isClienteEnabled = (): boolean => {
-    return (
-      formState.tipoComprobante === TipoComprobanteEnum.FACTURA ||
-      formState.tipoComprobante === TipoComprobanteEnum.BOLETA ||
-      formState.tipoComprobante === TipoComprobanteEnum.NOTA_SALIDA
-    );
-  };
-
   const shouldShowComprobanteAfecto = (): boolean => {
-    const seleccionado = tiposComprobante.find(t => t.idTablaDetalle.toString() === formState.tipoComprobante);
-    const desc = seleccionado?.descripcion?.toUpperCase() || '';
-    return desc.includes('NOTA DE CRÉDITO') || desc.includes('NOTA DE CREDITO') || desc.includes('NOTA DE DÉBITO') || desc.includes('NOTA DE DEBITO');
+    const seleccionado = tiposComprobante.find(
+      (t) => t.idTablaDetalle.toString() === formState.tipoComprobante
+    );
+    const desc = seleccionado?.descripcion?.toUpperCase() || "";
+    return (
+      desc.includes("NOTA DE CRÉDITO") ||
+      desc.includes("NOTA DE CREDITO") ||
+      desc.includes("NOTA DE DÉBITO") ||
+      desc.includes("NOTA DE DEBITO")
+    );
   };
 
   const getComprobantesAfectosOptions = () => {
@@ -239,20 +240,6 @@ export const CreateSaleForm = () => {
       }));
     }
   };
-
-  // Maneja el cambio de producto seleccionado
-  //const handleProductoChange = (value: string | number) => {
-  //  const productoValue = String(value) as ProductoType;
-  //  setProductoSeleccionado(productoValue);
-  //
-  //  // Buscar la unidad de medida correspondiente al producto seleccionado
-  //  const productoOption = productosOptions.find(
-  //    (option) => option.value === productoValue
-  //  );
-  //  if (productoOption) {
-  //    setUnidadMedidaSeleccionada(productoOption.unidadMedida);
-  //  }
-  //};
 
   /**
    * Maneja el cambio de cantidad y recalcula precios automáticamente
@@ -446,7 +433,9 @@ export const CreateSaleForm = () => {
       const fechaVencimientoValida =
         formState.fechaVencimiento && formState.fechaVencimiento.trim() !== "";
 
-      const seleccionado = tiposComprobante.find(t => t.idTablaDetalle.toString() === formState.tipoComprobante);
+      const seleccionado = tiposComprobante.find(
+        (t) => t.idTablaDetalle.toString() === formState.tipoComprobante
+      );
 
       const ventaData: RegisterSalePayload = {
         correlativo: formState.correlativo,
@@ -502,7 +491,9 @@ export const CreateSaleForm = () => {
       const fechaVencimientoValida =
         formState.fechaVencimiento && formState.fechaVencimiento.trim() !== "";
 
-      const seleccionado2 = tiposComprobante.find(t => t.idTablaDetalle.toString() === formState.tipoComprobante);
+      const seleccionado2 = tiposComprobante.find(
+        (t) => t.idTablaDetalle.toString() === formState.tipoComprobante
+      );
 
       const ventaData2: RegisterSalePayload = {
         correlativo: formState.correlativo || "CORR-12345", // Usar valor del form o fake
@@ -598,10 +589,22 @@ export const CreateSaleForm = () => {
       ? `Emisión: ${apiError.fechaEmision}`
       : undefined;
     return (
-      <div style={{ padding: "12px", borderRadius: "8px", background: "#FEE2E2", border: "1px solid #FCA5A5", marginBottom: "12px" }}>
-        <Text size="sm" color="danger">{apiError.message}</Text>
+      <div
+        style={{
+          padding: "12px",
+          borderRadius: "8px",
+          background: "#FEE2E2",
+          border: "1px solid #FCA5A5",
+          marginBottom: "12px",
+        }}
+      >
+        <Text size="sm" color="danger">
+          {apiError.message}
+        </Text>
         {(periodoText || fechaText) && (
-          <Text size="xs" color="danger">{[fechaText, periodoText].filter(Boolean).join(" • ")}</Text>
+          <Text size="xs" color="danger">
+            {[fechaText, periodoText].filter(Boolean).join(" • ")}
+          </Text>
         )}
       </div>
     );
@@ -642,7 +645,9 @@ export const CreateSaleForm = () => {
   console.log(products);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   console.log(warehouses);
-  const [inventarioProductos, setInventarioProductos] = useState<InventoryItem[]>([]);
+  const [inventarioProductos, setInventarioProductos] = useState<
+    InventoryItem[]
+  >([]);
   const [almacenSeleccionado, setAlmacenSeleccionado] = useState<string>("");
 
   // Estados para el modal de nuevo cliente
@@ -725,7 +730,10 @@ export const CreateSaleForm = () => {
     const productosEnDetalle = detalleVenta.map((item) => item.producto);
     return inventarioProductos
       .filter(
-        (item) => !productosEnDetalle.includes(item.producto.id.toString() as unknown as ProductoType)
+        (item) =>
+          !productosEnDetalle.includes(
+            item.producto.id.toString() as unknown as ProductoType
+          )
       )
       .map((item) => ({
         value: item.producto.id.toString(),
@@ -745,19 +753,22 @@ export const CreateSaleForm = () => {
   const handleProductoInventarioChange = (value: string | number) => {
     const stringValue = String(value);
     setProductoSeleccionado(stringValue as ProductoType);
-      const selectedItem = inventarioProductos.find(
-        (item) => item.producto.id.toString() === stringValue
+    const selectedItem = inventarioProductos.find(
+      (item) => item.producto.id.toString() === stringValue
+    );
+    if (selectedItem) {
+      // Establecer unidad de medida del producto
+      setUnidadMedidaSeleccionada(
+        (selectedItem.producto.unidadMedida as unknown as UnidadMedidaType) ||
+          ""
       );
-      if (selectedItem) {
-        // Establecer unidad de medida del producto
-        setUnidadMedidaSeleccionada((selectedItem.producto.unidadMedida as unknown as UnidadMedidaType) || "");
-        // Establecer precio unitario del producto
-        setPrecioUnitario(parseFloat(selectedItem.producto.precio) || 0);
-      } else {
-        // Limpiar campos si no se encuentra el producto
-        setUnidadMedidaSeleccionada("");
-        setPrecioUnitario(0);
-      }
+      // Establecer precio unitario del producto
+      setPrecioUnitario(parseFloat(selectedItem.producto.precio) || 0);
+    } else {
+      // Limpiar campos si no se encuentra el producto
+      setUnidadMedidaSeleccionada("");
+      setPrecioUnitario(0);
+    }
   };
 
   const clientesOptionsFromAPI = getFilteredClientOptions();
@@ -769,14 +780,6 @@ export const CreateSaleForm = () => {
       (client) => client.id.toString() === formState.cliente
     );
     return selectedClient ? selectedClient.id : null;
-  };
-
-  /**
-   * Determina si se debe mostrar el botón "Agregar nuevo cliente"
-   * Se muestra cuando el tipo de comprobante está seleccionado pero no hay cliente seleccionado
-   */
-  const shouldShowAddClientButton = (): boolean => {
-    return isClienteEnabled() && !formState.cliente;
   };
 
   /**
@@ -905,9 +908,9 @@ export const CreateSaleForm = () => {
             </Text>
             <ComboBox
               size="xs"
-              options={tiposComprobante.map(tipo => ({
+              options={tiposComprobante.map((tipo) => ({
                 value: tipo.idTablaDetalle.toString(),
-                label: `${tipo.codigo} - ${tipo.descripcion}`
+                label: `${tipo.codigo} - ${tipo.descripcion}`,
               }))}
               variant="createSale"
               name="tipoComprobante"
@@ -930,18 +933,17 @@ export const CreateSaleForm = () => {
               value={formState.cliente}
               onChange={handleClientComboBoxChange}
               onFilterTextChange={setClientSearchText}
-              disabled={false}// Habilitado solo para FACTURA o BOLETA
+              disabled={false}
             />
           </div>
-          {shouldShowAddClientButton() && (
-            <Button
-              size="tableItemSize"
-              variant="tableItemStyle"
-              onClick={handleOpenNewClientModal}
-            >
-              Agregar nuevo cliente
-            </Button>
-          )}
+
+          <Button
+            size="tableItemSize"
+            variant="tableItemStyle"
+            onClick={handleOpenNewClientModal}
+          >
+            Agregar nuevo cliente
+          </Button>
         </div>
 
         {/** Fila 2: Fecha de emisión, Moneda y Tipo de cambio */}
@@ -1014,14 +1016,21 @@ export const CreateSaleForm = () => {
             <div
               className={`${styles.CreateSaleForm__FormField} ${styles["CreateSaleForm__FormField--cliente"]}`}
             >
-              <Text size="xs" color="neutral-primary">Comprobante afecto</Text>
+              <Text size="xs" color="neutral-primary">
+                Comprobante afecto
+              </Text>
               <ComboBox
                 size="xs"
                 options={getComprobantesAfectosOptions()}
                 variant="createSale"
                 name="idComprobanteAfecto"
-                value={formState.idComprobanteAfecto || ''}
-                onChange={(v) => (setFormState((prev) => ({...prev, idComprobanteAfecto: String(v)})))}
+                value={formState.idComprobanteAfecto || ""}
+                onChange={(v) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    idComprobanteAfecto: String(v),
+                  }))
+                }
               />
             </div>
           )}

@@ -1,6 +1,6 @@
 import { handleApiError } from "@/shared";
 import { inventoryApi } from "../api/inventoryApi";
-import type { InventoryItem, KardexResponse } from "./types";
+import type { InventoryItem, KardexResponse, InitialInventoryResponse } from "./types";
 import type { Product } from "@/domains/maintainers/types";
 
 /**
@@ -91,6 +91,24 @@ export class InventoryService {
   static async getCommonProducts(idAlmacen1: number, idAlmacen2: number): Promise<Product[]> {
     try {
       const response = await inventoryApi.getCommonProducts(idAlmacen1, idAlmacen2);
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  }
+
+  static async getInitialInventory(idInventario: number): Promise<InitialInventoryResponse> {
+    try {
+      const response = await inventoryApi.getInitialInventory(idInventario);
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  }
+
+  static async updateInitialInventory(idInventario: number, payload: { cantidadInicial?: number; costoUnitario?: number }): Promise<InitialInventoryResponse> {
+    try {
+      const response = await inventoryApi.updateInitialInventory(idInventario, payload);
       return response.data;
     } catch (error) {
       throw handleApiError(error);

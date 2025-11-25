@@ -21,6 +21,15 @@ export const inventoryApi = {
      */
     getCommonProducts: (idAlmacen1: number, idAlmacen2: number) => 
         apiClient.get(`${INVENTORY_ENDPOINTS.GET_COMMON_PRODUCTS}?idAlmacen1=${idAlmacen1}&idAlmacen2=${idAlmacen2}`),
+    getInitialInventory: (idInventario: number) =>
+        apiClient.get(INVENTORY_ENDPOINTS.GET_INITIAL_INVENTORY.replace(':id', idInventario.toString())),
+    updateInitialInventory: (
+        idInventario: number,
+        payload: { cantidadInicial?: number; costoUnitario?: number }
+    ) => apiClient.patch(
+        INVENTORY_ENDPOINTS.UPDATE_INITIAL_INVENTORY.replace(':id', idInventario.toString()),
+        payload
+    ),
 } as const;
 
 export type InventoryApi = typeof inventoryApi;
