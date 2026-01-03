@@ -37,6 +37,14 @@ export interface InventoryResponse {
 /**
  * Interface para un movimiento de kardex
  */
+export interface KardexDetalleSalida {
+  id: number;
+  idLote: number;
+  costoUnitarioDeLote: number;
+  cantidad: number;
+  costoTotalDeLote: number;
+}
+
 export interface KardexMovement {
   fecha: string;
   tipo: string;
@@ -47,13 +55,7 @@ export interface KardexMovement {
   saldo: number;
   costoUnitario: number;
   costoTotal: number;
-  detallesSalida?:{
-    id:number,
-    idLote:number,
-    costoUnitarioDeLote:number,
-    cantidad:number,
-    costoTotalDeLote:number
-  }[]
+  detallesSalida?: KardexDetalleSalida[];
 }
 
 /**
@@ -67,7 +69,7 @@ export interface KardexResponse {
   saldoActual: string;
   costoFinal: string;
   inventarioInicialCantidad: string;
-  inventarioInicialCostoTotal:string;
+  inventarioInicialCostoTotal: string;
 }
 
 export interface InitialInventoryResponse {
