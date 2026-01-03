@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { InventoryService } from "@/domains/inventory/services/InventoryService";
-import { ProductService } from "@/domains/maintainers/services";
-import { WarehouseService } from "@/domains/maintainers/services";
-import type { KardexMovement } from "@/domains/inventory/services/types";
+import { InventoryService } from "../services/InventoryService";
+import { ProductService, WarehouseService } from "@/domains/maintainers/services";
+import { ConfigurationService } from "@/domains/settings/services/ConfigurationService";
+import type { KardexMovement } from "../services/types";
 import type { Product, Warehouse } from "@/domains/maintainers/types";
+import type { MetodoValoracion } from "@/domains/settings/types";
 
 export const useKardexData = () => {
     const [searchParams] = useSearchParams();
@@ -18,7 +19,27 @@ export const useKardexData = () => {
     const [selectedMonth, setSelectedMonth] = useState<string>("");
     const [kardexData, setKardexData] = useState<KardexMovement[]>([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string>("");
+    const [error, setError] = useState<string | null>(null);
+
+    // Estado del método de valoración
+    const [valuationMethod, setValuationMethod] = useState<MetodoValoracion>('promedio');
+
+    // Load configuration
+    useEffect(() => {
+        const fetchConfiguration = async () => {
+            try {
+                const config = await ConfigurationService.getConfiguration();
+                if (config) {
+                    setValuationMethod(config.metodoValoracion);
+                }
+            } catch (err) {
+                console.error("Error fetching system configuration:", err);
+                // Default to 'promedio' or safe fallback if query fails
+            }
+        };
+        fetchConfiguration();
+    }, []);
+
     const [kardexResponse, setKardexResponse] = useState<{
         producto?: string;
         almacen?: string;
@@ -244,6 +265,7 @@ export const useKardexData = () => {
         error,
         kardexResponse,
         reportes,
-        isDirectLoad: !!searchParams.get("inventoryId")
+        isDirectLoad: !!searchParams.get("inventoryId"),
+        valuationMethod
     };
 };

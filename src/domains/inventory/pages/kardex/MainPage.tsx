@@ -27,6 +27,7 @@ export const MainPage: React.FC = () => {
     kardexResponse,
     reportes,
     isDirectLoad,
+    valuationMethod,
   } = useKardexData();
 
   const { handleExportToExcel, handleExportToPDF } = useKardexExport({
@@ -38,6 +39,7 @@ export const MainPage: React.FC = () => {
     products,
     selectedProductId,
     reportes,
+    valuationMethod,
   });
 
   const headers = [

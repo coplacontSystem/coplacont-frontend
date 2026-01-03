@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import type { KardexMovement } from "../services/types";
 import type { Product } from "@/domains/maintainers/types";
 import type { IAuthUser } from "@/domains/auth/types";
+import type { MetodoValoracion } from "@/domains/settings/types";
 import { calculateKardexBalances, calculateTotals, calculatePhysicalTotals } from "../utils/kardexCalculations";
 import { generateKardexExcel } from "../utils/excelGenerator";
 import { generateKardexPDF } from "../utils/pdfGenerator";
@@ -23,6 +24,7 @@ interface UseKardexExportProps {
         inventarioInicialCantidad: number;
         inventarioInicialCostoTotal: number;
     };
+    valuationMethod: MetodoValoracion;
 }
 
 export const useKardexExport = ({
@@ -34,6 +36,7 @@ export const useKardexExport = ({
     products,
     selectedProductId,
     reportes,
+    valuationMethod
 }: UseKardexExportProps) => {
 
     const getCommonData = useCallback(() => {
@@ -52,10 +55,12 @@ export const useKardexExport = ({
         const processedData = calculateKardexBalances(kardexData, {
             cantidad: reportes.inventarioInicialCantidad,
             costoTotal: reportes.inventarioInicialCostoTotal
-        });
+        }, valuationMethod === 'fifo' ? 'PEPS' : 'promedio');
 
         const totals = calculateTotals(kardexData);
         const physicalTotals = calculatePhysicalTotals(kardexData);
+
+        const methodLabel = valuationMethod === 'fifo' ? 'PEPS' : 'PROMEDIO';
 
         return {
             processedData,
@@ -69,11 +74,12 @@ export const useKardexExport = ({
                 producto: kardexResponse.producto || "",
                 inventarioInicialCantidad: reportes.inventarioInicialCantidad,
                 inventarioInicialCostoTotal: reportes.inventarioInicialCostoTotal,
-                year: selectedYear
+                year: selectedYear,
+                metodoValuacion: methodLabel
             },
             filename: `kardex_completo_${(kardexResponse.producto || "producto").replace(/\s+/g, "_")}_${(kardexResponse.almacen || "almacen").replace(/\s+/g, "_")}_${selectedYear}${selectedMonth ? `_${selectedMonth}` : ""}.xlsx`
         };
-    }, [kardexData, kardexResponse, user, selectedYear, selectedMonth, products, selectedProductId, reportes]);
+    }, [kardexData, kardexResponse, user, selectedYear, selectedMonth, products, selectedProductId, reportes, valuationMethod]);
 
 
     /**

@@ -12,6 +12,7 @@ interface ExcelGeneratorProps {
         producto: string;
         inventarioInicialCantidad: number;
         inventarioInicialCostoTotal: number;
+        metodoValuacion: string;
     };
     totals: KardexTotals;
     physicalTotals: KardexTotals;
@@ -43,7 +44,7 @@ export const generateKardexExcel = ({
         ["TIPO (TABLA 5):", "", "", "", "01"],
         ["DESCRIPCIÓN:", "", "", "", reportInfo.producto],
         ["CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):", "", "", "", "01"],
-        ["MÉTODO DE VALUACIÓN:", "", "", "", "PEPS"],
+        ["MÉTODO DE VALUACIÓN:", "", "", "", reportInfo.metodoValuacion],
         [],
         // Encabezados de la tabla
         [
@@ -106,6 +107,12 @@ export const generateKardexExcel = ({
 
     // Llenar datos procesados
     processedData.forEach((item) => {
+        const batches = item.saldo.batches;
+        const hasBatches = batches && batches.length > 0;
+
+        // Fila principal (primera línea del saldo o línea única)
+        const firstBatch = hasBatches ? batches[0] : null;
+
         reportData.push([
             item.fecha,
             item.type,
@@ -118,10 +125,33 @@ export const generateKardexExcel = ({
             item.salida.cantidad > 0 ? item.salida.cantidad.toFixed(2) : "",
             item.salida.costoUnitario > 0 ? item.salida.costoUnitario.toFixed(4) : "",
             item.salida.costoTotal > 0 ? item.salida.costoTotal.toFixed(2) : "",
-            item.saldo.cantidad.toFixed(2),
-            item.saldo.costoUnitario.toFixed(4),
-            item.saldo.costoTotal.toFixed(2)
+            firstBatch ? firstBatch.cantidad.toFixed(2) : "0.00",
+            firstBatch ? firstBatch.costoUnitario.toFixed(4) : "0.0000",
+            firstBatch ? firstBatch.costoTotal.toFixed(2) : "0.00"
         ]);
+
+        // Filas adicionales para el resto de lotes
+        if (hasBatches && batches.length > 1) {
+            for (let i = 1; i < batches.length; i++) {
+                const batch = batches[i];
+                reportData.push([
+                    "", // Fecha
+                    "", // Tipo
+                    "", // Serie
+                    "", // Numero
+                    "", // Op
+                    "", // Ent Cant
+                    "", // Ent Unit
+                    "", // Ent Total
+                    "", // Sal Cant
+                    "", // Sal Unit
+                    "", // Sal Total
+                    batch.cantidad.toFixed(2),
+                    batch.costoUnitario.toFixed(4),
+                    batch.costoTotal.toFixed(2)
+                ]);
+            }
+        }
     });
 
     // Agregar fila de totales
@@ -220,6 +250,10 @@ export const generateKardexExcel = ({
     // El saldoCantidad en processedData es correcto para ambos.
 
     processedData.forEach((item) => {
+        const batches = item.saldo.batches;
+        const hasBatches = batches && batches.length > 0;
+        const firstBatch = hasBatches ? batches[0] : null;
+
         physicalReportData.push([
             item.fecha,
             item.type,
@@ -228,8 +262,25 @@ export const generateKardexExcel = ({
             item.operationType,
             item.entrada.cantidad > 0 ? item.entrada.cantidad.toFixed(2) : "",
             item.salida.cantidad > 0 ? item.salida.cantidad.toFixed(2) : "",
-            item.saldo.cantidad.toFixed(2)
+            firstBatch ? firstBatch.cantidad.toFixed(2) : "0.00"
         ]);
+
+        // Filas adicionales para el resto de lotes en el reporte físico
+        if (hasBatches && batches.length > 1) {
+            for (let i = 1; i < batches.length; i++) {
+                const batch = batches[i];
+                physicalReportData.push([
+                    "", // Fecha
+                    "", // Tipo
+                    "", // Serie
+                    "", // Numero
+                    "", // Op
+                    "", // Ent Cant
+                    "", // Sal Cant
+                    batch.cantidad.toFixed(2) // Saldo Cant
+                ]);
+            }
+        }
     });
 
     physicalReportData.push([

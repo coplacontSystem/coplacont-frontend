@@ -12,6 +12,7 @@ interface PDFGeneratorProps {
         inventarioInicialCantidad: number;
         inventarioInicialCostoTotal: number;
         year: string;
+        metodoValuacion: string;
     };
     totals: KardexTotals;
     physicalTotals: KardexTotals;
@@ -29,7 +30,12 @@ export const generateKardexPDF = ({
         : 0;
 
     // Filas del cuerpo para Formato 13.1 (Valorizado)
-    const rowsValorizado = processedData.map(item => `
+    const rowsValorizado = processedData.map(item => {
+        const batches = item.saldo.batches;
+        const hasBatches = batches && batches.length > 0;
+        const firstBatch = hasBatches ? batches[0] : null;
+
+        let html = `
     <tr>
       <td>${item.fecha}</td>
       <td>${item.type}</td>
@@ -45,14 +51,37 @@ export const generateKardexPDF = ({
       <td>${item.salida.costoUnitario > 0 ? item.salida.costoUnitario.toFixed(4) : ""}</td>
       <td>${item.salida.costoTotal > 0 ? item.salida.costoTotal.toFixed(2) : ""}</td>
       
-      <td>${item.saldo.cantidad.toFixed(2)}</td>
-      <td>${item.saldo.costoUnitario.toFixed(4)}</td>
-      <td>${item.saldo.costoTotal.toFixed(2)}</td>
+      <td>${firstBatch ? firstBatch.cantidad.toFixed(2) : "0.00"}</td>
+      <td>${firstBatch ? firstBatch.costoUnitario.toFixed(4) : "0.0000"}</td>
+      <td>${firstBatch ? firstBatch.costoTotal.toFixed(2) : "0.00"}</td>
     </tr>
-  `).join("");
+  `;
+
+        // Add extra rows for remaining batches
+        if (hasBatches && batches.length > 1) {
+            for (let i = 1; i < batches.length; i++) {
+                const batch = batches[i];
+                html += `
+        <tr>
+          <td></td><td></td><td></td><td></td><td></td>
+          <td></td><td></td><td></td>
+          <td></td><td></td><td></td>
+          <td>${batch.cantidad.toFixed(2)}</td>
+          <td>${batch.costoUnitario.toFixed(4)}</td>
+          <td>${batch.costoTotal.toFixed(2)}</td>
+        </tr>`;
+            }
+        }
+        return html;
+    }).join("");
 
     // Filas del cuerpo para Formato 12.1 (Físico)
-    const rowsFisico = processedData.map(item => `
+    const rowsFisico = processedData.map(item => {
+        const batches = item.saldo.batches;
+        const hasBatches = batches && batches.length > 0;
+        const firstBatch = hasBatches ? batches[0] : null;
+
+        let html = `
     <tr>
       <td>${item.fecha}</td>
       <td>${item.type}</td>
@@ -64,9 +93,24 @@ export const generateKardexPDF = ({
       
       <td>${item.salida.cantidad > 0 ? item.salida.cantidad.toFixed(2) : ""}</td>
       
-      <td>${item.saldo.cantidad.toFixed(2)}</td>
+      <td>${firstBatch ? firstBatch.cantidad.toFixed(2) : "0.00"}</td>
     </tr>
-  `).join("");
+  `;
+
+        // Add extra rows for remaining batches
+        if (hasBatches && batches.length > 1) {
+            for (let i = 1; i < batches.length; i++) {
+                const batch = batches[i];
+                html += `
+        <tr>
+          <td></td><td></td><td></td><td></td><td></td>
+          <td></td><td></td>
+          <td>${batch.cantidad.toFixed(2)}</td>
+        </tr>`;
+            }
+        }
+        return html;
+    }).join("");
 
 
     const htmlContent = `
@@ -103,6 +147,7 @@ export const generateKardexPDF = ({
         <p><strong>TIPO (TABLA 5):01</strong></p>
         <p><strong>DESCRIPCIÓN:</strong> ${reportInfo.producto || ""}</p>
         <p><strong>CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6):01</strong></p>
+        <p><strong>MÉTODO DE VALUACIÓN:</strong> ${reportInfo.metodoValuacion}</p>
       </div>
       
       <table>
