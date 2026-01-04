@@ -1,7 +1,7 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import styles from "./MainPage.module.scss";
 import type { Transaction } from "../../services/types";
-import { TransactionsService } from "../../services/TransactionsService";
+import { useGetSalesQuery } from "../../api/transactionsApi";
 
 import {
   Button,
@@ -24,46 +24,29 @@ import { useNavigate } from "react-router-dom";
 import { MAIN_ROUTES, TRANSACTIONS_ROUTES, COMMON_ROUTES } from "@/router";
 
 export const MainPage: React.FC = () => {
-  const [loading, setLoading] = useState(false);
+  const { data: sales = [], isLoading } = useGetSalesQuery();
+  const [filteredSales, setFilteredSales] = useState<Transaction[]>([]);
+  const [hasFiltered, setHasFiltered] = useState(false);
 
   const navigate = useNavigate();
 
-  // State for sales data
-  const [sales, setSales] = useState<Transaction[]>([]);
-  const [filteredSales, setFilteredSales] = useState<Transaction[]>([]);
+  const displayedSales = hasFiltered ? filteredSales : sales;
 
-  // State for modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSale, setSelectedSale] = useState<Transaction | null>(null);
 
-  // Effect to fetch sales data on component mount
-  useEffect(() => {
-    setLoading(true);
-    TransactionsService.getSales()
-      .then((response) => {
-        setSales(response);
-        setFilteredSales(response); // Inicializar con todas las ventas
-        console.log(response);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  // Top filters
   const [filterType, setFilterType] = useState("mes-anio");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Secondary filters
   const [entity, setEntity] = useState("");
   const [client, setClient] = useState("");
   const [documentType, setDocumentType] = useState("");
 
-  // Modal state for upload sales
   const [isUploadOpen, setUploadOpen] = useState(false);
 
-  // Plantilla de columnas para la tabla de detalles (en fr)
   const detailGridTemplate = "0.8fr 2fr 1.2fr 1.2fr 1fr 1fr 1.2fr";
 
   const handleRegisterSale = () => {
@@ -75,7 +58,6 @@ export const MainPage: React.FC = () => {
   const applyAllFilters = () => {
     let filtered = [...sales];
 
-    // Aplicar filtros de fecha
     if (filterType === "mes-anio") {
       if (month && year) {
         filtered = filtered.filter((sale) => {
@@ -94,7 +76,6 @@ export const MainPage: React.FC = () => {
       }
     }
 
-    // Aplicar filtro de serie y número (buscar en la concatenación serie + " - " + numero)
     if (entity) {
       filtered = filtered.filter((sale) => {
         const serieNumero = `${sale.serie}-${sale.numero}`;
@@ -105,21 +86,14 @@ export const MainPage: React.FC = () => {
       });
     }
 
-    // Aplicar filtro de cliente (buscar en razonSocial, nombreCompleto, numeroDocumento)
     if (client) {
       filtered = filtered.filter((sale) => {
         const searchTerm = client.toLowerCase();
         const entidad = sale.entidad;
-
         if (!entidad) return false;
-
-        // Buscar en razón social
         const razonSocial = entidad.razonSocial?.toLowerCase() || "";
-        // Buscar en nombre completo
         const nombreCompleto = entidad.nombreCompleto?.toLowerCase() || "";
-        // Buscar en número de documento
         const numeroDocumento = entidad.numeroDocumento?.toLowerCase() || "";
-
         return (
           razonSocial.includes(searchTerm) ||
           nombreCompleto.includes(searchTerm) ||
@@ -128,7 +102,6 @@ export const MainPage: React.FC = () => {
       });
     }
 
-    // Aplicar filtro de tipo de documento
     if (documentType) {
       filtered = filtered.filter((sale) => {
         const docTypeMap: { [key: string]: string } = {
@@ -149,43 +122,30 @@ export const MainPage: React.FC = () => {
     }
 
     setFilteredSales(filtered);
-    console.log("Filtered sales:", filtered);
+    setHasFiltered(true);
   };
 
-  /**
-   * Maneja el filtrado desde la barra superior
-   */
   const handleTopFilter = () => {
     applyAllFilters();
   };
 
-  /**
-   * Maneja el filtrado desde los filtros secundarios
-   */
   const handleSecondaryFilter = () => {
     applyAllFilters();
   };
 
-  /**
-   * Abre el modal con el detalle de la venta seleccionada
-   */
   const handleOpenDetailModal = (sale: Transaction) => {
     setSelectedSale(sale);
     setIsModalOpen(true);
   };
 
-  /**
-   * Cierra el modal de detalle
-   */
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedSale(null);
   };
 
-  // Transformar datos de ventas filtradas en filas de tabla
   const rows = useMemo(
     () =>
-      filteredSales.map(
+      displayedSales.map(
         (sale, idx) =>
           ({
             id: idx + 1,
@@ -215,10 +175,9 @@ export const MainPage: React.FC = () => {
             ],
           } as TableRow)
       ),
-    [filteredSales]
+    [displayedSales]
   );
 
-  // Cabeceras de la tabla basadas en la interfaz Transaction
   const headers = [
     "Correlativo",
     "Tipo Comprobante",
@@ -235,9 +194,8 @@ export const MainPage: React.FC = () => {
   return (
     <PageLayout
       title="Ventas"
-      subtitle={`Muestra la lista de ventas de AGOSTO 2025.`}
+      subtitle={`Muestra la lista de ventas registradas.`}
     >
-      {/* Barra de filtros superior */}
       <section className={styles.filtersTop}>
         <div className={styles.filter}>
           <Text size="xs" color="neutral-primary">
@@ -253,7 +211,6 @@ export const MainPage: React.FC = () => {
           />
         </div>
 
-        {/* Filtros condicionales según el tipo seleccionado */}
         {filterType === "mes-anio" && (
           <>
             <div className={styles.filter}>
@@ -327,7 +284,6 @@ export const MainPage: React.FC = () => {
 
       <Divider />
 
-      {/* Botones de acciones */}
       <section className={styles.actionsRow}>
         <Button size="medium" onClick={handleRegisterSale}>
           + Nueva venta
@@ -343,7 +299,6 @@ export const MainPage: React.FC = () => {
 
       <Divider />
 
-      {/* Barra de búsqueda secundaria */}
       <section className={styles.filtersSecondary}>
         <div className={styles.filter}>
           <Text size="xs" color="neutral-primary">
@@ -396,10 +351,8 @@ export const MainPage: React.FC = () => {
 
       <Divider />
 
-      {/* Tabla de resultados */}
       <Table headers={headers} rows={rows} gridTemplate={gridTemplate} />
 
-      {/* Modal Detalle de venta */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -410,7 +363,6 @@ export const MainPage: React.FC = () => {
       >
         {selectedSale && (
           <div>
-            {/* Datos de cabecera */}
             <div style={{ marginBottom: "24px" }}>
               <Text as="h3" size="md" weight={600}>
                 Información General
@@ -471,7 +423,6 @@ export const MainPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Tabla de detalles */}
             <div>
               <Text as="h3" size="md" weight={600}>
                 Detalle de Items
@@ -507,7 +458,6 @@ export const MainPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Totales */}
             <div
               style={{
                 marginTop: "24px",
@@ -557,7 +507,6 @@ export const MainPage: React.FC = () => {
         )}
       </Modal>
 
-      {/* Modal Subir ventas */}
       <Modal
         isOpen={isUploadOpen}
         onClose={() => setUploadOpen(false)}
@@ -567,7 +516,7 @@ export const MainPage: React.FC = () => {
           Funcionalidad de carga masiva en desarrollo.
         </Text>
       </Modal>
-      {loading && <Loader text="Procesando..." />}
+      {isLoading && <Loader text="Procesando..." />}
     </PageLayout>
   );
 };

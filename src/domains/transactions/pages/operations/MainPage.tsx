@@ -1,7 +1,7 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import styles from "./MainPage.module.scss";
 import type { Transaction } from "../../services/types";
-import { TransactionsService } from "../../services/TransactionsService";
+import { useGetOperationsQuery } from "../../api/transactionsApi";
 
 import {
   Button,
@@ -23,61 +23,34 @@ import {
 import { useNavigate } from "react-router-dom";
 import { MAIN_ROUTES, TRANSACTIONS_ROUTES, COMMON_ROUTES } from "@/router";
 
-/**
- * Página principal de operaciones
- * Lista los comprobantes de operaciones (excluye compras/ventas desde backend)
- */
 const MainPage: React.FC = () => {
-  const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate();
-
-  // State for operations
-  const [operations, setOperations] = useState<Transaction[]>([]);
+  const { data: operations = [], isLoading } = useGetOperationsQuery();
   const [filteredOperations, setFilteredOperations] = useState<Transaction[]>(
     []
   );
+  const [hasFiltered, setHasFiltered] = useState(false);
 
-  // State for modal
+  const navigate = useNavigate();
+
+  const displayedOperations = hasFiltered ? filteredOperations : operations;
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOperation, setSelectedOperation] =
     useState<Transaction | null>(null);
 
-  /**
-   * Carga operaciones desde el backend.
-   * No se aplica filtro por tipo aquí; el backend ya excluye COMPRA y VENTA.
-   */
-  useEffect(() => {
-    setLoading(true);
-    // TODO: Crear endpoint específico para operaciones
-    // Por ahora usamos el mismo servicio pero filtraremos por tipo de operación
-    TransactionsService.getOperations()
-      .then((response) => {
-        // El backend ya devuelve únicamente operaciones distintas a compra/venta
-        setOperations(response);
-        setFilteredOperations(response);
-        console.log(response);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  // Top filters
   const [filterType, setFilterType] = useState("mes-anio");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Secondary filters
   const [entity, setEntity] = useState("");
   const [provider, setProvider] = useState("");
   const [documentType, setDocumentType] = useState("");
 
-  // Auto-apply filters logic removed in favor of manual filtering
   const applyAllFilters = () => {
-    let filtered = operations;
+    let filtered = [...operations];
 
-    // Filter by entity
     if (entity) {
       filtered = filtered.filter((operation) =>
         operation.persona?.razonSocial
@@ -86,7 +59,6 @@ const MainPage: React.FC = () => {
       );
     }
 
-    // Filter by provider (same as entity for operations)
     if (provider) {
       filtered = filtered.filter((operation) =>
         operation.persona?.razonSocial
@@ -95,7 +67,6 @@ const MainPage: React.FC = () => {
       );
     }
 
-    // Filter by document type
     if (documentType) {
       filtered = filtered.filter((operation) => {
         const tipoComprobante =
@@ -108,7 +79,6 @@ const MainPage: React.FC = () => {
       });
     }
 
-    // Filter by date range
     if (filterType === "rango-fechas" && startDate && endDate) {
       filtered = filtered.filter((operation) => {
         const operationDate = new Date(operation.fechaEmision);
@@ -127,48 +97,33 @@ const MainPage: React.FC = () => {
     }
 
     setFilteredOperations(filtered);
+    setHasFiltered(true);
   };
 
-  /**
-   * Maneja el filtrado desde la barra superior
-   */
   const handleTopFilter = () => {
     applyAllFilters();
   };
 
-  /**
-   * Maneja el filtrado desde los filtros secundarios
-   */
   const handleSecondaryFilter = () => {
     applyAllFilters();
   };
 
-  /**
-   * Maneja la navegación para registrar una nueva operación
-   */
   const handleRegisterOperation = () => {
     navigate(
       `${MAIN_ROUTES.TRANSACTIONS}${TRANSACTIONS_ROUTES.OPERATIONS}${COMMON_ROUTES.REGISTER}`
     );
   };
 
-  /**
-   * Abre el modal con el detalle de la operación seleccionada
-   */
   const handleOpenDetailModal = (operation: Transaction) => {
     setSelectedOperation(operation);
     setIsModalOpen(true);
   };
 
-  /**
-   * Cierra el modal de detalle
-   */
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedOperation(null);
   };
 
-  // Memoized table data
   const tableData = useMemo(() => {
     const headers = [
       "Correlativo",
@@ -182,7 +137,7 @@ const MainPage: React.FC = () => {
       "Acciones",
     ];
 
-    const rows: TableRow[] = filteredOperations.map((operation) => ({
+    const rows: TableRow[] = displayedOperations.map((operation) => ({
       id: operation.idComprobante,
       cells: [
         operation.correlativo || "-",
@@ -207,9 +162,8 @@ const MainPage: React.FC = () => {
     }));
 
     return { headers, rows };
-  }, [filteredOperations]);
+  }, [displayedOperations]);
 
-  // Plantilla de columnas para la tabla principal (en fr)
   const gridTemplate = "0.5fr 0.5fr 1fr 0.8fr 0.5fr 0.5fr 0.8fr 0.5fr 0.8fr";
 
   return (
@@ -218,7 +172,6 @@ const MainPage: React.FC = () => {
       subtitle="Gestiona las operaciones distintas a compras y ventas"
     >
       <div className={styles.homePurchasePage}>
-        {/* Filtros superiores */}
         <section className={styles.filtersTop}>
           <div className={styles.filter}>
             <Text size="xs" color="neutral-primary">
@@ -298,7 +251,6 @@ const MainPage: React.FC = () => {
 
         <Divider />
 
-        {/* Botones de acción */}
         <section className={styles.actionsRow}>
           <Button size="medium" onClick={handleRegisterOperation}>
             + Nueva operación
@@ -307,7 +259,6 @@ const MainPage: React.FC = () => {
 
         <Divider />
 
-        {/* Barra de búsqueda secundaria */}
         <section className={styles.filtersSecondary}>
           <div className={styles.filter}>
             <Text size="xs" color="neutral-primary">
@@ -355,8 +306,7 @@ const MainPage: React.FC = () => {
 
         <Divider />
 
-        {/* Tabla de operaciones */}
-        {loading ? (
+        {isLoading ? (
           <Loader />
         ) : (
           <Table
@@ -366,7 +316,6 @@ const MainPage: React.FC = () => {
           />
         )}
 
-        {/* Modal de detalle */}
         <Modal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
