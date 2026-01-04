@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import styles from "./MainPage.module.scss";
 import { PageLayout } from "@/components";
 import {
@@ -13,19 +13,29 @@ import {
   ComboBox,
   Loader,
 } from "@/components";
-import { CategoryService } from "@/domains/maintainers/services";
-import type {
-  Category,
-  CreateCategoryPayload,
-} from "@/domains/maintainers/types";
+import {
+  useGetCategoriesQuery,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+} from "@/domains/maintainers/api/categoryApi";
+import type { CreateCategoryPayload } from "@/domains/maintainers/types";
+import type { Category } from "@/domains/maintainers/types";
 import { FormCategory } from "../../organisms/FormCategory";
 
 export const MainPage: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
+  // RTK Query hooks - automáticamente hace el fetch y cachea
+  const { data: categories = [], isLoading: isFetching } =
+    useGetCategoriesQuery();
+  const [createCategory, { isLoading: isCreating }] =
+    useCreateCategoryMutation();
+  const [updateCategory, { isLoading: isUpdating }] =
+    useUpdateCategoryMutation();
+
+  const isLoading = isFetching || isCreating || isUpdating;
+
   const [isOpen, setIsOpen] = useState(false);
   const [isView, setIsView] = useState(false);
   const [isCreate, setIsCreate] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   const [newCategory, setNewCategory] = useState<CreateCategoryPayload>({
@@ -73,32 +83,11 @@ export const MainPage: React.FC = () => {
     });
   };
 
-  const fetchCategories = () => {
-    setIsLoading(true);
-    CategoryService.getAll()
-      .then((data) => setCategories(Array.isArray(data) ? data : []))
-      .catch(() => setCategories([]))
-      .finally(() => setIsLoading(false));
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
   const handleStateCategory = async (id: number, currentState: boolean) => {
     try {
-      setIsLoading(true);
-      const updatedData = { estado: !currentState };
-      await CategoryService.update(id, updatedData);
-      setCategories((prev) =>
-        prev.map((cat) =>
-          cat.id === id ? { ...cat, estado: !currentState } : cat
-        )
-      );
+      await updateCategory({ id, data: { estado: !currentState } }).unwrap();
     } catch (error) {
       console.error("Error al cambiar estado de categoría:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -114,17 +103,13 @@ export const MainPage: React.FC = () => {
     }
 
     try {
-      setIsLoading(true);
       setError("");
-      await CategoryService.create(newCategory);
+      await createCategory(newCategory).unwrap();
       setIsCreate(false);
       setIsOpen(false);
-      fetchCategories();
       resetForm();
     } catch (error) {
       console.error("Error al crear categoría:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -248,7 +233,6 @@ export const MainPage: React.FC = () => {
       <Modal
         isOpen={isOpen}
         onClose={() => {
-          fetchCategories();
           setIsOpen(false);
           setIsCreate(false);
           setIsView(false);
@@ -272,11 +256,11 @@ export const MainPage: React.FC = () => {
           error={error}
           setError={setError}
           loading={isLoading}
-          setLoading={setIsLoading}
+          setLoading={() => {}}
           isCreate={isCreate}
         />
       </Modal>
-      
+
       {isLoading && <Loader text="Procesando..." />}
     </PageLayout>
   );

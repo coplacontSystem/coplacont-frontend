@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PageLayout } from "@/components";
 import {
   Table,
@@ -10,23 +10,29 @@ import {
   AddDropdownButton,
   Loader,
 } from "@/components";
-import { ProductService } from "@/domains/maintainers/services";
+import {
+  useGetProductsQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+} from "@/domains/maintainers/api/productApi";
 import type { Product } from "@/domains/maintainers/types";
 import { ProductModal } from "@/domains/maintainers/organisms";
 
 export const MainPage: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const { data: products = [], isLoading: isFetching } = useGetProductsQuery();
+  const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
+  const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
+
+  const loading = isFetching || isCreating || isUpdating;
+
   const [isOpen, setIsOpen] = useState(false);
   const [isView, setIsView] = useState(false);
   const [error, setError] = useState("");
-  console.log("error", error);
-  const [loading, setLoading] = useState(false);
-  console.log("loading", loading);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [productType, setProductType] = useState<"producto" | "servicio">(
     "producto"
   );
-  //const [isLoading, setIsLoading] = useState(true);
+
   const [newProduct, setNewProduct] = useState({
     codigo: "",
     nombre: "",
@@ -51,7 +57,6 @@ export const MainPage: React.FC = () => {
     unidadMedida: string;
     idCategoria: number;
   }) => {
-    setLoading(true);
     try {
       const payload = {
         ...data,
@@ -59,15 +64,12 @@ export const MainPage: React.FC = () => {
         tipo: productType,
         estado: true,
       };
-      const created = await ProductService.create(payload);
-      setProducts((prev) => [created, ...prev]);
+      await createProduct(payload).unwrap();
       setIsOpen(false);
       resetForm();
-    } catch (error) {
+    } catch (err) {
       setError(`Error al crear el ${productType}`);
-      console.error(`Error al crear ${productType}:`, error);
-    } finally {
-      setLoading(false);
+      console.error(`Error al crear ${productType}:`, err);
     }
   };
 
@@ -79,37 +81,27 @@ export const MainPage: React.FC = () => {
   }) => {
     if (!selectedProduct) return;
 
-    setLoading(true);
     try {
-      const updated = await ProductService.update(selectedProduct.id, {
-        ...data,
-        categoriaId: data.idCategoria,
-      });
-      setProducts((prev) =>
-        prev.map((p) => (p.id === selectedProduct.id ? updated : p))
-      );
-      setSelectedProduct(updated);
+      await updateProduct({
+        id: selectedProduct.id,
+        data: {
+          ...data,
+          categoriaId: data.idCategoria,
+        },
+      }).unwrap();
       setIsOpen(false);
-    } catch (error) {
+    } catch (err) {
       setError(`Error al actualizar el ${productType}`);
-      console.error(`Error al actualizar ${productType}:`, error);
-    } finally {
-      setLoading(false);
+      console.error(`Error al actualizar ${productType}:`, err);
     }
   };
 
   const handleStateProduct = async (id: number, currentState: boolean) => {
-    setLoading(true);
     try {
-      await ProductService.update(id, { estado: !currentState });
-      setProducts((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, estado: !currentState } : p))
-      );
-    } catch (error) {
+      await updateProduct({ id, data: { estado: !currentState } }).unwrap();
+    } catch (err) {
       setError("Error al cambiar estado del producto");
-      console.error("Error al cambiar estado:", error);
-    } finally {
-      setLoading(false);
+      console.error("Error al cambiar estado:", err);
     }
   };
 
@@ -121,26 +113,6 @@ export const MainPage: React.FC = () => {
     }
   };
 
-  const fetchProducts = () => {
-    setLoading(true);
-    ProductService.getAll()
-      .then((res: Product[]) => {
-        console.log("Productos cargados:", res);
-        setProducts(res);
-      })
-      .catch((error) => {
-        console.error("Error al cargar productos:", error);
-        setProducts([]);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
   const headers = [
     "Código",
     "Nombre",
@@ -151,43 +123,40 @@ export const MainPage: React.FC = () => {
     "Acciones",
   ];
 
-  const rows: TableRow[] = products.map((p) => {
-    console.log("Producto individual:", p);
-    return {
-      id: p.id,
-      cells: [
-        p.codigo || "No asignado",
-        p.nombre || "Sin nombre",
-        p.descripcion || "Sin descripción",
-        p.unidadMedida || "Sin unidad",
-        p.categoria?.nombre || "Sin categoría",
-        <StateTag state={p.estado} />,
-        <div style={{ display: "flex", gap: "8px" }}>
-          <Button
-            size="tableItemSize"
-            variant="tableItemStyle"
-            onClick={() => {
-              setSelectedProduct(p);
-              setProductType(p.tipo as "producto" | "servicio");
-              setIsView(true);
-              setIsOpen(true);
-            }}
-          >
-            Ver detalles
-          </Button>
-          <Button
-            size="tableItemSize"
-            variant="tableItemStyle"
-            onClick={() => {
-              handleStateProduct(p.id, p.estado);
-            }}
-          >
-            {p.estado ? <CloseIcon /> : <CheckIcon />}
-          </Button>
-        </div>,
-      ],
-    };
-  });
+  const rows: TableRow[] = products.map((p) => ({
+    id: p.id,
+    cells: [
+      p.codigo || "No asignado",
+      p.nombre || "Sin nombre",
+      p.descripcion || "Sin descripción",
+      p.unidadMedida || "Sin unidad",
+      p.categoria?.nombre || "Sin categoría",
+      <StateTag state={p.estado} />,
+      <div style={{ display: "flex", gap: "8px" }}>
+        <Button
+          size="tableItemSize"
+          variant="tableItemStyle"
+          onClick={() => {
+            setSelectedProduct(p);
+            setProductType(p.tipo as "producto" | "servicio");
+            setIsView(true);
+            setIsOpen(true);
+          }}
+        >
+          Ver detalles
+        </Button>
+        <Button
+          size="tableItemSize"
+          variant="tableItemStyle"
+          onClick={() => {
+            handleStateProduct(p.id, p.estado);
+          }}
+        >
+          {p.estado ? <CloseIcon /> : <CheckIcon />}
+        </Button>
+      </div>,
+    ],
+  }));
 
   const gridTemplate = "1.5fr 2fr 1.5fr 1fr 1.5fr 1fr 2.5fr";
 
@@ -208,16 +177,6 @@ export const MainPage: React.FC = () => {
                 setIsOpen(true);
               },
             },
-            //{
-            //  label: "Nuevo servicio",
-            //  onClick: () => {
-            //    setProductType("servicio");
-            //    resetForm();
-            //    setIsView(false);
-            //    setSelectedProduct(null);
-            //    setIsOpen(true);
-            //  },
-            //},
           ]}
         />
       }
@@ -251,6 +210,7 @@ export const MainPage: React.FC = () => {
       />
 
       {loading && <Loader text="Procesando..." />}
+      {error && <div style={{ color: "red" }}>{error}</div>}
     </PageLayout>
   );
 };

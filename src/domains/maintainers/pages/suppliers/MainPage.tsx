@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import styles from './MainPage.module.scss';
+import { useState, useMemo } from "react";
+import styles from "./MainPage.module.scss";
 import {
   PageLayout,
   Table,
@@ -10,21 +10,36 @@ import {
   CheckIcon,
   Input,
   Text,
-  ComboBox, Loader
+  ComboBox,
+  Loader,
 } from "@/components";
-import { EntitiesService } from "../../services";
+import {
+  useGetSuppliersQuery,
+  useCreateEntityMutation,
+  useDeleteEntityMutation,
+  useRestoreEntityMutation,
+} from "../../api/entitiesApi";
 import { FormEntidad } from "../../organisms/FormEntidad";
 import type { Entidad } from "../../services";
 
 export const MainPage: React.FC = () => {
-  const [suppliers, setSuppliers] = useState<Entidad[]>([]);
+  const { data: suppliers = [], isLoading: isFetching } =
+    useGetSuppliersQuery(true);
+  const [createEntity, { isLoading: isCreating }] = useCreateEntityMutation();
+  const [deleteEntity, { isLoading: isDeleting }] = useDeleteEntityMutation();
+  const [restoreEntity, { isLoading: isRestoring }] =
+    useRestoreEntityMutation();
+
+  const loading = isFetching || isCreating || isDeleting || isRestoring;
+
   const [status, setStatus] = useState("all");
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isView, setIsView] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [selectedSupplier, setSelectedSupplier] = useState<Entidad | null>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<Entidad | null>(
+    null
+  );
 
   const [newSupplier, setNewSupplier] = useState({
     esProveedor: true,
@@ -64,7 +79,7 @@ export const MainPage: React.FC = () => {
     });
   };
 
-  const hanldeCreateSupplier = async () => {
+  const handleCreateSupplier = async () => {
     setError("");
 
     if (!newSupplier.tipo) {
@@ -74,7 +89,9 @@ export const MainPage: React.FC = () => {
 
     if (newSupplier.tipo === "JURIDICA") {
       if (newSupplier.numeroDocumento.length !== 11) {
-        setError("El número de documento para JURIDICA debe tener 11 caracteres.");
+        setError(
+          "El número de documento para JURIDICA debe tener 11 caracteres."
+        );
         return;
       }
       if (!newSupplier.razonSocial.trim()) {
@@ -85,7 +102,9 @@ export const MainPage: React.FC = () => {
 
     if (newSupplier.tipo === "NATURAL") {
       if (newSupplier.numeroDocumento.length !== 8) {
-        setError("El número de documento para NATURAL debe tener 8 caracteres.");
+        setError(
+          "El número de documento para NATURAL debe tener 8 caracteres."
+        );
         return;
       }
       if (!newSupplier.nombre.trim()) {
@@ -102,32 +121,34 @@ export const MainPage: React.FC = () => {
       }
     }
 
-    setLoading(true);
-
-    const response = await EntitiesService.postEntidad(newSupplier);
-    if (response.success) {
-      fetchSuppliers();
-      resetForm();
-      setIsOpen(false);
-    } else {
-      setError(response.message);
+    try {
+      const response = await createEntity(newSupplier).unwrap();
+      if (response.success) {
+        resetForm();
+        setIsOpen(false);
+      } else {
+        setError(response.message);
+      }
+    } catch {
+      setError("Error al crear el proveedor");
     }
-
-    setLoading(false);
   };
 
   const handleStateSupplier = async (id: number, state: boolean) => {
-    let response;
-    if (state) {
-      response = await EntitiesService.deleteEntidad(id);
-    } else {
-      response = await EntitiesService.restoreEntidad(id);
-    }
-
-    if (response.success) {
-      fetchSuppliers();
-    } else {
-      setError(response.message);
+    try {
+      if (state) {
+        const response = await deleteEntity(id).unwrap();
+        if (!response.success) {
+          setError(response.message);
+        }
+      } else {
+        const response = await restoreEntity(id).unwrap();
+        if (!response.success) {
+          setError(response.message);
+        }
+      }
+    } catch {
+      setError("Error al cambiar estado del proveedor");
     }
   };
 
@@ -135,20 +156,6 @@ export const MainPage: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
-  const fetchSuppliers = () => {
-    setLoading(true);
-    EntitiesService.getSuppliers(true).then((res) => {
-      setSuppliers(res);
-    }).finally(() => {
-      setLoading(false);
-    });
-  };
-
-  useEffect(() => {
-    fetchSuppliers();
-  }, []);
-
-  // 🔍 Filtro por texto y estado
   const filteredSuppliers = useMemo(() => {
     return suppliers.filter((s) => {
       const bySearch = search
@@ -157,11 +164,7 @@ export const MainPage: React.FC = () => {
         : true;
 
       const byStatus =
-        status === "all"
-          ? true
-          : status === "active"
-          ? s.activo
-          : !s.activo;
+        status === "all" ? true : status === "active" ? s.activo : !s.activo;
 
       return bySearch && byStatus;
     });
@@ -271,16 +274,16 @@ export const MainPage: React.FC = () => {
       >
         <FormEntidad
           setError={setError}
-          setLoading={setLoading}
+          setLoading={() => {}}
           entidad={isView && selectedSupplier ? selectedSupplier : newSupplier}
           error={error}
           loading={loading}
           onChange={handleSupplierChange}
-          onSubmit={isView ? undefined : hanldeCreateSupplier}
+          onSubmit={isView ? undefined : handleCreateSupplier}
           readOnly={isView}
         />
       </Modal>
-            {loading && <Loader text="Procesando..." />}
+      {loading && <Loader text="Procesando..." />}
     </PageLayout>
   );
 };

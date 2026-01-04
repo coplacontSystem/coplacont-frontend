@@ -1,19 +1,42 @@
-import { useState, useEffect, useMemo } from "react";
-import styles from './MainPage.module.scss';
-import { PageLayout, Table, Button, Modal, CloseIcon, CheckIcon, StateTag, Input, Text, ComboBox } from "@/components";
-import { EntitiesService } from "../../services";
+import { useState, useMemo } from "react";
+import styles from "./MainPage.module.scss";
+import {
+  PageLayout,
+  Table,
+  Button,
+  Modal,
+  CloseIcon,
+  CheckIcon,
+  StateTag,
+  Input,
+  Text,
+  ComboBox,
+} from "@/components";
+import {
+  useGetClientsQuery,
+  useCreateEntityMutation,
+  useDeleteEntityMutation,
+  useRestoreEntityMutation,
+} from "../../api/entitiesApi";
 import type { Entidad } from "../../services";
 import { FormEntidad } from "../../organisms/FormEntidad";
-import {Loader} from "@/components";
+import { Loader } from "@/components";
 
 export const MainPage: React.FC = () => {
-  const [clients, setClients] = useState<Entidad[]>([]);
+  const { data: clients = [], isLoading: isFetching } =
+    useGetClientsQuery(true);
+  const [createEntity, { isLoading: isCreating }] = useCreateEntityMutation();
+  const [deleteEntity, { isLoading: isDeleting }] = useDeleteEntityMutation();
+  const [restoreEntity, { isLoading: isRestoring }] =
+    useRestoreEntityMutation();
+
+  const loading = isFetching || isCreating || isDeleting || isRestoring;
+
   const [status, setStatus] = useState("all");
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isView, setIsView] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Entidad | null>(null);
 
   const [newClient, setNewClient] = useState({
@@ -64,7 +87,9 @@ export const MainPage: React.FC = () => {
 
     if (newClient.tipo === "JURIDICA") {
       if (newClient.numeroDocumento.length !== 11) {
-        setError("El número de documento para JURIDICA debe tener 11 caracteres.");
+        setError(
+          "El número de documento para JURIDICA debe tener 11 caracteres."
+        );
         return;
       }
       if (!newClient.razonSocial.trim()) {
@@ -75,7 +100,9 @@ export const MainPage: React.FC = () => {
 
     if (newClient.tipo === "NATURAL") {
       if (newClient.numeroDocumento.length !== 8) {
-        setError("El número de documento para NATURAL debe tener 8 caracteres.");
+        setError(
+          "El número de documento para NATURAL debe tener 8 caracteres."
+        );
         return;
       }
       if (!newClient.nombre.trim()) {
@@ -92,32 +119,34 @@ export const MainPage: React.FC = () => {
       }
     }
 
-    setLoading(true);
-
-    const response = await EntitiesService.postEntidad(newClient);
-    if (response.success) {
-      fetchClients();
-      resetForm();
-      setIsOpen(false);
-    } else {
-      setError(response.message);
+    try {
+      const response = await createEntity(newClient).unwrap();
+      if (response.success) {
+        resetForm();
+        setIsOpen(false);
+      } else {
+        setError(response.message);
+      }
+    } catch {
+      setError("Error al crear el cliente");
     }
-
-    setLoading(false);
   };
 
   const handleStateClient = async (id: number, state: boolean) => {
-    let response;
-    if (state) {
-      response = await EntitiesService.deleteEntidad(id);
-    } else {
-      response = await EntitiesService.restoreEntidad(id);
-    }
-
-    if (response.success) {
-      fetchClients();
-    } else {
-      setError(response.message);
+    try {
+      if (state) {
+        const response = await deleteEntity(id).unwrap();
+        if (!response.success) {
+          setError(response.message);
+        }
+      } else {
+        const response = await restoreEntity(id).unwrap();
+        if (!response.success) {
+          setError(response.message);
+        }
+      }
+    } catch {
+      setError("Error al cambiar estado del cliente");
     }
   };
 
@@ -125,20 +154,6 @@ export const MainPage: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
-  const fetchClients = () => {
-    setLoading(true);
-    EntitiesService.getClients(true).then((res) => {
-      setClients(res);
-    }).finally(() => {
-      setLoading(false);
-    });
-  };
-
-  useEffect(() => {
-    fetchClients();
-  }, []);
-
-  // 🔍 Filtro combinado por texto y estado
   const filteredClients = useMemo(() => {
     return clients.filter((c) => {
       const bySearch = search
@@ -147,11 +162,7 @@ export const MainPage: React.FC = () => {
         : true;
 
       const byStatus =
-        status === "all"
-          ? true
-          : status === "active"
-          ? c.activo
-          : !c.activo;
+        status === "all" ? true : status === "active" ? c.activo : !c.activo;
 
       return bySearch && byStatus;
     });
@@ -220,7 +231,6 @@ export const MainPage: React.FC = () => {
         </Button>
       }
     >
-      {/* 🔍 Filtros */}
       <section className={styles.MainPage}>
         <div className={styles.MainPage__Filter}>
           <Text size="xs" color="neutral-primary">
@@ -261,7 +271,7 @@ export const MainPage: React.FC = () => {
       >
         <FormEntidad
           setError={setError}
-          setLoading={setLoading}
+          setLoading={() => {}}
           entidad={isView && selectedClient ? selectedClient : newClient}
           error={error}
           loading={loading}

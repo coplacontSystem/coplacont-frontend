@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import styles from "./MainPage.module.scss";
 
 import {
@@ -17,19 +17,32 @@ import {
 } from "@/components";
 
 import type { Warehouse, WarehouseParcial } from "@/domains/maintainers/types";
-import { WarehouseService } from "@/domains/maintainers/services";
+import {
+  useGetWarehousesQuery,
+  useCreateWarehouseMutation,
+  useUpdateWarehouseMutation,
+  useDeleteWarehouseMutation,
+} from "@/domains/maintainers/api/warehouseApi";
 import { FormWarehouse } from "../../organisms/FormWarehouse/FormWarehouse";
 
 export const MainPage: React.FC = () => {
+  const { data: warehouses = [], isLoading: isFetching } =
+    useGetWarehousesQuery();
+  const [createWarehouse, { isLoading: isCreating }] =
+    useCreateWarehouseMutation();
+  const [updateWarehouse, { isLoading: isUpdating }] =
+    useUpdateWarehouseMutation();
+  const [deleteWarehouse, { isLoading: isDeleting }] =
+    useDeleteWarehouseMutation();
+
+  const loading = isFetching || isCreating || isUpdating || isDeleting;
+
   const [code, setCode] = useState("");
   const [status, setStatus] = useState("all");
-
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isView, setIsView] = useState(false);
   const [isCreate, setIsCreate] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const [newWarehouse, setNewWarehouse] = useState<WarehouseParcial>({
     nombre: "",
@@ -43,7 +56,7 @@ export const MainPage: React.FC = () => {
     null
   );
 
-  const hanldeWarehouseChange = (
+  const handleWarehouseChange = (
     field: keyof Warehouse,
     value: string | number | boolean
   ) => {
@@ -65,7 +78,6 @@ export const MainPage: React.FC = () => {
   };
 
   const handleCreate = async () => {
-    // Validación simple: revisa si algún campo está vacío
     if (!newWarehouse.nombre.trim()) {
       setError("El nombre del almacén es obligatorio.");
       return;
@@ -80,36 +92,21 @@ export const MainPage: React.FC = () => {
     }
 
     try {
-      setLoading(true);
-      setError(""); // limpia errores previos
-      const created = await WarehouseService.create(newWarehouse);
-      fetchWarehouses();
+      setError("");
+      await createWarehouse({
+        nombre: newWarehouse.nombre,
+        ubicacion: newWarehouse.ubicacion,
+        descripcion: newWarehouse.descripcion,
+        responsable: newWarehouse.responsable,
+        telefono: newWarehouse.telefono,
+      }).unwrap();
       resetForm();
       setIsOpen(false);
-      setWarehouses((prev) => [created, ...prev]);
-    } catch (error) {
-      console.error("Error al crear almacén:", error);
+    } catch (err) {
+      console.error("Error al crear almacén:", err);
       setError("No se pudo crear el almacén. Inténtalo de nuevo.");
-    } finally {
-      setLoading(false);
     }
   };
-
-  const fetchWarehouses = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await WarehouseService.getAll();
-      setWarehouses(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Error al obtener almacenes:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchWarehouses();
-  }, [fetchWarehouses]);
 
   const filtered = useMemo(() => {
     return warehouses.filter((w) => {
@@ -129,20 +126,16 @@ export const MainPage: React.FC = () => {
   const handleChangeState = useCallback(
     async (id: number, estado: boolean) => {
       try {
-        setLoading(true);
         if (estado) {
-          await WarehouseService.delete(id);
+          await deleteWarehouse(id).unwrap();
         } else {
-          await WarehouseService.restore(id, { estado: true });
+          await updateWarehouse({ id, data: { estado: true } }).unwrap();
         }
-        fetchWarehouses();
-      } catch (error) {
-        console.error("Error al eliminar almacén:", error);
-      } finally {
-        setLoading(false);
+      } catch (err) {
+        console.error("Error al cambiar estado del almacén:", err);
       }
     },
-    [fetchWarehouses]
+    [deleteWarehouse, updateWarehouse]
   );
 
   const rows: TableRow[] = useMemo(
@@ -245,7 +238,6 @@ export const MainPage: React.FC = () => {
       <Modal
         isOpen={isOpen}
         onClose={() => {
-          fetchWarehouses();
           resetForm();
           setIsCreate(false);
           setIsView(false);
@@ -263,8 +255,8 @@ export const MainPage: React.FC = () => {
           error={error}
           loading={loading}
           setError={setError}
-          setLoading={setLoading}
-          onChange={hanldeWarehouseChange}
+          setLoading={() => {}}
+          onChange={handleWarehouseChange}
           onSubmit={handleCreate}
           readOnly={isView}
           isCreate={isCreate}
