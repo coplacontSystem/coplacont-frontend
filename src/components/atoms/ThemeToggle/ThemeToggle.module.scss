@@ -11,6 +11,11 @@
   background-color: transparent;
   width: 100%;
   cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--text-color);
+  }
 
   &__label {
     font-size: $font-size-sm;
@@ -33,6 +38,28 @@
 
       &--inactive {
         color: $neutral-3;
+      }
+    }
+  }
+
+  &.collapsed {
+    flex-direction: column;
+    justify-content: center;
+    padding: $spacing-xs;
+    margin-bottom: $spacing-xl;
+    width: auto;
+    border: none;
+
+    // Hide label is handled by React logic, but can safeguard here if needed
+    // .themeToggle__label { display: none; }
+
+    .themeToggle__icons {
+      flex-direction: column;
+      gap: $spacing-sm;
+
+      .icon {
+        width: 20px;
+        height: 20px;
       }
     }
   }

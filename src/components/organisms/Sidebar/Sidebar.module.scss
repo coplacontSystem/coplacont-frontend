@@ -1,4 +1,4 @@
-@use '@/styles' as *;
+@use "@/styles" as *;
 
 .sidebar {
   width: 280px;
@@ -9,6 +9,45 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
+  transition: width 0.3s ease;
+
+  &.collapsed {
+    width: 80px;
+
+    .header {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .userInfo {
+      display: none;
+    }
+
+    .sectionTitle {
+      justify-content: center;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: $spacing-xs;
+      border-radius: $border-radius-md;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: var(--hover-color, rgba(0, 0, 0, 0.05));
+      }
+
+      &__title {
+        display: none;
+      }
+    }
+
+    .menuList {
+      display: none;
+    }
+  }
 }
 
 .sidebar .header {
@@ -21,7 +60,7 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-xs;
-  padding: $spacing-sm  $spacing-md;
+  padding: $spacing-sm $spacing-md;
   background-color: $bg-color-secondary;
   border-radius: $border-radius-lg;
   border: 1px solid var(--border-color);
@@ -33,7 +72,7 @@
     font-weight: $font-weight-semibold;
     color: $text-color;
   }
-  .userEmail{
+  .userEmail {
     font-size: $font-size-xs;
     color: $text-color-1;
     font-weight: $font-weight-medium;
@@ -52,13 +91,12 @@
   gap: $spacing-xl;
   overflow-y: auto;
 
-    
   //Para ocultar scrollbar
   &::-webkit-scrollbar {
     display: none;
   }
   /* Ocultar scrollbar en Firefox */
-  scrollbar-width: none; 
+  scrollbar-width: none;
   -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
@@ -85,13 +123,13 @@
   display: flex;
   justify-content: start;
   align-items: center;
-  gap:4px;
-  &__title{
+  gap: 4px;
+  &__title {
     font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $text-color-1;
-  letter-spacing: 0.5px;
-  margin: 0;
+    font-weight: $font-weight-medium;
+    color: $text-color-1;
+    letter-spacing: 0.5px;
+    margin: 0;
   }
 }
 

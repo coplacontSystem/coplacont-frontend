@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./Sidebar.module.scss";
 
 import { GoHomeFill } from "react-icons/go";
+import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
 
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Logo } from "@/components/atoms";
@@ -35,7 +36,12 @@ const ROLE_DISPLAY_NAMES: Record<string, string> = {
   [UserRoleType.EMPRESA]: "Empresa",
 };
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isCollapsed: boolean;
+  onToggle: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
@@ -44,7 +50,7 @@ export const Sidebar: React.FC = () => {
     ? user.persona.nombreEmpresa
     : user?.nombre || "Usuario";
 
-    const userEmail = user?.email || "Sin email";
+  const userEmail = user?.email || "Sin email";
 
   const userRoleType =
     user?.roles && user.roles.length > 0 ? user.roles[0].nombre : "";
@@ -78,10 +84,36 @@ export const Sidebar: React.FC = () => {
   };
 
   return (
-    <aside className={styles.sidebar}>
+    <aside
+      className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}
+    >
       <div className={styles.header}>
-        <Logo src="/assets/sidebar/logo.svg" width={141} height={52} />
-        <Logo src="/assets/sidebar/hide.svg" size={18} />
+        {!isCollapsed && (
+          <Logo src="/assets/sidebar/logo.svg" width={141} height={52} />
+        )}
+        <div
+          onClick={onToggle}
+          style={{
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: isCollapsed ? "100%" : "auto",
+          }}
+        >
+          <div
+            style={{
+              transform: isCollapsed ? "rotate(180deg)" : "none",
+              transition: "transform 0.3s ease",
+              display: "flex",
+            }}
+          >
+            <TbLayoutSidebarLeftCollapse
+              size={20}
+              style={{ color: "var(--text-color)" }}
+            />
+          </div>
+        </div>
       </div>
 
       <div className={styles.userInfo}>
@@ -91,13 +123,16 @@ export const Sidebar: React.FC = () => {
       </div>
 
       <div>
-        <ThemeToggle />
+        <ThemeToggle isCollapsed={isCollapsed} />
       </div>
 
       <nav className={styles.navigation}>
         {/* Dashboard - Página de inicio */}
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>
+          <div
+            className={styles.sectionTitle}
+            onClick={() => isCollapsed && onToggle()}
+          >
             <GoHomeFill style={{ color: "var(--text-color)" }} />
             <h3 className={styles.sectionTitle__title}>Panel de control</h3>
           </div>
@@ -116,7 +151,10 @@ export const Sidebar: React.FC = () => {
         {/* Transacciones - Compras y Ventas */}
         {userRoleType === "EMPRESA" && (
           <div className={styles.section}>
-            <div className={styles.sectionTitle}>
+            <div
+              className={styles.sectionTitle}
+              onClick={() => isCollapsed && onToggle()}
+            >
               <TransaccionesIcon />
               <h3 className={styles.sectionTitle__title}>Transacciones</h3>
             </div>
@@ -184,7 +222,10 @@ export const Sidebar: React.FC = () => {
         {/* Inventario - Gestión de stock */}
         {userRoleType === "EMPRESA" && (
           <div className={styles.section}>
-            <div className={styles.sectionTitle}>
+            <div
+              className={styles.sectionTitle}
+              onClick={() => isCollapsed && onToggle()}
+            >
               <InventarioIcon />
               <h3 className={styles.sectionTitle__title}>Inventario</h3>
             </div>
@@ -231,7 +272,10 @@ export const Sidebar: React.FC = () => {
         {/* Estados Financieros - Análisis financiero */}
         {userRoleType === "EMPRESA" && (
           <div className={styles.section}>
-            <div className={styles.sectionTitle}>
+            <div
+              className={styles.sectionTitle}
+              onClick={() => isCollapsed && onToggle()}
+            >
               <EstadosFinancierosIcon />
               <h3 className={styles.sectionTitle__title}>
                 Estados Financieros
@@ -301,7 +345,10 @@ export const Sidebar: React.FC = () => {
         {/* Mantenedores - Gestión de entidades */}
         {userRoleType === "EMPRESA" && (
           <div className={styles.section}>
-            <div className={styles.sectionTitle}>
+            <div
+              className={styles.sectionTitle}
+              onClick={() => isCollapsed && onToggle()}
+            >
               <MantenedoresIcon />
               <h3 className={styles.sectionTitle__title}>Mantenedores</h3>
             </div>
@@ -382,7 +429,10 @@ export const Sidebar: React.FC = () => {
 
         {/* Configuración - Ajustes y parámetros */}
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>
+          <div
+            className={styles.sectionTitle}
+            onClick={() => isCollapsed && onToggle()}
+          >
             <ConfiguracionIcon />
             <h3 className={styles.sectionTitle__title}>Configuración</h3>
           </div>
@@ -484,7 +534,10 @@ export const Sidebar: React.FC = () => {
 
         {/* Logout */}
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>
+          <div
+            className={styles.sectionTitle}
+            onClick={() => isCollapsed && onToggle()}
+          >
             <CerrarSesionIcon />
             <Link
               to={`${AUTH_ROUTES.AUTH}${AUTH_ROUTES.LOGIN}`}
