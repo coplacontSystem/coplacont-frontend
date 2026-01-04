@@ -1,12 +1,14 @@
-.MainPage{
-  display: flex;
-  gap: 2rem;
+.MainPage {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  align-items: end;
   margin-bottom: 1rem;
 
-  &__Filter{
+  &__Filter {
     display: flex;
     flex-direction: column;
     align-items: start;
     gap: 0.5rem;
   }
-} 
+}

@@ -73,8 +73,8 @@ const MainPage: React.FC = () => {
   const [provider, setProvider] = useState("");
   const [documentType, setDocumentType] = useState("");
 
-  // Auto-apply filters when secondary filter values change
-  useEffect(() => {
+  // Auto-apply filters logic removed in favor of manual filtering
+  const applyAllFilters = () => {
     let filtered = operations;
 
     // Filter by entity
@@ -127,17 +127,21 @@ const MainPage: React.FC = () => {
     }
 
     setFilteredOperations(filtered);
-  }, [
-    entity,
-    provider,
-    documentType,
-    operations,
-    filterType,
-    month,
-    year,
-    startDate,
-    endDate,
-  ]);
+  };
+
+  /**
+   * Maneja el filtrado desde la barra superior
+   */
+  const handleTopFilter = () => {
+    applyAllFilters();
+  };
+
+  /**
+   * Maneja el filtrado desde los filtros secundarios
+   */
+  const handleSecondaryFilter = () => {
+    applyAllFilters();
+  };
 
   /**
    * Maneja la navegación para registrar una nueva operación
@@ -218,7 +222,7 @@ const MainPage: React.FC = () => {
         <section className={styles.filtersTop}>
           <div className={styles.filter}>
             <Text size="xs" color="neutral-primary">
-              Filtrar por
+              Tipo de filtro
             </Text>
             <ComboBox
               options={filterTypeOptions}
@@ -267,7 +271,9 @@ const MainPage: React.FC = () => {
                 <Input
                   type="date"
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setStartDate(e.target.value)
+                  }
                 />
               </div>
               <div className={styles.filter}>
@@ -277,13 +283,19 @@ const MainPage: React.FC = () => {
                 <Input
                   type="date"
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setEndDate(e.target.value)
+                  }
                 />
               </div>
             </>
           )}
+
+          <Button size="small" onClick={handleTopFilter}>
+            Filtrar
+          </Button>
         </section>
-        
+
         <Divider />
 
         {/* Botones de acción */}
@@ -305,7 +317,9 @@ const MainPage: React.FC = () => {
               placeholder="Buscar por entidad"
               value={entity}
               size="xs"
-              onChange={(e) => setEntity(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEntity(e.target.value)
+              }
             />
           </div>
           <div className={styles.filter}>
@@ -316,7 +330,9 @@ const MainPage: React.FC = () => {
               size="xs"
               placeholder="Buscar por proveedor o cliente"
               value={provider}
-              onChange={(e) => setProvider(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setProvider(e.target.value)
+              }
             />
           </div>
           <div className={styles.filter}>
@@ -331,6 +347,10 @@ const MainPage: React.FC = () => {
               placeholder="Seleccionar tipo"
             />
           </div>
+
+          <Button size="small" onClick={handleSecondaryFilter}>
+            Filtrar búsqueda
+          </Button>
         </section>
 
         <Divider />
@@ -339,11 +359,11 @@ const MainPage: React.FC = () => {
         {loading ? (
           <Loader />
         ) : (
-            <Table
-              headers={tableData.headers}
-              rows={tableData.rows}
-              gridTemplate={gridTemplate}
-            />
+          <Table
+            headers={tableData.headers}
+            rows={tableData.rows}
+            gridTemplate={gridTemplate}
+          />
         )}
 
         {/* Modal de detalle */}

@@ -63,7 +63,7 @@ export const useKardexData = () => {
      * Calcula el costo total de ventas sumando todos los movimientos de salida
      * Considera los detalles de salida cuando están disponibles
      */
-    const getCostoVentasTotal = (kardexData: KardexMovement[]) => {
+    const getCostoVentasTotal = useCallback((kardexData: KardexMovement[]) => {
         let costoTotal = 0;
         kardexData.forEach((movement) => {
             if (movement.tipo === "Salida") {
@@ -85,7 +85,7 @@ export const useKardexData = () => {
             }
         });
         return costoTotal;
-    };
+    }, []);
 
     /**
      * Carga el kardex directamente usando un ID de inventario
@@ -126,7 +126,7 @@ export const useKardexData = () => {
         } finally {
             setLoading(false);
         }
-    }, [selectedYear]);
+    }, [selectedYear, getCostoVentasTotal]);
 
     // Cargar productos y almacenes al montar el componente
     useEffect(() => {
@@ -165,81 +165,77 @@ export const useKardexData = () => {
         fetchData();
     }, [searchParams, fetchKardexByInventoryId]);
 
-    // Cargar movimientos de kardex cuando se seleccionen producto y almacén
-    useEffect(() => {
-        const fetchKardexMovements = async () => {
-            // Solo cargar si ambos están seleccionados
-            if (!selectedProductId || !selectedWarehouseId) {
-                setKardexData([]);
-                setReportes({
-                    cantidadActual: 0,
-                    costoUnitarioFinal: 0,
-                    costoTotalFinal: 0,
-                    costoVentasTotal: 0,
-                    inventarioInicialCantidad: 0,
-                    inventarioInicialCostoTotal: 0,
-                });
-                return;
-            }
+    // Exponer la función de carga manual
+    const fetchKardex = useCallback(async () => {
+        // Solo cargar si ambos están seleccionados
+        if (!selectedProductId || !selectedWarehouseId) {
+            setKardexData([]);
+            setReportes({
+                cantidadActual: 0,
+                costoUnitarioFinal: 0,
+                costoTotalFinal: 0,
+                costoVentasTotal: 0,
+                inventarioInicialCantidad: 0,
+                inventarioInicialCostoTotal: 0,
+            });
+            return;
+        }
 
-            try {
-                setLoading(true);
-                setError("");
-                const inventario =
-                    await InventoryService.getInventoryByWarehouseAndProduct(
-                        parseInt(selectedWarehouseId),
-                        parseInt(selectedProductId)
-                    );
-
-                // Calcular fechas de inicio y fin basadas en el año y mes seleccionados
-                let startDate: string;
-                let endDate: string;
-
-                if (selectedMonth) {
-                    // Si hay un mes seleccionado, usar solo ese mes
-                    const daysInMonth = new Date(parseInt(selectedYear), parseInt(selectedMonth), 0).getDate();
-                    startDate = `${selectedYear}-${selectedMonth}-01`;
-                    endDate = `${selectedYear}-${selectedMonth}-${daysInMonth.toString().padStart(2, '0')}`;
-                } else {
-                    // Si no hay mes seleccionado, usar todo el año
-                    startDate = `${selectedYear}-01-01`;
-                    endDate = `${selectedYear}-12-31`;
-                }
-
-                const response = await InventoryService.getKardexMovements(
-                    parseInt(inventario.id),
-                    startDate,
-                    endDate
+        try {
+            setLoading(true);
+            setError("");
+            const inventario =
+                await InventoryService.getInventoryByWarehouseAndProduct(
+                    parseInt(selectedWarehouseId),
+                    parseInt(selectedProductId)
                 );
-                setKardexData(response.movimientos);
-                setKardexResponse(response);
-                setReportes({
-                    cantidadActual: parseFloat(response.saldoActual),
-                    costoUnitarioFinal:
-                        parseFloat(response.saldoActual) === 0
-                            ? 0
-                            : parseFloat(response.costoFinal) /
-                            parseFloat(response.saldoActual),
-                    costoTotalFinal: parseFloat(response.costoFinal),
-                    costoVentasTotal: getCostoVentasTotal(response.movimientos),
-                    inventarioInicialCantidad: parseFloat(
-                        response.inventarioInicialCantidad
-                    ),
-                    inventarioInicialCostoTotal: parseFloat(
-                        response.inventarioInicialCostoTotal
-                    ),
-                });
-            } catch (error) {
-                console.error("Error fetching kardex movements:", error);
-                setError("Error al cargar los movimientos de kardex");
-                setKardexData([]);
-            } finally {
-                setLoading(false);
-            }
-        };
 
-        fetchKardexMovements();
-    }, [selectedProductId, selectedWarehouseId, selectedYear, selectedMonth]);
+            // Calcular fechas de inicio y fin basadas en el año y mes seleccionados
+            let startDate: string;
+            let endDate: string;
+
+            if (selectedMonth) {
+                // Si hay un mes seleccionado, usar solo ese mes
+                const daysInMonth = new Date(parseInt(selectedYear), parseInt(selectedMonth), 0).getDate();
+                startDate = `${selectedYear}-${selectedMonth}-01`;
+                endDate = `${selectedYear}-${selectedMonth}-${daysInMonth.toString().padStart(2, '0')}`;
+            } else {
+                // Si no hay mes seleccionado, usar todo el año
+                startDate = `${selectedYear}-01-01`;
+                endDate = `${selectedYear}-12-31`;
+            }
+
+            const response = await InventoryService.getKardexMovements(
+                parseInt(inventario.id),
+                startDate,
+                endDate
+            );
+            setKardexData(response.movimientos);
+            setKardexResponse(response);
+            setReportes({
+                cantidadActual: parseFloat(response.saldoActual),
+                costoUnitarioFinal:
+                    parseFloat(response.saldoActual) === 0
+                        ? 0
+                        : parseFloat(response.costoFinal) /
+                        parseFloat(response.saldoActual),
+                costoTotalFinal: parseFloat(response.costoFinal),
+                costoVentasTotal: getCostoVentasTotal(response.movimientos),
+                inventarioInicialCantidad: parseFloat(
+                    response.inventarioInicialCantidad
+                ),
+                inventarioInicialCostoTotal: parseFloat(
+                    response.inventarioInicialCostoTotal
+                ),
+            });
+        } catch (error) {
+            console.error("Error fetching kardex movements:", error);
+            setError("Error al cargar los movimientos de kardex");
+            setKardexData([]);
+        } finally {
+            setLoading(false);
+        }
+    }, [selectedProductId, selectedWarehouseId, selectedYear, selectedMonth, getCostoVentasTotal]);
 
     // Efecto para recargar kardex cuando cambia el año en modo directo
     useEffect(() => {
@@ -266,6 +262,7 @@ export const useKardexData = () => {
         kardexResponse,
         reportes,
         isDirectLoad: !!searchParams.get("inventoryId"),
-        valuationMethod
+        valuationMethod,
+        fetchKardex
     };
 };

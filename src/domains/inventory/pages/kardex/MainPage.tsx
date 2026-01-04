@@ -28,6 +28,7 @@ export const MainPage: React.FC = () => {
     reportes,
     isDirectLoad,
     valuationMethod,
+    fetchKardex,
   } = useKardexData();
 
   const { handleExportToExcel, handleExportToPDF } = useKardexExport({
@@ -118,6 +119,7 @@ export const MainPage: React.FC = () => {
           products={products}
           warehouses={warehouses}
           isDirectLoad={isDirectLoad}
+          onFilter={fetchKardex}
         />
 
         <Divider />

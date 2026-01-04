@@ -1,5 +1,5 @@
 import React from "react";
-import { ComboBox, Text } from "@/components";
+import { Button, ComboBox, Text } from "@/components";
 import styles from "../MainPage.module.scss";
 import type { Product, Warehouse } from "@/domains/maintainers/types";
 
@@ -15,6 +15,7 @@ interface KardexFiltersProps {
   products: Product[];
   warehouses: Warehouse[];
   isDirectLoad: boolean;
+  onFilter: () => void;
 }
 
 export const KardexFilters: React.FC<KardexFiltersProps> = ({
@@ -29,6 +30,7 @@ export const KardexFilters: React.FC<KardexFiltersProps> = ({
   products,
   warehouses,
   isDirectLoad,
+  onFilter,
 }) => {
   // Generar opciones de años (últimos 10 años)
   const currentYear = new Date().getFullYear();
@@ -131,6 +133,9 @@ export const KardexFilters: React.FC<KardexFiltersProps> = ({
               placeholder="Seleccionar producto"
             />
           </div>
+          <Button size="small" onClick={onFilter}>
+            Filtrar
+          </Button>
         </>
       )}
     </div>

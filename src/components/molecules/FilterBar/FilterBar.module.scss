@@ -1,0 +1,29 @@
+@use "@/styles" as *;
+
+.filterBar {
+  display: grid;
+  grid-template-columns: 1fr; // Mobile default
+  gap: $spacing-lg;
+  align-items: end;
+  padding: $spacing-md;
+  background-color: var(--bg-secondary);
+  border-radius: $border-radius-md;
+  margin-bottom: $spacing-lg;
+  border: 1px solid var(--border-color);
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(var(--filter-cols, 4), 1fr);
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-sm;
+    justify-content: flex-start; // Align buttons to start of their cell
+    align-items: center;
+
+    // Ensure actions take up a slot correctly or span if needed.
+    // In a 4 -column grid, naturally flows as the next item.
+    // If we want it strictly right-aligned or specific placement, we'd need more logic.
+    // But 'repeat(4, 1fr)' implies simple flow.
+  }
+}

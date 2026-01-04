@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import styles from "./MainPage.module.scss";
 
 import {
@@ -95,7 +95,7 @@ export const MainPage: React.FC = () => {
     }
   };
 
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = useCallback(async () => {
     try {
       setLoading(true);
       const data = await WarehouseService.getAll();
@@ -105,11 +105,11 @@ export const MainPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchWarehouses();
-  }, []);
+  }, [fetchWarehouses]);
 
   const filtered = useMemo(() => {
     return warehouses.filter((w) => {
@@ -126,21 +126,24 @@ export const MainPage: React.FC = () => {
     });
   }, [warehouses, code, status]);
 
-  const handleChangeState = async (id: number, estado: boolean) => {
-    try {
-      setLoading(true);
-      if (estado) {
-        await WarehouseService.delete(id);
-      } else {
-        await WarehouseService.restore(id, { estado: true });
+  const handleChangeState = useCallback(
+    async (id: number, estado: boolean) => {
+      try {
+        setLoading(true);
+        if (estado) {
+          await WarehouseService.delete(id);
+        } else {
+          await WarehouseService.restore(id, { estado: true });
+        }
+        fetchWarehouses();
+      } catch (error) {
+        console.error("Error al eliminar almacén:", error);
+      } finally {
+        setLoading(false);
       }
-      fetchWarehouses();
-    } catch (error) {
-      console.error("Error al eliminar almacén:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [fetchWarehouses]
+  );
 
   const rows: TableRow[] = useMemo(
     () =>
@@ -178,7 +181,7 @@ export const MainPage: React.FC = () => {
           </div>,
         ],
       })),
-    [filtered]
+    [filtered, handleChangeState]
   );
 
   const headers = [
