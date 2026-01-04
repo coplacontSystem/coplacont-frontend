@@ -47,6 +47,8 @@ export const apiSlice = createApi({
         'Categories',
         'Warehouses',
         'Inventory',
+        'InventoryLots',
+        'Kardex',
         'Transactions',
         'Entities',
         'Clients',

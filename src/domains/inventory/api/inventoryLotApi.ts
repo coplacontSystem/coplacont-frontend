@@ -1,51 +1,98 @@
-import { apiClient } from "@/shared";
+import { apiSlice } from '@/store/api/apiSlice';
 
-/**
- * API para la gestión de lotes de inventario
- */
+interface InventoryLot {
+  id: number;
+  idInventario: number;
+  fechaIngreso: string;
+  cantidadInicial: number;
+  cantidadActual: number;
+  costoUnitario: number;
+  fechaVencimiento?: string;
+  numeroLote?: string;
+  observaciones?: string;
+}
+
+interface CreateInventoryLotPayload {
+  idInventario: number;
+  fechaIngreso: string;
+  cantidadInicial: number;
+  cantidadActual: number;
+  costoUnitario: number;
+  fechaVencimiento?: string;
+  numeroLote?: string;
+  observaciones?: string;
+}
+
+export const inventoryLotRtkApi = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    createInventoryLot: builder.mutation<InventoryLot, CreateInventoryLotPayload>({
+      query: (body) => ({
+        url: '/inventario-lote',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: [
+        { type: 'InventoryLots', id: 'LIST' },
+        { type: 'Inventory', id: 'LIST' },
+      ],
+    }),
+
+    getAllInventoryLots: builder.query<InventoryLot[], void>({
+      query: () => '/inventario-lote',
+      transformResponse: (response: { data: InventoryLot[] } | InventoryLot[]) => {
+        if (Array.isArray(response)) {
+          return response;
+        }
+        return response.data ?? [];
+      },
+      providesTags: (result) =>
+        result
+          ? [
+            ...result.map(({ id }) => ({ type: 'InventoryLots' as const, id })),
+            { type: 'InventoryLots', id: 'LIST' },
+          ]
+          : [{ type: 'InventoryLots', id: 'LIST' }],
+    }),
+
+    getInventoryLotsByInventory: builder.query<InventoryLot[], number>({
+      query: (idInventario) => `/inventario-lote/inventario/${idInventario}`,
+      transformResponse: (response: { data: InventoryLot[] } | InventoryLot[]) => {
+        if (Array.isArray(response)) {
+          return response;
+        }
+        return response.data ?? [];
+      },
+      providesTags: (_result, _error, idInventario) => [
+        { type: 'InventoryLots', id: `inventory-${idInventario}` },
+      ],
+    }),
+
+    getActiveInventoryLots: builder.query<InventoryLot[], number | void>({
+      query: (idInventario) => ({
+        url: '/inventario-lote/reportes/activos',
+        params: idInventario ? { idInventario } : undefined,
+      }),
+      transformResponse: (response: { data: InventoryLot[] } | InventoryLot[]) => {
+        if (Array.isArray(response)) {
+          return response;
+        }
+        return response.data ?? [];
+      },
+      providesTags: [{ type: 'InventoryLots', id: 'ACTIVE' }],
+    }),
+  }),
+});
+
+export const {
+  useCreateInventoryLotMutation,
+  useGetAllInventoryLotsQuery,
+  useGetInventoryLotsByInventoryQuery,
+  useGetActiveInventoryLotsQuery,
+} = inventoryLotRtkApi;
+
 export const inventoryLotApi = {
-  /**
-   * Crear un nuevo lote de inventario
-   * @param payload - Datos del lote a crear
-   * @returns Promise con la respuesta del servidor
-   */
-  createInventoryLot: (payload: {
-    idInventario: number;
-    fechaIngreso: string;
-    cantidadInicial: number;
-    cantidadActual: number;
-    costoUnitario: number;
-    fechaVencimiento?: string;
-    numeroLote?: string;
-    observaciones?: string;
-  }) => {
-    return apiClient.post("/inventario-lote", payload);
-  },
-
-  /**
-   * Obtener todos los lotes
-   * @returns Promise con la respuesta del servidor
-   */
-  getAllInventoryLots: () => {
-    return apiClient.get("/api/inventario-lote");
-  },
-
-  /**
-   * Obtener lotes por inventario
-   * @param idInventario - ID del inventario
-   * @returns Promise con la respuesta del servidor
-   */
-  getInventoryLotsByInventory: (idInventario: number) => {
-    return apiClient.get(`/api/inventario-lote/inventario/${idInventario}`);
-  },
-
-  /**
-   * Obtener lotes activos
-   * @param idInventario - ID del inventario (opcional)
-   * @returns Promise con la respuesta del servidor
-   */
-  getActiveInventoryLots: (idInventario?: number) => {
-    const params = idInventario ? `?idInventario=${idInventario}` : "";
-    return apiClient.get(`/api/inventario-lote/reportes/activos${params}`);
-  },
-};
+  createInventoryLot: inventoryLotRtkApi.endpoints.createInventoryLot,
+  getAllInventoryLots: inventoryLotRtkApi.endpoints.getAllInventoryLots,
+  getInventoryLotsByInventory: inventoryLotRtkApi.endpoints.getInventoryLotsByInventory,
+  getActiveInventoryLots: inventoryLotRtkApi.endpoints.getActiveInventoryLots,
+} as const;

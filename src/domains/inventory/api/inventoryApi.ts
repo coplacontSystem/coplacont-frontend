@@ -1,35 +1,130 @@
-import { apiClient } from "../../../shared/services/apiService";
-import { INVENTORY_ENDPOINTS } from './endpoints';
+import { apiSlice } from '@/store/api/apiSlice';
+import type {
+    InventoryItem,
+    InventoryResponse,
+    KardexResponse,
+    InitialInventoryResponse,
+} from '../services/types';
+import type { Product } from '@/domains/maintainers/types';
+
+interface CreateInventoryPayload {
+    idAlmacen: number;
+    idProducto: number;
+    stockInicial?: number;
+    precioUnitario?: number;
+}
+
+interface UpdateInitialInventoryPayload {
+    cantidadInicial?: number;
+    costoUnitario?: number;
+}
+
+export const inventoryRtkApi = apiSlice.injectEndpoints({
+    endpoints: (builder) => ({
+        getInventory: builder.query<InventoryItem[], void>({
+            query: () => '/inventario',
+            transformResponse: (response: InventoryResponse | InventoryItem[]) => {
+                if (Array.isArray(response)) {
+                    return response;
+                }
+                return response.data ?? [];
+            },
+            providesTags: (result) =>
+                result
+                    ? [
+                        ...result.map(({ id }) => ({ type: 'Inventory' as const, id })),
+                        { type: 'Inventory', id: 'LIST' },
+                    ]
+                    : [{ type: 'Inventory', id: 'LIST' }],
+        }),
+
+        getInventoryByWarehouse: builder.query<InventoryItem[], number>({
+            query: (idAlmacen) => `/inventario/almacen/${idAlmacen}`,
+            transformResponse: (response: InventoryResponse | InventoryItem[]) => {
+                if (Array.isArray(response)) {
+                    return response;
+                }
+                return response.data ?? [];
+            },
+            providesTags: (_result, _error, idAlmacen) => [
+                { type: 'Inventory', id: `warehouse-${idAlmacen}` },
+            ],
+        }),
+
+        getInventoryByWarehouseAndProduct: builder.query<InventoryItem, { idAlmacen: number; idProducto: number }>({
+            query: ({ idAlmacen, idProducto }) => `/inventario/almacen/${idAlmacen}/producto/${idProducto}`,
+            providesTags: (_result, _error, { idAlmacen, idProducto }) => [
+                { type: 'Inventory', id: `${idAlmacen}-${idProducto}` },
+            ],
+        }),
+
+        createInventory: builder.mutation<InventoryItem, CreateInventoryPayload>({
+            query: (body) => ({
+                url: '/inventario',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: [{ type: 'Inventory', id: 'LIST' }],
+        }),
+
+        getKardexMovements: builder.query<KardexResponse, { idInventario: number; fechaInicio: string; fechaFin: string }>({
+            query: ({ idInventario, fechaInicio, fechaFin }) => ({
+                url: '/kardex',
+                params: { idInventario, fechaInicio, fechaFin },
+            }),
+            providesTags: (_result, _error, { idInventario }) => [
+                { type: 'Kardex', id: idInventario },
+            ],
+        }),
+
+        getCommonProducts: builder.query<Product[], { idAlmacen1: number; idAlmacen2: number }>({
+            query: ({ idAlmacen1, idAlmacen2 }) => ({
+                url: '/inventario/almacenes/comunes',
+                params: { idAlmacen1, idAlmacen2 },
+            }),
+        }),
+
+        getInitialInventory: builder.query<InitialInventoryResponse, number>({
+            query: (idInventario) => `/inventario/${idInventario}/inicial`,
+            providesTags: (_result, _error, idInventario) => [
+                { type: 'Inventory', id: `initial-${idInventario}` },
+            ],
+        }),
+
+        updateInitialInventory: builder.mutation<void, { idInventario: number; data: UpdateInitialInventoryPayload }>({
+            query: ({ idInventario, data }) => ({
+                url: `/inventario/${idInventario}/inicial`,
+                method: 'PATCH',
+                body: data,
+            }),
+            invalidatesTags: (_result, _error, { idInventario }) => [
+                { type: 'Inventory', id: `initial-${idInventario}` },
+                { type: 'Inventory', id: 'LIST' },
+            ],
+        }),
+    }),
+});
+
+export const {
+    useGetInventoryQuery,
+    useGetInventoryByWarehouseQuery,
+    useGetInventoryByWarehouseAndProductQuery,
+    useCreateInventoryMutation,
+    useGetKardexMovementsQuery,
+    useGetCommonProductsQuery,
+    useGetInitialInventoryQuery,
+    useUpdateInitialInventoryMutation,
+} = inventoryRtkApi;
 
 export const inventoryApi = {
-    getInventory: () => apiClient.get(INVENTORY_ENDPOINTS.GET_INVENTORY),
-    getInventoryByWarehouseAndProduct: (idAlmacen: number, idProducto: number) => apiClient.get(INVENTORY_ENDPOINTS.GET_INVENTORY_BY_WAREHOUSE_AND_PRODUCT.replace(':idAlmacen', idAlmacen.toString()).replace(':idProducto', idProducto.toString())),
-    getInventoryByWarehouse: (idAlmacen: number) => apiClient.get(INVENTORY_ENDPOINTS.GET_INVENTORY_BY_WAREHOUSE.replace(':idAlmacen', idAlmacen.toString())),
-    createInventory: (payload: { idAlmacen: number; idProducto: number; stockInicial?: number; precioUnitario?: number }) => apiClient.post(INVENTORY_ENDPOINTS.CREATE_INVENTORY, payload),
-    /**
-     * Obtiene los movimientos del kardex para un inventario específico en un rango de fechas
-     * @param idInventario - ID del inventario
-     * @param fechaInicio - Fecha de inicio en formato YYYY-MM-DD
-     * @param fechaFin - Fecha de fin en formato YYYY-MM-DD
-     */
-    getKardexMovements: (idInventario: number, fechaInicio: string, fechaFin: string) => 
-        apiClient.get(`${INVENTORY_ENDPOINTS.GET_KARDEX_MOVEMENTS}?idInventario=${idInventario}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`),
-    /**
-     * Obtiene los productos comunes entre dos almacenes
-     * @param idAlmacen1 - ID del primer almacén
-     * @param idAlmacen2 - ID del segundo almacén
-     */
-    getCommonProducts: (idAlmacen1: number, idAlmacen2: number) => 
-        apiClient.get(`${INVENTORY_ENDPOINTS.GET_COMMON_PRODUCTS}?idAlmacen1=${idAlmacen1}&idAlmacen2=${idAlmacen2}`),
-    getInitialInventory: (idInventario: number) =>
-        apiClient.get(INVENTORY_ENDPOINTS.GET_INITIAL_INVENTORY.replace(':id', idInventario.toString())),
-    updateInitialInventory: (
-        idInventario: number,
-        payload: { cantidadInicial?: number; costoUnitario?: number }
-    ) => apiClient.patch(
-        INVENTORY_ENDPOINTS.UPDATE_INITIAL_INVENTORY.replace(':id', idInventario.toString()),
-        payload
-    ),
+    getInventory: inventoryRtkApi.endpoints.getInventory,
+    getInventoryByWarehouseAndProduct: inventoryRtkApi.endpoints.getInventoryByWarehouseAndProduct,
+    getInventoryByWarehouse: inventoryRtkApi.endpoints.getInventoryByWarehouse,
+    createInventory: inventoryRtkApi.endpoints.createInventory,
+    getKardexMovements: inventoryRtkApi.endpoints.getKardexMovements,
+    getCommonProducts: inventoryRtkApi.endpoints.getCommonProducts,
+    getInitialInventory: inventoryRtkApi.endpoints.getInitialInventory,
+    updateInitialInventory: inventoryRtkApi.endpoints.updateInitialInventory,
 } as const;
 
 export type InventoryApi = typeof inventoryApi;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./MainPage.module.scss";
 import {
@@ -11,48 +11,60 @@ import {
   Loader,
   Input,
 } from "@/components";
-import { InventoryService } from "../../services/InventoryService";
 import {
-  ProductService,
-  WarehouseService,
-} from "@/domains/maintainers/services";
+  useGetInventoryQuery,
+  useCreateInventoryMutation,
+  useGetInitialInventoryQuery,
+  useUpdateInitialInventoryMutation,
+} from "../../api/inventoryApi";
+import { useGetProductsQuery } from "@/domains/maintainers/api/productApi";
+import { useGetWarehousesQuery } from "@/domains/maintainers/api/warehouseApi";
 import { MAIN_ROUTES, INVENTORY_ROUTES } from "@/router";
 import type { InventoryItem } from "../../services/types";
-import type { Product, Warehouse } from "@/domains/maintainers/types";
 
 export const MainPage: React.FC = () => {
   const navigate = useNavigate();
-  const [inventory, setInventory] = useState<InventoryItem[]>([]);
-  const [almacenFilter, setAlmacenFilter] = useState(""); // filtro almacén
-  const [productoFilter, setProductoFilter] = useState(""); // filtro producto
 
-  // Estados para el modal
+  // RTK Query hooks
+  const {
+    data: inventory = [],
+    isLoading: inventoryLoading,
+    refetch: refetchInventory,
+  } = useGetInventoryQuery();
+  const { data: products = [] } = useGetProductsQuery();
+  const { data: warehouses = [] } = useGetWarehousesQuery();
+  const [createInventory, { isLoading: isCreating }] =
+    useCreateInventoryMutation();
+  const [updateInitialInventory, { isLoading: isUpdatingInitial }] =
+    useUpdateInitialInventoryMutation();
+
+  const [almacenFilter, setAlmacenFilter] = useState("");
+  const [productoFilter, setProductoFilter] = useState("");
+  const [filteredInventory, setFilteredInventory] = useState<InventoryItem[]>(
+    []
+  );
+  const [hasFiltered, setHasFiltered] = useState(false);
+
+  // Estados para el modal de crear
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [selectedProduct, setSelectedProduct] = useState("");
   const [selectedWarehouse, setSelectedWarehouse] = useState("");
   const [selectedStock, setSelectedStock] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Estados para el modal de stock inicial
   const [initialModalOpen, setInitialModalOpen] = useState(false);
-  const [initialModalLoading, setInitialModalLoading] = useState(false);
-  const [initialModalSaving, setInitialModalSaving] = useState(false);
-  const [initialModalError, setInitialModalError] = useState<string | null>(
-    null
-  );
-  const [initialEditEnabled, setInitialEditEnabled] = useState(false);
   const [currentInventoryId, setCurrentInventoryId] = useState<number | null>(
     null
   );
+  const [initialEditEnabled, setInitialEditEnabled] = useState(false);
   const [initialStockInput, setInitialStockInput] = useState("");
   const [initialPriceInput, setInitialPriceInput] = useState("");
-  const [initialOriginal, setInitialOriginal] = useState<{
-    stock: string;
-    price: string;
-  }>({ stock: "", price: "" });
+  const [initialOriginal, setInitialOriginal] = useState({
+    stock: "",
+    price: "",
+  });
   const [initialStockError, setInitialStockError] = useState<string | null>(
     null
   );
@@ -60,72 +72,56 @@ export const MainPage: React.FC = () => {
     null
   );
 
-  const fetchInventory = async () => {
-    try {
-      setLoading(true);
-      const response = await InventoryService.getInventory();
-      setInventory(response);
-    } catch (error) {
-      console.error("Error fetching inventory:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Query para inventario inicial (skip si no hay ID seleccionado)
+  const {
+    data: initialInventoryData,
+    isLoading: initialLoading,
+    isError: initialError,
+    refetch: refetchInitial,
+  } = useGetInitialInventoryQuery(currentInventoryId!, {
+    skip: !currentInventoryId,
+  });
 
-  useEffect(() => {
-    fetchInventory();
-    fetchProducts();
-    fetchWarehouses();
-  }, []);
+  const displayedInventory = hasFiltered ? filteredInventory : inventory;
 
-  const fetchProducts = async () => {
-    try {
-      const response = await ProductService.getAll();
-      setProducts(response);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    }
-  };
+  const loading = inventoryLoading || isCreating || isUpdatingInitial;
 
-  const fetchWarehouses = async () => {
-    try {
-      const response = await WarehouseService.getAll();
-      setWarehouses(response);
-    } catch (error) {
-      console.error("Error fetching warehouses:", error);
-    }
-  };
+  // Opciones para los ComboBox de filtro
+  const almacenOptions = useMemo(
+    () => [
+      { label: "Todos", value: "" },
+      ...Array.from(
+        new Map(
+          inventory.map((i) => [
+            i.almacen.id,
+            {
+              label: `${i.almacen.id} - ${i.almacen.nombre}`,
+              value: String(i.almacen.id),
+            },
+          ])
+        ).values()
+      ),
+    ],
+    [inventory]
+  );
 
-  // 🔹 Opciones para los ComboBox
-  const almacenOptions = [
-    { label: "Todos", value: "" },
-    ...Array.from(
-      new Map(
-        inventory.map((i) => [
-          i.almacen.id,
-          {
-            label: `${i.almacen.id} - ${i.almacen.nombre}`,
-            value: String(i.almacen.id),
-          },
-        ])
-      ).values()
-    ),
-  ];
-
-  const productOptions = [
-    { label: "Todos", value: "" },
-    ...Array.from(
-      new Map(
-        inventory.map((i) => [
-          i.producto.codigo,
-          {
-            label: `${i.producto.codigo} - ${i.producto.descripcion}`,
-            value: i.producto.codigo,
-          },
-        ])
-      ).values()
-    ),
-  ];
+  const productOptions = useMemo(
+    () => [
+      { label: "Todos", value: "" },
+      ...Array.from(
+        new Map(
+          inventory.map((i) => [
+            i.producto.codigo,
+            {
+              label: `${i.producto.codigo} - ${i.producto.descripcion}`,
+              value: i.producto.codigo,
+            },
+          ])
+        ).values()
+      ),
+    ],
+    [inventory]
+  );
 
   // Opciones para el modal
   const modalProductOptions = products.map((product) => ({
@@ -137,15 +133,6 @@ export const MainPage: React.FC = () => {
     label: `${warehouse.id} - ${warehouse.nombre}`,
     value: warehouse.id.toString(),
   }));
-
-  // 🔹 Filtrar inventario por almacén y producto (código o nombre) manually
-  const [filteredInventory, setFilteredInventory] = useState<InventoryItem[]>(
-    []
-  );
-
-  useEffect(() => {
-    setFilteredInventory(inventory);
-  }, [inventory]);
 
   const handleFilter = () => {
     const result = inventory.filter((i) => {
@@ -168,6 +155,7 @@ export const MainPage: React.FC = () => {
       return matchAlmacen && matchProducto;
     });
     setFilteredInventory(result);
+    setHasFiltered(true);
   };
 
   const headers = [
@@ -179,7 +167,7 @@ export const MainPage: React.FC = () => {
     "Acciones",
   ];
 
-  const rows = filteredInventory.map((i) => ({
+  const rows = displayedInventory.map((i) => ({
     id: i.id,
     cells: [
       i.almacen.id,
@@ -191,11 +179,11 @@ export const MainPage: React.FC = () => {
         <Button
           size="tableItemSize"
           variant="tableItemStyle"
-          onClick={() => {
+          onClick={() =>
             navigate(
               `${MAIN_ROUTES.INVENTORY}${INVENTORY_ROUTES.KARDEX}?inventoryId=${i.id}`
-            );
-          }}
+            )
+          }
         >
           Ver KARDEX
         </Button>
@@ -204,30 +192,9 @@ export const MainPage: React.FC = () => {
           variant="tableItemStyle"
           onClick={() => {
             const invId = Number(i.id);
-            setInitialModalLoading(true);
-            setInitialModalError(null);
+            setCurrentInventoryId(invId);
             setInitialEditEnabled(false);
             setInitialModalOpen(true);
-            setCurrentInventoryId(invId);
-            InventoryService.getInitialInventory(invId)
-              .then((data) => {
-                const stock =
-                  data.lote?.cantidadInicial ?? data.detalle?.cantidad ?? 0;
-                const price = data.lote?.costoUnitario ?? 0;
-                setInitialStockInput(String(stock));
-                setInitialPriceInput(String(price));
-                setInitialOriginal({
-                  stock: String(stock),
-                  price: String(price),
-                });
-                setInitialStockError(null);
-                setInitialPriceError(null);
-              })
-              .catch((err) => {
-                console.error("Error obteniendo inventario inicial:", err);
-                setInitialModalError("No se pudo cargar el inventario inicial");
-              })
-              .finally(() => setInitialModalLoading(false));
           }}
         >
           Stock Inicial
@@ -235,6 +202,22 @@ export const MainPage: React.FC = () => {
       </div>,
     ],
   }));
+
+  // Efecto para cargar datos del modal de stock inicial
+  useMemo(() => {
+    if (initialInventoryData && initialModalOpen) {
+      const stock =
+        initialInventoryData.lote?.cantidadInicial ??
+        initialInventoryData.detalle?.cantidad ??
+        0;
+      const price = initialInventoryData.lote?.costoUnitario ?? 0;
+      setInitialStockInput(String(stock));
+      setInitialPriceInput(String(price));
+      setInitialOriginal({ stock: String(stock), price: String(price) });
+      setInitialStockError(null);
+      setInitialPriceError(null);
+    }
+  }, [initialInventoryData, initialModalOpen]);
 
   const gridTemplate = "0.8fr 1fr 1.2fr 2.1fr 0.8fr 1.5fr";
 
@@ -261,31 +244,48 @@ export const MainPage: React.FC = () => {
     }
 
     try {
-      setLoading(true);
       setError("");
-
-      const stockValue = selectedStock ? Number(selectedStock) : undefined;
-      const priceValue = selectedPrice ? Number(selectedPrice) : undefined;
-
-      const payload = {
+      await createInventory({
         idAlmacen: Number(selectedWarehouse),
         idProducto: Number(selectedProduct),
-        stockInicial: stockValue,
-        precioUnitario: priceValue,
-      };
-
-      await InventoryService.createInventory(payload);
-
-      // Cerrar modal y refrescar inventario
+        stockInicial: selectedStock ? Number(selectedStock) : undefined,
+        precioUnitario: selectedPrice ? Number(selectedPrice) : undefined,
+      }).unwrap();
       handleCloseModal();
-      await fetchInventory();
-    } catch (error) {
-      console.error("Error al agregar producto al almacén:", error);
+    } catch (err) {
+      console.error("Error al agregar producto al almacén:", err);
       setError(
         "No se pudo agregar el producto al almacén. Inténtalo de nuevo."
       );
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const handleSaveInitialInventory = async () => {
+    if (!currentInventoryId) return;
+
+    const stockNum = Number(initialStockInput);
+    const priceNum = Number(initialPriceInput);
+    let hasError = false;
+
+    if (!isFinite(stockNum) || stockNum < 0) {
+      setInitialStockError("Ingresa un stock válido (>= 0)");
+      hasError = true;
+    }
+    if (!isFinite(priceNum) || priceNum < 0) {
+      setInitialPriceError("Ingresa un precio válido (>= 0)");
+      hasError = true;
+    }
+    if (hasError) return;
+
+    try {
+      await updateInitialInventory({
+        idInventario: currentInventoryId,
+        data: { cantidadInicial: stockNum, costoUnitario: priceNum },
+      }).unwrap();
+      setInitialEditEnabled(false);
+      refetchInventory();
+    } catch (err) {
+      console.error("Error actualizando inventario inicial:", err);
     }
   };
 
@@ -330,14 +330,16 @@ export const MainPage: React.FC = () => {
           Filtrar
         </Button>
       </section>
+
       <Table headers={headers} rows={rows} gridTemplate={gridTemplate} />
 
+      {/* Modal crear inventario */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         title="Agregar producto a almacén"
         description="Selecciona los siguientes datos para asociar un producto a un almacén."
-        loading={loading}
+        loading={isCreating}
         buttonText="Cerrar"
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -367,7 +369,6 @@ export const MainPage: React.FC = () => {
               placeholder="Seleccionar"
             />
           </div>
-
           <div>
             <Text size="xs" color="neutral-primary">
               Stock Inicial
@@ -381,7 +382,6 @@ export const MainPage: React.FC = () => {
               placeholder="Ingresa el stock inicial"
             />
           </div>
-
           <div>
             <Text size="xs" color="neutral-primary">
               Precio
@@ -395,23 +395,22 @@ export const MainPage: React.FC = () => {
               placeholder="Ingresa el precio unitario"
             />
           </div>
-
           {error && (
             <Text size="xs" color="danger">
               {error}
             </Text>
           )}
-
           <Button
             onClick={handleSaveProductToWarehouse}
             size="large"
-            disabled={loading || !selectedProduct || !selectedWarehouse}
+            disabled={isCreating || !selectedProduct || !selectedWarehouse}
           >
             Guardar
           </Button>
         </div>
       </Modal>
 
+      {/* Modal stock inicial */}
       <Modal
         isOpen={initialModalOpen}
         onClose={() => {
@@ -420,64 +419,31 @@ export const MainPage: React.FC = () => {
           setInitialEditEnabled(false);
           setInitialStockInput("");
           setInitialPriceInput("");
-          setInitialModalError(null);
           setInitialStockError(null);
           setInitialPriceError(null);
         }}
         title="Stock inicial"
         description="Consulta y edición del stock inicial y precio unitario"
-        loading={initialModalLoading || initialModalSaving}
+        loading={initialLoading || isUpdatingInitial}
         buttonText="Cerrar"
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          {initialModalLoading && (
-            <Loader text="Cargando inventario inicial..." />
-          )}
-          {!initialModalLoading && initialModalError && (
+          {initialLoading && <Loader text="Cargando inventario inicial..." />}
+          {!initialLoading && initialError && (
             <>
               <Text size="xs" color="danger">
-                {initialModalError}
+                No se pudo cargar el inventario inicial
               </Text>
               <Button
                 size="tableItemSize"
                 variant="tableItemStyle"
-                onClick={() => {
-                  if (!currentInventoryId) return;
-                  setInitialModalLoading(true);
-                  setInitialModalError(null);
-                  InventoryService.getInitialInventory(currentInventoryId)
-                    .then((data) => {
-                      const stock =
-                        data.lote?.cantidadInicial ??
-                        data.detalle?.cantidad ??
-                        0;
-                      const price = data.lote?.costoUnitario ?? 0;
-                      setInitialStockInput(String(stock));
-                      setInitialPriceInput(String(price));
-                      setInitialOriginal({
-                        stock: String(stock),
-                        price: String(price),
-                      });
-                      setInitialStockError(null);
-                      setInitialPriceError(null);
-                    })
-                    .catch((err) => {
-                      console.error(
-                        "Error obteniendo inventario inicial:",
-                        err
-                      );
-                      setInitialModalError(
-                        "No se pudo cargar el inventario inicial"
-                      );
-                    })
-                    .finally(() => setInitialModalLoading(false));
-                }}
+                onClick={() => refetchInitial()}
               >
                 Reintentar
               </Button>
             </>
           )}
-          {!initialModalLoading && !initialModalError && (
+          {!initialLoading && !initialError && (
             <>
               <div>
                 <Text size="xs" color="neutral-primary">
@@ -529,7 +495,7 @@ export const MainPage: React.FC = () => {
                     size="tableItemSize"
                     variant="tableItemStyle"
                     onClick={() => setInitialEditEnabled(true)}
-                    disabled={initialModalLoading || initialModalSaving}
+                    disabled={initialLoading || isUpdatingInitial}
                   >
                     Actualizar
                   </Button>
@@ -546,55 +512,17 @@ export const MainPage: React.FC = () => {
                         setInitialPriceError(null);
                         setInitialEditEnabled(false);
                       }}
-                      disabled={initialModalSaving}
+                      disabled={isUpdatingInitial}
                     >
                       Cancelar
                     </Button>
                     <Button
                       size="tableItemSize"
                       variant="tableItemStyle"
-                      onClick={async () => {
-                        if (!currentInventoryId) return;
-                        const stockNum = Number(initialStockInput);
-                        const priceNum = Number(initialPriceInput);
-                        let hasError = false;
-                        if (!isFinite(stockNum) || stockNum < 0) {
-                          setInitialStockError(
-                            "Ingresa un stock válido (>= 0)"
-                          );
-                          hasError = true;
-                        }
-                        if (!isFinite(priceNum) || priceNum < 0) {
-                          setInitialPriceError(
-                            "Ingresa un precio válido (>= 0)"
-                          );
-                          hasError = true;
-                        }
-                        if (hasError) return;
-                        try {
-                          setInitialModalSaving(true);
-                          await InventoryService.updateInitialInventory(
-                            currentInventoryId,
-                            {
-                              cantidadInicial: stockNum,
-                              costoUnitario: priceNum,
-                            }
-                          );
-                          setInitialEditEnabled(false);
-                          await fetchInventory();
-                        } catch (err) {
-                          console.error(
-                            "Error actualizando inventario inicial:",
-                            err
-                          );
-                        } finally {
-                          setInitialModalSaving(false);
-                        }
-                      }}
+                      onClick={handleSaveInitialInventory}
                       disabled={
-                        initialModalSaving ||
-                        initialModalLoading ||
-                        !initialEditEnabled ||
+                        isUpdatingInitial ||
+                        initialLoading ||
                         (initialStockInput === initialOriginal.stock &&
                           initialPriceInput === initialOriginal.price)
                       }
@@ -608,6 +536,7 @@ export const MainPage: React.FC = () => {
           )}
         </div>
       </Modal>
+
       {loading && <Loader text="Procesando..." />}
     </PageLayout>
   );
