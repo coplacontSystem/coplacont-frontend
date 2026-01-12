@@ -84,8 +84,6 @@ export const MainPage: React.FC = () => {
 
   const displayedInventory = hasFiltered ? filteredInventory : inventory;
 
-  const loading = inventoryLoading || isCreating || isUpdatingInitial;
-
   // Opciones para los ComboBox de filtro
   const almacenOptions = useMemo(
     () => [
@@ -331,7 +329,13 @@ export const MainPage: React.FC = () => {
         </Button>
       </section>
 
-      <Table headers={headers} rows={rows} gridTemplate={gridTemplate} />
+      <Table
+        headers={headers}
+        rows={rows}
+        gridTemplate={gridTemplate}
+        isLoading={inventoryLoading}
+        loadingText="Cargando inventario..."
+      />
 
       {/* Modal crear inventario */}
       <Modal
@@ -536,8 +540,6 @@ export const MainPage: React.FC = () => {
           )}
         </div>
       </Modal>
-
-      {loading && <Loader text="Procesando..." />}
     </PageLayout>
   );
 };

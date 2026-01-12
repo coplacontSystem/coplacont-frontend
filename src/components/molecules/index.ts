@@ -6,3 +6,4 @@ export * from './Modal';
 export * from './AddDropdownButton'
 export * from './StateTag';
 export * from './MovimientoTag';
+export * from './EmptyState';
