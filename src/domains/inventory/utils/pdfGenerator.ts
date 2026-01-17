@@ -61,9 +61,9 @@ export const generateKardexPDF = ({
               <td>${salidaBatch ? salidaBatch.costoTotal.toFixed(2) : ((isFirstRow && item.salida.costoTotal > 0 && !salidaBatches.length) ? item.salida.costoTotal.toFixed(2) : "")}</td>
               
               <!-- SALDO -->
-              <td>${saldoBatch ? saldoBatch.cantidad.toFixed(2) : ((isFirstRow && !saldoBatches.length) ? "0.00" : "")}</td>
-              <td>${saldoBatch ? saldoBatch.costoUnitario.toFixed(4) : ((isFirstRow && !saldoBatches.length) ? "0.0000" : "")}</td>
-              <td>${saldoBatch ? saldoBatch.costoTotal.toFixed(2) : ((isFirstRow && !saldoBatches.length) ? "0.00" : "")}</td>
+              <td>${(saldoBatch && saldoBatch.cantidad !== 0) ? saldoBatch.cantidad.toFixed(2) : ((isFirstRow && !saldoBatches.length) ? "0.00" : "")}</td>
+              <td>${(saldoBatch && saldoBatch.cantidad !== 0) ? saldoBatch.costoUnitario.toFixed(4) : ((isFirstRow && !saldoBatches.length) ? "0.0000" : "")}</td>
+              <td>${(saldoBatch && saldoBatch.cantidad !== 0) ? saldoBatch.costoTotal.toFixed(2) : ((isFirstRow && !saldoBatches.length) ? "0.00" : "")}</td>
             </tr>`;
     }
     return rowsHtml;
@@ -92,7 +92,7 @@ export const generateKardexPDF = ({
               
               <td>${(isFirstRow && item.salida.cantidad > 0) ? item.salida.cantidad.toFixed(2) : ""}</td>
               
-              <td>${saldoBatch ? saldoBatch.cantidad.toFixed(2) : ((isFirstRow && !saldoBatches.length) ? "0.00" : "")}</td>
+              <td>${(saldoBatch && saldoBatch.cantidad !== 0) ? saldoBatch.cantidad.toFixed(2) : ((isFirstRow && !saldoBatches.length) ? "0.00" : "")}</td>
             </tr>`;
     }
     return rowsHtml;

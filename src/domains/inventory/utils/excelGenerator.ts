@@ -158,10 +158,15 @@ export const generateKardexExcel = ({
             let colBalTotal = "";
 
             if (saldoBatch) {
-                colBalCant = saldoBatch.cantidad.toFixed(2);
-                colBalUnit = saldoBatch.costoUnitario.toFixed(4);
-                // Si la cantidad es 0 (lote agotado visual), el total también será 0
-                colBalTotal = saldoBatch.costoTotal.toFixed(2);
+                if (saldoBatch.cantidad === 0) {
+                    colBalCant = "";
+                    colBalUnit = "";
+                    colBalTotal = "";
+                } else {
+                    colBalCant = saldoBatch.cantidad.toFixed(2);
+                    colBalUnit = saldoBatch.costoUnitario.toFixed(4);
+                    colBalTotal = saldoBatch.costoTotal.toFixed(2);
+                }
             } else if (isFirstRow && !saldoBatches.length) {
                 // Caso borde: saldo 0 sin lotes (raro si inventarioInicial es 0)
                 colBalCant = "0.00";
@@ -306,7 +311,11 @@ export const generateKardexExcel = ({
 
             let colBalCant = "";
             if (saldoBatch) {
-                colBalCant = saldoBatch.cantidad.toFixed(2);
+                if (saldoBatch.cantidad === 0) {
+                    colBalCant = "";
+                } else {
+                    colBalCant = saldoBatch.cantidad.toFixed(2);
+                }
             } else if (isFirstRow && !saldoBatches.length) {
                 colBalCant = "0.00";
             }
