@@ -173,6 +173,7 @@ export const {
     useGetOperationsQuery,
     useGetTransfersQuery,
     useGetExchangeRateQuery,
+    useLazyGetExchangeRateQuery,
     useGetNextCorrelativoQuery,
     useRegisterSaleMutation,
     useRegisterPurchaseMutation,
