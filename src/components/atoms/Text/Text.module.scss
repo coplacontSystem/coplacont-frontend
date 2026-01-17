@@ -1,167 +1,165 @@
-@use '@/styles' as *;
+@use "@/styles" as *;
 
 /**
  * Componente Text - Estilos base y variantes
  */
 .text {
-  margin: 0;
-  padding: 0;
-  font-family: $font-family-primary;
-  transition: color 0.2s ease;
+ margin: 0;
+ padding: 0;
+ font-family: $font-family-primary;
+ transition: color 0.2s ease;
 
-  // -----------------------------------------------------------------------------
-  // VARIANTES DE TAMAÑO
-  // -----------------------------------------------------------------------------
+ // -----------------------------------------------------------------------------
+ // VARIANTES DE TAMAÑO
+ // -----------------------------------------------------------------------------
 
-  &--size-xs {
-    font-size: $font-size-xs;
-  }
+ &--size-xs {
+  font-size: $font-size-xs;
+ }
 
-  &--size-sm {
-    font-size: $font-size-sm;
-  }
+ &--size-sm {
+  font-size: $font-size-sm;
+ }
 
-  &--size-md {
-    font-size: $font-size-md;
-  }
+ &--size-md {
+  font-size: $font-size-md;
+ }
 
-  &--size-lg {
-    font-size: $font-size-lg;
-  }
+ &--size-lg {
+  font-size: $font-size-lg;
+ }
 
-  &--size-xl {
-    font-size: $font-size-xl;
-  }
+ &--size-xl {
+  font-size: $font-size-xl;
+ }
 
-  &--size-2xl {
-    font-size: $font-size-2xl;
-  }
+ &--size-2xl {
+  font-size: $font-size-2xl;
+ }
 
-  &--size-3xl {
-    font-size: $font-size-3xl;
-  }
+ &--size-3xl {
+  font-size: $font-size-3xl;
+ }
 
-  &--size-4xl {
-    font-size: $font-size-4xl;
-  }
+ &--size-4xl {
+  font-size: $font-size-4xl;
+ }
 
-  &--size-5xl {
-    font-size: $font-size-5xl;
-  }
+ &--size-5xl {
+  font-size: $font-size-5xl;
+ }
 
-  &--size-6xl {
-    font-size: $font-size-6xl;
-  }
+ &--size-6xl {
+  font-size: $font-size-6xl;
+ }
 
-  // -----------------------------------------------------------------------------
-  // VARIANTES DE PESO DE FUENTE
-  // -----------------------------------------------------------------------------
+ // -----------------------------------------------------------------------------
+ // VARIANTES DE PESO DE FUENTE
+ // -----------------------------------------------------------------------------
 
-  &--weight-400 {
-    font-weight: $font-weight-normal;
-  }
+ &--weight-400 {
+  font-weight: $font-weight-normal;
+ }
 
-  &--weight-500 {
-    font-weight: $font-weight-medium;
-  }
+ &--weight-500 {
+  font-weight: $font-weight-medium;
+ }
 
-  &--weight-600 {
-    font-weight: $font-weight-semibold;
-  }
+ &--weight-600 {
+  font-weight: $font-weight-semibold;
+ }
 
-  // -----------------------------------------------------------------------------
-  // VARIANTES DE COLOR
-  // -----------------------------------------------------------------------------
+ // -----------------------------------------------------------------------------
+ // VARIANTES DE COLOR
+ // -----------------------------------------------------------------------------
 
-  &--color-primary {
-    color: var(--color-blue);
-  }
+ &--color-primary {
+  color: var(--color-blue);
+ }
 
-  &--color-secondary {
-    color: $secondary-blue;
-  }
+ &--color-secondary {
+  color: $secondary-blue;
+ }
 
-  &--color-neutral-primary {
-    color: $text-color;
-  }
+ &--color-neutral-primary {
+  color: $text-color;
+ }
 
-  &--color-neutral-secondary {
-    color: $text-color-1;
-  }
+ &--color-neutral-secondary {
+  color: $text-color-1;
+ }
 
+ &--color-disabled {
+  color: $neutral-3;
+ }
 
-  &--color-disabled {
-    color: $neutral-3;
-  }
+ &--color-success {
+  color: $success-color;
+ }
 
-  &--color-success {
-    color: $success-color;
-  }
+ &--color-danger {
+  color: $danger-color;
+ }
 
-  &--color-danger {
-    color: $danger-color;
-  }
+ &--color-warning {
+  color: $warning-color;
+ }
 
-  &--color-warning {
-    color: $warning-color;
-  }
+ &--color-info {
+  color: var(--text-color);
+ }
 
-  &--color-info {
-    color: #00000040;
-  }
+ // -----------------------------------------------------------------------------
+ // VARIANTES DE ALINEACIÓN
+ // -----------------------------------------------------------------------------
 
+ &--align-left {
+  text-align: left;
+ }
 
-  // -----------------------------------------------------------------------------
-  // VARIANTES DE ALINEACIÓN
-  // -----------------------------------------------------------------------------
+ &--align-center {
+  text-align: center;
+ }
 
-  &--align-left {
-    text-align: left;
-  }
+ &--align-right {
+  text-align: right;
+ }
 
-  &--align-center {
-    text-align: center;
-  }
+ &--align-justify {
+  text-align: justify;
+ }
 
-  &--align-right {
-    text-align: right;
-  }
+ // -----------------------------------------------------------------------------
+ // VARIANTES DE ALTURA DE LÍNEA
+ // -----------------------------------------------------------------------------
 
-  &--align-justify {
-    text-align: justify;
-  }
+ &--line-height-tight {
+  line-height: $line-height-tight;
+ }
 
-  // -----------------------------------------------------------------------------
-  // VARIANTES DE ALTURA DE LÍNEA
-  // -----------------------------------------------------------------------------
+ &--line-height-normal {
+  line-height: $line-height-normal;
+ }
 
-  &--line-height-tight {
-    line-height: $line-height-tight;
-  }
+ &--line-height-relaxed {
+  line-height: 1.7;
+ }
 
-  &--line-height-normal {
-    line-height: $line-height-normal;
-  }
+ // -----------------------------------------------------------------------------
+ // ESTADOS ESPECIALES
+ // -----------------------------------------------------------------------------
 
-  &--line-height-relaxed {
-    line-height: 1.7;
-  }
+ // Texto seleccionable con mejor UX
+ &::selection {
+  background-color: rgba($primary-blue, 0.2);
+  color: inherit;
+ }
 
-  // -----------------------------------------------------------------------------
-  // ESTADOS ESPECIALES
-  // -----------------------------------------------------------------------------
-
-  // Texto seleccionable con mejor UX
-  &::selection {
-    background-color: rgba($primary-blue, 0.2);
-    color: inherit;
-  }
-
-  // Mejora la legibilidad en pantallas de alta densidad
-  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+ // Mejora la legibilidad en pantallas de alta densidad
+ @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+ }
 }
 
 // -----------------------------------------------------------------------------
@@ -170,29 +168,29 @@
 
 // Texto truncado con ellipsis
 .text--truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+ white-space: nowrap;
 }
 
 // Texto con múltiples líneas truncadas
 .text--clamp {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+ display: -webkit-box;
+ -webkit-box-orient: vertical;
+ overflow: hidden;
 }
 
 // Texto en mayúsculas
 .text--uppercase {
-  text-transform: uppercase;
+ text-transform: uppercase;
 }
 
 // Texto en minúsculas
 .text--lowercase {
-  text-transform: lowercase;
+ text-transform: lowercase;
 }
 
 // Texto capitalizado
 .text--capitalize {
-  text-transform: capitalize;
+ text-transform: capitalize;
 }

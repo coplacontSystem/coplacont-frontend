@@ -7,26 +7,25 @@
 // -----------------------------------------------------------------------------
 
 // Colores neutrales
-$neutral-1: #1F1F1F;
-$neutral-2: #3A3A3A;
-$neutral-3: #DBD9D9;
-$neutral-4: #F6F6F6;
-$neutral-5: #FFFFFF;
+$neutral-1: #1f1f1f;
+$neutral-2: #3a3a3a;
+$neutral-3: #dbd9d9;
+$neutral-4: #f6f6f6;
+$neutral-5: #ffffff;
 
-$table-head:#B9B9B9;
+$table-head: #b9b9b9;
 
 // Colores principales
 $primary-blue: #003869;
-$secondary-blue: #1A98CA;
+$secondary-blue: #1a98ca;
 
-$border-light:#00000040;
-$border-dark:#FFFFFF40;
+$border-light: #00000040;
+$border-dark: #ffffff40;
 
 // Colores de estado
-$success-color: #26C954;
-$danger-color: #CC2525;
-$warning-color: #F3CB26;
-
+$success-color: #26c954;
+$danger-color: #cc2525;
+$warning-color: #f3cb26;
 
 // -----------------------------------------------------------------------------
 // SISTEMA DE TEMAS UNIFICADO
@@ -34,63 +33,67 @@ $warning-color: #F3CB26;
 
 // Variables CSS que se adaptan automáticamente al tema del sistema
 :root {
-  // Tema claro por defecto
-  --bg-color: #{$neutral-5};           // #FFFFFF
-  --bg-color-secondary: #{$neutral-4};
-  --text-color: #{$neutral-1};  // #1F1F1F
-  --text-color-1: #{$neutral-2}; // #3A3A3A
-  --text-color-reverse: #{$neutral-5}; // #FFFFFF
-  --bg-card-v1: #{$neutral-4};         // #F6F6F6
-  --bg-card-v2: #{$neutral-5};         // #FFFFFF
-  --text-color-card-skills: #{$neutral-2}; // #3A3A3A
-  --border-color: #{$neutral-3};
-  --border-input: #{$border-light};
-  --color-blue:#{$primary-blue};
+ // Tema claro por defecto
+ --bg-color: #{$neutral-5}; // #FFFFFF
+ --bg-color-secondary: #{$neutral-4};
+ --text-color: #{$neutral-1}; // #1F1F1F
+ --text-color-1: #{$neutral-2}; // #3A3A3A
+ --text-color-muted: #{$neutral-2}; // #3A3A3A - Para EmptyState
+ --text-color-reverse: #{$neutral-5}; // #FFFFFF
+ --bg-card-v1: #{$neutral-4}; // #F6F6F6
+ --bg-card-v2: #{$neutral-5}; // #FFFFFF
+ --text-color-card-skills: #{$neutral-2}; // #3A3A3A
+ --border-color: #{$neutral-3};
+ --border-input: #{$border-light};
+ --color-blue: #{$primary-blue};
 
-  // Tema oscuro automático basado en preferencias del sistema
-  @media (prefers-color-scheme: dark) {
-    --bg-color: #{$neutral-1};             // #1F1F1F
-    --bg-color-secondary: #000000;
-    --text-color: #{$neutral-5};           // #FFFFFF
-    --text-color-1: #{$neutral-3}; // #DBD9D9
-    --text-color-reverse: #{$neutral-1};   // #1F1F1F
-    --bg-card-v1: #{$neutral-2};           // #3A3A3A
-    --bg-card-v2: #{$neutral-1};           // #1F1F1F
-    --text-color-card-skills: #{$neutral-3}; // #DBD9D9
-    --border-color: #{$neutral-2};
-    --border-input: #{$border-dark};
-    --color-blue:#{$secondary-blue}; 
-  }
+ // Tema oscuro automático basado en preferencias del sistema
+ @media (prefers-color-scheme: dark) {
+  --bg-color: #{$neutral-1}; // #1F1F1F
+  --bg-color-secondary: #000000;
+  --text-color: #{$neutral-5}; // #FFFFFF
+  --text-color-1: #{$neutral-3}; // #DBD9D9
+  --text-color-muted: #{$neutral-4}; // #F6F6F6 - Para EmptyState
+  --text-color-reverse: #{$neutral-1}; // #1F1F1F
+  --bg-card-v1: #{$neutral-2}; // #3A3A3A
+  --bg-card-v2: #{$neutral-1}; // #1F1F1F
+  --text-color-card-skills: #{$neutral-3}; // #DBD9D9
+  --border-color: #{$neutral-2};
+  --border-input: #{$border-dark};
+  --color-blue: #{$secondary-blue};
+ }
 }
 
 // Soporte explícito para data-theme establecido por ThemeProvider
 :root[data-theme="light"] {
-  --bg-color: #{$neutral-5};
-  --bg-color-secondary: #{$neutral-4};
-  --text-color: #{$neutral-1};
-  --text-color-1: #{$neutral-2};
-  --text-color-reverse: #{$neutral-5};
-  --bg-card-v1: #{$neutral-4};
-  --bg-card-v2: #{$neutral-5};
-  --text-color-card-skills: #{$neutral-2};
-  --border-color: #{$neutral-3};
-  --border-input: #{$border-light};
+ --bg-color: #{$neutral-5};
+ --bg-color-secondary: #{$neutral-4};
+ --text-color: #{$neutral-1};
+ --text-color-1: #{$neutral-2};
+ --text-color-muted: #{$neutral-2};
+ --text-color-reverse: #{$neutral-5};
+ --bg-card-v1: #{$neutral-4};
+ --bg-card-v2: #{$neutral-5};
+ --text-color-card-skills: #{$neutral-2};
+ --border-color: #{$neutral-3};
+ --border-input: #{$border-light};
 
-  --color-blue:#{$primary-blue};
+ --color-blue: #{$primary-blue};
 }
 
 :root[data-theme="dark"] {
-  --bg-color: #{$neutral-1};
-  --bg-color-secondary: #000000;
-  --text-color: #{$neutral-5};
-  --text-color-1: #{$neutral-3};
-  --text-color-reverse: #{$neutral-1};
-  --bg-card-v1: #{$neutral-2};
-  --bg-card-v2: #{$neutral-1};
-  --text-color-card-skills: #{$neutral-3};
-  --border-color: #{$neutral-2};
-  --border-input: #{$border-dark};
-  --color-blue:#{$secondary-blue};   
+ --bg-color: #{$neutral-1};
+ --bg-color-secondary: #000000;
+ --text-color: #{$neutral-5};
+ --text-color-1: #{$neutral-3};
+ --text-color-muted: #{$neutral-4};
+ --text-color-reverse: #{$neutral-1};
+ --bg-card-v1: #{$neutral-2};
+ --bg-card-v2: #{$neutral-1};
+ --text-color-card-skills: #{$neutral-3};
+ --border-color: #{$neutral-2};
+ --border-input: #{$border-dark};
+ --color-blue: #{$secondary-blue};
 }
 
 // Variables Sass para compatibilidad con código existente
@@ -98,6 +101,7 @@ $bg-color: var(--bg-color);
 $bg-color-secondary: var(--bg-color-secondary);
 $text-color: var(--text-color);
 $text-color-1: var(--text-color-1);
+$text-color-muted: var(--text-color-muted);
 $text-color-reverse: var(--text-color-reverse);
 $bg-card-v1: var(--bg-card-v1);
 $bg-card-v2: var(--bg-card-v2);
@@ -106,42 +110,40 @@ $border-color: var(--border-color);
 $border-input: var(--border-input);
 $color-blue: var(--color-blue);
 
-
 // Color de botón neutro
-$button-color: $success-color;           // #1ABC9C
-
+$button-color: $success-color; // #1ABC9C
 
 // -----------------------------------------------------------------------------
 // ESPACIADO
 // -----------------------------------------------------------------------------
 
-$spacing-xs: 0.25rem;   // 4px
-$spacing-sm: 0.5rem;    // 8px
-$spacing-md: 0.75rem;   // 12px
-$spacing-lg: 1rem;      // 16px
-$spacing-xl: 1.25rem;   // 20px
-$spacing-2xl: 1.5rem;   // 24px
-$spacing-3xl: 2rem;     // 32px
-$spacing-4xl: 2.5rem;   // 40px
-$spacing-5xl: 3rem;     // 48px
+$spacing-xs: 0.25rem; // 4px
+$spacing-sm: 0.5rem; // 8px
+$spacing-md: 0.75rem; // 12px
+$spacing-lg: 1rem; // 16px
+$spacing-xl: 1.25rem; // 20px
+$spacing-2xl: 1.5rem; // 24px
+$spacing-3xl: 2rem; // 32px
+$spacing-4xl: 2.5rem; // 40px
+$spacing-5xl: 3rem; // 48px
 
 // -----------------------------------------------------------------------------
 // TIPOGRAFÍA
 // -----------------------------------------------------------------------------
 
-$font-family-primary: 'Outfit', sans-serif;
-$font-family-secondary: 'Outfit', sans-serif;
+$font-family-primary: "Outfit", sans-serif;
+$font-family-secondary: "Outfit", sans-serif;
 
-$font-size-xs: 0.75rem;   // 12px
-$font-size-sm: 0.875rem;  // 14px
-$font-size-md: 1rem;      // 16px
-$font-size-lg: 1.125rem;  // 18px
-$font-size-xl: 1.25rem;   // 20px
-$font-size-2xl: 1.5rem;   // 24px
-$font-size-3xl: 2rem;     // 32px
-$font-size-4xl: 2.25rem;  // 36px
-$font-size-5xl: 2.5rem;   // 40px
-$font-size-6xl: 3rem;     // 48px
+$font-size-xs: 0.75rem; // 12px
+$font-size-sm: 0.875rem; // 14px
+$font-size-md: 1rem; // 16px
+$font-size-lg: 1.125rem; // 18px
+$font-size-xl: 1.25rem; // 20px
+$font-size-2xl: 1.5rem; // 24px
+$font-size-3xl: 2rem; // 32px
+$font-size-4xl: 2.25rem; // 36px
+$font-size-5xl: 2.5rem; // 40px
+$font-size-6xl: 3rem; // 48px
 
 $font-weight-light: 300;
 $font-weight-normal: 400;
@@ -166,7 +168,6 @@ $border-radius-full: 9999px;
 // Bordes
 $border-color: $neutral-3;
 
-
 // -----------------------------------------------------------------------------
 // TRANSICIONES
 // -----------------------------------------------------------------------------
@@ -174,7 +175,6 @@ $border-color: $neutral-3;
 $transition-fast: 150ms ease;
 $transition-normal: 300ms ease;
 $transition-slow: 500ms ease;
-
 
 // -----------------------------------------------------------------------------
 // BREAKPOINTS RESPONSIVOS

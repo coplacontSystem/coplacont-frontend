@@ -1,56 +1,80 @@
 @use "@/styles" as *;
 
 .emptyState {
-  background: $bg-color;
-  border: 1px solid var(--border-color);
-  border-radius: $border-radius-xl;
-  overflow: hidden;
-  box-shadow: $box-shadow-sm;
-  min-height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+ flex: 1;
+ background: $bg-color;
+ border: 1px solid var(--border-color);
+ border-radius: $border-radius-xl;
+ overflow: hidden;
+ box-shadow: $box-shadow-sm;
+ min-height: 300px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
 }
 
 .emptyState__content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-2xl;
-  text-align: center;
-  color: $neutral-4;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ padding: $spacing-2xl;
+ text-align: center;
+ color: var(--text-color);
 }
 
 .emptyState__icon {
-  margin-bottom: $spacing-lg;
-  opacity: 0.5;
+ margin-bottom: $spacing-lg;
+ color: var(--text-color-muted);
 }
 
 .emptyState__loader {
-  margin-bottom: $spacing-lg;
+ margin-bottom: $spacing-lg;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid $neutral-2;
-  border-top-color: var(--primary-color, #3b82f6);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+ width: 40px;
+ height: 40px;
+ border: 3px solid $neutral-2;
+ border-radius: 50%;
+ animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+ to {
+  transform: rotate(360deg);
+ }
 }
 
 .emptyState__title {
-  margin-bottom: $spacing-sm;
+ margin-bottom: $spacing-sm;
+ color: var(--text-color-muted) !important;
 }
 
 .emptyState__subtitle {
-  margin: 0;
-  opacity: 0.7;
+ margin: 0;
+ color: var(--text-color-muted) !important;
+}
+
+.emptyState__iconLoading {
+ color: var(--primary-color, var(--border-color));
+ opacity: 1;
+ animation: pulse 2s infinite;
+}
+
+.emptyState__iconError {
+ color: $danger-color;
+ opacity: 1;
+}
+
+@keyframes pulse {
+ 0% {
+  opacity: 0.6;
+ }
+ 50% {
+  opacity: 1;
+ }
+ 100% {
+  opacity: 0.6;
+ }
 }
