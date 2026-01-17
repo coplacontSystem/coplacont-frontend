@@ -186,18 +186,7 @@ const MainPage: React.FC = () => {
 
      {filterType === "mes-anio" && (
       <>
-       <div className={styles.filter}>
-        <Text size="xs" color="neutral-primary">
-         Mes
-        </Text>
-        <ComboBox
-         options={monthOptions}
-         value={month}
-         size="xs"
-         onChange={(value) => setMonth(String(value))}
-         placeholder="Seleccionar mes"
-        />
-       </div>
+       {" "}
        <div className={styles.filter}>
         <Text size="xs" color="neutral-primary">
          Año
@@ -208,6 +197,18 @@ const MainPage: React.FC = () => {
          value={year}
          onChange={(value) => setYear(String(value))}
          placeholder="Seleccionar año"
+        />
+       </div>
+       <div className={styles.filter}>
+        <Text size="xs" color="neutral-primary">
+         Mes
+        </Text>
+        <ComboBox
+         options={monthOptions}
+         value={month}
+         size="xs"
+         onChange={(value) => setMonth(String(value))}
+         placeholder="Seleccionar mes"
         />
        </div>
       </>

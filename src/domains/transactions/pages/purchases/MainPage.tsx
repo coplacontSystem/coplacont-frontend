@@ -17,8 +17,8 @@ import { Table, type TableRow } from "@/components/organisms/Table";
 import {
  documentTypeOptions,
  filterTypeOptions,
- monthOptions,
- yearOptions,
+ getMonthOptions,
+ getYearOptions,
 } from "./HomePurchaseFilterData";
 import { useNavigate } from "react-router-dom";
 import { MAIN_ROUTES, TRANSACTIONS_ROUTES, COMMON_ROUTES } from "@/router";
@@ -48,6 +48,19 @@ export const MainPage: React.FC = () => {
  const [entity, setEntity] = useState("");
  const [provider, setProvider] = useState("");
  const [documentType, setDocumentType] = useState("");
+
+ // Opciones dinámicas de año y mes
+ const yearOptions = getYearOptions();
+ const monthOptions = getMonthOptions(year);
+
+ // Resetear mes cuando cambia el año y el mes seleccionado no está disponible
+ const handleYearChange = (newYear: string) => {
+  setYear(newYear);
+  const availableMonths = getMonthOptions(newYear);
+  if (month && !availableMonths.some((m) => m.value === month)) {
+   setMonth("");
+  }
+ };
 
  const [isUploadOpen, setUploadOpen] = useState(false);
 
@@ -230,7 +243,7 @@ export const MainPage: React.FC = () => {
         size="xs"
         variant="createSale"
         value={year}
-        onChange={(v) => setYear(v as string)}
+        onChange={(v) => handleYearChange(v as string)}
         placeholder="Seleccionar año"
        />
       </div>

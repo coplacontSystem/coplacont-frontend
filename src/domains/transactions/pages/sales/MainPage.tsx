@@ -16,8 +16,8 @@ import { Table, type TableRow } from "@/components/organisms/Table";
 import {
  documentTypeOptions,
  filterTypeOptions,
- monthOptions,
- yearOptions,
+ getMonthOptions,
+ getYearOptions,
 } from "./MainFilterData";
 import { useNavigate } from "react-router-dom";
 import { MAIN_ROUTES, TRANSACTIONS_ROUTES, COMMON_ROUTES } from "@/router";
@@ -216,7 +216,7 @@ export const MainPage: React.FC = () => {
         Año
        </Text>
        <ComboBox
-        options={yearOptions}
+        options={getYearOptions()}
         size="xs"
         variant="createSale"
         value={year}
@@ -230,7 +230,7 @@ export const MainPage: React.FC = () => {
         Mes
        </Text>
        <ComboBox
-        options={monthOptions}
+        options={getMonthOptions(year)}
         size="xs"
         variant="createSale"
         value={month}

@@ -1,115 +1,116 @@
 @use "@/styles" as *;
 
 .homePurchasePage {
-  display: flex;
-  flex-direction: column;
+ display: flex;
+ flex-direction: column;
+ flex: 1;
 }
 
 .filtersTop {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: $spacing-lg;
-  align-items: end;
+ display: grid;
+ grid-template-columns: repeat(4, 1fr);
+ gap: $spacing-lg;
+ align-items: end;
 }
 
 .filtersSecondary {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: $spacing-lg;
-  align-items: end;
+ display: grid;
+ grid-template-columns: repeat(4, 1fr);
+ gap: $spacing-lg;
+ align-items: end;
 }
 
 .filtersTopContainer {
-  display: flex;
-  gap: 1rem;
+ display: flex;
+ gap: 1rem;
 }
 .filter {
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 0.5rem;
+ display: flex;
+ flex-direction: column;
+ align-items: start;
+ gap: 0.5rem;
 }
 
 .field {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
+ display: flex;
+ flex-direction: column;
+ gap: $spacing-sm;
 }
 
 .alignEnd {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
+ width: 100%;
+ display: flex;
+ justify-content: flex-end;
 }
 
 .actionsRow {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: $spacing-xl;
+ display: grid;
+ grid-template-columns: repeat(1, 1fr);
+ gap: $spacing-xl;
 
-  button {
-    justify-self: stretch;
-  }
+ button {
+  justify-self: stretch;
+ }
 }
 
 .tableWrapper {
-  background: $bg-color;
-  border: 1px solid $border-color;
-  border-radius: $border-radius-xl;
-  overflow: hidden;
-  box-shadow: $box-shadow-sm;
+ background: $bg-color;
+ border: 1px solid $border-color;
+ border-radius: $border-radius-xl;
+ overflow: hidden;
+ box-shadow: $box-shadow-sm;
 }
 
 .table {
-  width: 100%;
-  display: grid;
-  grid-auto-rows: minmax(48px, auto);
+ width: 100%;
+ display: grid;
+ grid-auto-rows: minmax(48px, auto);
 }
 
 .row {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr 1.2fr 0.8fr 1fr 0.8fr 0.8fr 0.4fr 0.6fr;
-  align-items: center;
-  border-top: 1px solid $border-color;
+ display: grid;
+ grid-template-columns: 1.2fr 1fr 1.2fr 0.8fr 1fr 0.8fr 0.8fr 0.4fr 0.6fr;
+ align-items: center;
+ border-top: 1px solid $border-color;
 
-  &:first-child {
-    border-top: none;
-  }
+ &:first-child {
+  border-top: none;
+ }
 }
 
 .header {
-  background: $bg-color-secondary;
+ background: $bg-color-secondary;
 }
 
 .cell {
-  padding: $spacing-md $spacing-lg;
-  font-size: $font-size-sm;
-  color: $text-color;
+ padding: $spacing-md $spacing-lg;
+ font-size: $font-size-sm;
+ color: $text-color;
 }
 
 .actions {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
+ display: flex;
+ align-items: center;
+ gap: $spacing-sm;
 }
 
 .iconButton {
-  border: 1px solid $border-color;
-  background: transparent;
-  padding: 6px 8px;
-  border-radius: $border-radius-md;
-  cursor: pointer;
-  font-size: $font-size-sm;
+ border: 1px solid $border-color;
+ background: transparent;
+ padding: 6px 8px;
+ border-radius: $border-radius-md;
+ cursor: pointer;
+ font-size: $font-size-sm;
 }
 
 // Responsive tweaks
 @media (max-width: 768px) {
-  .filtersTop,
-  .filtersSecondary {
-    grid-template-columns: repeat(2, 1fr);
-  }
+ .filtersTop,
+ .filtersSecondary {
+  grid-template-columns: repeat(2, 1fr);
+ }
 
-  .row {
-    grid-template-columns: 1.2fr 1fr 1.2fr 0.8fr 1fr 0.8fr 0.8fr 0.4fr 0.6fr;
-  }
+ .row {
+  grid-template-columns: 1.2fr 1fr 1.2fr 0.8fr 1fr 0.8fr 0.8fr 0.4fr 0.6fr;
+ }
 }
