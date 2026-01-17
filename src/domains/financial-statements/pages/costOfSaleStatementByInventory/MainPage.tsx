@@ -15,8 +15,6 @@ import { useGetProductsQuery } from "@/domains/maintainers/api/productApi/api";
 import { useGetWarehousesQuery } from "@/domains/maintainers/api/warehouseApi/api";
 import { downloadFile } from "@/shared/utils/downloadUtils";
 import * as XLSX from "xlsx";
-// import jsPDF from 'jspdf';
-// import html2canvas from 'html2canvas';
 
 export const MainPage: React.FC = () => {
  const [searchParams] = useSearchParams();
