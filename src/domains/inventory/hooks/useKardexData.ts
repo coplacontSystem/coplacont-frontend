@@ -5,6 +5,7 @@ import { useGetWarehousesQuery } from "@/domains/maintainers/api/warehouseApi";
 import { useGetInventoryByWarehouseAndProductQuery, useGetKardexMovementsQuery } from "../api/inventoryApi";
 import type { KardexMovement } from "../services/types";
 import type { MetodoValoracion } from "@/domains/settings/types";
+import { ConfigurationService } from "@/domains/settings/services/ConfigurationService";
 
 export const useKardexData = () => {
     const [searchParams] = useSearchParams();
@@ -16,8 +17,24 @@ export const useKardexData = () => {
     const [selectedMonth, setSelectedMonth] = useState<string>("");
     const [error, setError] = useState<string | null>(null);
 
-    // Estado del método de valoración (por ahora hardcodeado, puede venir de config)
-    const [valuationMethod] = useState<MetodoValoracion>('promedio');
+    // Estado del método de valoración
+    const [valuationMethod, setValuationMethod] = useState<MetodoValoracion>('promedio');
+
+    // Fetch configuration settings
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const config = await ConfigurationService.getConfiguration();
+                if (config && config.metodoValoracion) {
+                    console.log("Fetched valuation method:", config.metodoValoracion);
+                    setValuationMethod(config.metodoValoracion);
+                }
+            } catch (err) {
+                console.error("Failed to fetch configuration settings:", err);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     // RTK Query hooks para productos y almacenes
     const { data: products = [] } = useGetProductsQuery();

@@ -21,6 +21,7 @@ export interface ProcessedKardexItem {
         cantidad: number;
         costoUnitario: number;
         costoTotal: number;
+        batches?: KardexBatch[]; // Detalles de los lotes que salieron
     };
     saldo: {
         batches: KardexBatch[];
@@ -58,7 +59,7 @@ export const calculateFIFO = (
 
     // Inicializar cola de lotes con el inventario inicial
     // Asumimos que el inventario inicial es un único lote
-    const inventoryQueue: KardexBatch[] = [];
+    let inventoryQueue: KardexBatch[] = [];
 
     if (initialInventory.cantidad > 0) {
         inventoryQueue.push({
@@ -112,41 +113,83 @@ export const calculateFIFO = (
 
         } else if (movement.tipo === "Salida") {
             // --- LÓGICA DE SALIDA (PEPS) ---
-            // Consumir lotes desde el inicio de la cola
+            // Consumir lotes desde el inicio de la cola y registrar el desglose
 
             let cantidadPorSacar = movement.cantidad;
             let costoTotalSalida = 0;
+            const exitBatches: KardexBatch[] = [];
+            const balanceBatchesForDisplay: KardexBatch[] = [];
 
-            while (cantidadPorSacar > 0 && inventoryQueue.length > 0) {
-                const loteActual = inventoryQueue[0];
+            // Copiamos la cola actual para iterar y reconstruir la nueva cola
+            const originalQueue = JSON.parse(JSON.stringify(inventoryQueue));
+            const newInventoryQueue: KardexBatch[] = [];
 
-                if (loteActual.cantidad > cantidadPorSacar) {
-                    // El lote alcanza para cubrir todo
-                    const costoSalidaParcial = cantidadPorSacar * loteActual.costoUnitario;
-                    costoTotalSalida += costoSalidaParcial;
+            for (const batch of originalQueue) {
+                if (cantidadPorSacar > 0) {
+                    if (batch.cantidad > cantidadPorSacar) {
+                        // El lote alcanza de sobra (Consumo parcial)
+                        const costoSalidaParcial = cantidadPorSacar * batch.costoUnitario;
 
-                    // Actualizar lote
-                    loteActual.cantidad -= cantidadPorSacar;
-                    loteActual.costoTotal -= costoSalidaParcial;
-                    cantidadPorSacar = 0;
+                        // Registrar salida
+                        exitBatches.push({
+                            cantidad: cantidadPorSacar,
+                            costoUnitario: batch.costoUnitario,
+                            costoTotal: costoSalidaParcial
+                        });
+
+                        costoTotalSalida += costoSalidaParcial;
+
+                        // El remanente se mantiene en el inventario y en el display
+                        const remanenteBatch = {
+                            cantidad: batch.cantidad - cantidadPorSacar,
+                            costoUnitario: batch.costoUnitario,
+                            costoTotal: batch.costoTotal - costoSalidaParcial
+                        };
+
+                        balanceBatchesForDisplay.push(remanenteBatch);
+                        newInventoryQueue.push(remanenteBatch);
+
+                        cantidadPorSacar = 0;
+                    } else {
+                        // El lote se agota exacto o falta más (Consumo total del lote)
+                        const cantidadSacada = batch.cantidad;
+                        const costoSalidaParcial = batch.costoTotal; // Total exacto
+
+                        // Registrar salida
+                        exitBatches.push({
+                            cantidad: cantidadSacada,
+                            costoUnitario: batch.costoUnitario,
+                            costoTotal: costoSalidaParcial
+                        });
+
+                        costoTotalSalida += costoSalidaParcial;
+                        cantidadPorSacar -= cantidadSacada;
+
+                        // En el display, mostramos el lote como agotado (0) para mantener alineación visual
+                        // IMPORTANTE: Se muestra con cantidad 0
+                        balanceBatchesForDisplay.push({
+                            cantidad: 0,
+                            costoUnitario: batch.costoUnitario,
+                            costoTotal: 0
+                        });
+
+                        // NO lo agregamos a newInventoryQueue
+                    }
                 } else {
-                    // El lote se agota
-                    const cantidadSacada = loteActual.cantidad;
-                    const costoSalidaParcial = loteActual.costoTotal; // Usar total exacto para evitar error de redondeo
-
-                    costoTotalSalida += costoSalidaParcial;
-                    cantidadPorSacar -= cantidadSacada;
-
-                    // Remover lote agotado
-                    inventoryQueue.shift();
+                    // Ya terminamos de sacar, este lote queda intacto
+                    balanceBatchesForDisplay.push(batch);
+                    newInventoryQueue.push(batch);
                 }
             }
 
-            // Calcular totales del saldo actual
+            // Actualizar la cola real
+            inventoryQueue = newInventoryQueue;
+
+            // Calcular totales del saldo actual (usando la cola real)
             const saldoCantidad = inventoryQueue.reduce((acc, batch) => acc + batch.cantidad, 0);
             const saldoCostoTotal = inventoryQueue.reduce((acc, batch) => acc + batch.costoTotal, 0);
 
-            // Costo unitario promedio de la salida (solo para visualizar en una sola linea si se desea)
+            // Costo unitario promedio de la salida (referencial)
             const costoUnitarioSalidaPromedio = movement.cantidad > 0 ? costoTotalSalida / movement.cantidad : 0;
 
             processedData.push({
@@ -159,10 +202,11 @@ export const calculateFIFO = (
                 salida: {
                     cantidad: movement.cantidad,
                     costoUnitario: costoUnitarioSalidaPromedio,
-                    costoTotal: costoTotalSalida
+                    costoTotal: costoTotalSalida,
+                    batches: exitBatches // Agregamos el detalle
                 },
                 saldo: {
-                    batches: JSON.parse(JSON.stringify(inventoryQueue)), // Snapshot profundo
+                    batches: balanceBatchesForDisplay, // Usamos la versión con ceros para visualización
                     cantidad: saldoCantidad,
                     costoUnitario: saldoCantidad > 0 ? saldoCostoTotal / saldoCantidad : 0,
                     costoTotal: saldoCostoTotal

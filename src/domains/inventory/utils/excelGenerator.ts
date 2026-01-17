@@ -107,50 +107,84 @@ export const generateKardexExcel = ({
 
     // Llenar datos procesados
     processedData.forEach((item) => {
-        const batches = item.saldo.batches;
-        const hasBatches = batches && batches.length > 0;
+        const saldoBatches = item.saldo.batches;
+        const salidaBatches = item.salida.batches || [];
 
-        // Fila principal (primera línea del saldo o línea única)
-        const firstBatch = hasBatches ? batches[0] : null;
+        // Determinar cuántas filas visuales ocupará este movimiento
+        // El máximo entre 1 (la fila base), los lotes de salida (si los hay) y los lotes de saldo
+        // NOTA: Para entradas, salidaBatches es vacío. Para salidas, salidaBatches tiene desglose.
+        // Saldo siempre tiene desglose.
+        const rowCount = Math.max(1, salidaBatches.length, saldoBatches.length);
 
-        reportData.push([
-            item.fecha,
-            item.type,
-            item.serie,
-            item.numero,
-            item.operationType,
-            item.entrada.cantidad > 0 ? item.entrada.cantidad.toFixed(2) : "",
-            item.entrada.costoUnitario > 0 ? item.entrada.costoUnitario.toFixed(4) : "",
-            item.entrada.costoTotal > 0 ? item.entrada.costoTotal.toFixed(2) : "",
-            item.salida.cantidad > 0 ? item.salida.cantidad.toFixed(2) : "",
-            item.salida.costoUnitario > 0 ? item.salida.costoUnitario.toFixed(4) : "",
-            item.salida.costoTotal > 0 ? item.salida.costoTotal.toFixed(2) : "",
-            firstBatch ? firstBatch.cantidad.toFixed(2) : "0.00",
-            firstBatch ? firstBatch.costoUnitario.toFixed(4) : "0.0000",
-            firstBatch ? firstBatch.costoTotal.toFixed(2) : "0.00"
-        ]);
+        for (let i = 0; i < rowCount; i++) {
+            const isFirstRow = i === 0;
+            const salidaBatch = i < salidaBatches.length ? salidaBatches[i] : null;
+            const saldoBatch = i < saldoBatches.length ? saldoBatches[i] : null;
 
-        // Filas adicionales para el resto de lotes
-        if (hasBatches && batches.length > 1) {
-            for (let i = 1; i < batches.length; i++) {
-                const batch = batches[i];
-                reportData.push([
-                    "", // Fecha
-                    "", // Tipo
-                    "", // Serie
-                    "", // Numero
-                    "", // Op
-                    "", // Ent Cant
-                    "", // Ent Unit
-                    "", // Ent Total
-                    "", // Sal Cant
-                    "", // Sal Unit
-                    "", // Sal Total
-                    batch.cantidad.toFixed(2),
-                    batch.costoUnitario.toFixed(4),
-                    batch.costoTotal.toFixed(2)
-                ]);
+            // Datos generales (Fecha, Doc, Op) solo en la primera fila
+            const colFecha = isFirstRow ? item.fecha : "";
+            const colType = isFirstRow ? item.type : "";
+            const colSerie = isFirstRow ? item.serie : "";
+            const colNumero = isFirstRow ? item.numero : "";
+            const colOpType = isFirstRow ? item.operationType : "";
+
+            // ENTRADAS: Solo en la primera fila (asumimos que entradas no se desglosan o es 1 lote)
+            const colEntCant = (isFirstRow && item.entrada.cantidad > 0) ? item.entrada.cantidad.toFixed(2) : "";
+            const colEntUnit = (isFirstRow && item.entrada.costoUnitario > 0) ? item.entrada.costoUnitario.toFixed(4) : "";
+            const colEntTotal = (isFirstRow && item.entrada.costoTotal > 0) ? item.entrada.costoTotal.toFixed(2) : "";
+
+            // SALIDAS: Si hay desglose, usamos el desglose. Si no hay (ej. promedio), usamos el total en row 0.
+            let colSalCant = "";
+            let colSalUnit = "";
+            let colSalTotal = "";
+
+            if (salidaBatches.length > 0) {
+                // Si tenemos desglose (FIFO), lo usamos
+                if (salidaBatch) {
+                    colSalCant = salidaBatch.cantidad.toFixed(2);
+                    colSalUnit = salidaBatch.costoUnitario.toFixed(4);
+                    colSalTotal = salidaBatch.costoTotal.toFixed(2);
+                }
+            } else if (isFirstRow && item.salida.cantidad > 0) {
+                // Fallback para Promedio o si no hay desglose
+                colSalCant = item.salida.cantidad.toFixed(2);
+                colSalUnit = item.salida.costoUnitario.toFixed(4);
+                colSalTotal = item.salida.costoTotal.toFixed(2);
             }
+
+            // SALDO FINAL: Listar todos los lotes
+            let colBalCant = "";
+            let colBalUnit = "";
+            let colBalTotal = "";
+
+            if (saldoBatch) {
+                colBalCant = saldoBatch.cantidad.toFixed(2);
+                colBalUnit = saldoBatch.costoUnitario.toFixed(4);
+                // Si la cantidad es 0 (lote agotado visual), el total también será 0
+                colBalTotal = saldoBatch.costoTotal.toFixed(2);
+            } else if (isFirstRow && !saldoBatches.length) {
+                // Caso borde: saldo 0 sin lotes (raro si inventarioInicial es 0)
+                colBalCant = "0.00";
+                colBalUnit = "0.0000";
+                colBalTotal = "0.00";
+            }
+
+            reportData.push([
+                colFecha,
+                colType,
+                colSerie,
+                colNumero,
+                colOpType,
+                colEntCant,
+                colEntUnit,
+                colEntTotal,
+                colSalCant,
+                colSalUnit,
+                colSalTotal,
+                colBalCant,
+                colBalUnit,
+                colBalTotal
+            ]);
         }
     });
 
@@ -250,36 +284,43 @@ export const generateKardexExcel = ({
     // El saldoCantidad en processedData es correcto para ambos.
 
     processedData.forEach((item) => {
-        const batches = item.saldo.batches;
-        const hasBatches = batches && batches.length > 0;
-        const firstBatch = hasBatches ? batches[0] : null;
+        const saldoBatches = item.saldo.batches;
+        const rowCount = Math.max(1, saldoBatches.length);
 
-        physicalReportData.push([
-            item.fecha,
-            item.type,
-            item.serie,
-            item.numero,
-            item.operationType,
-            item.entrada.cantidad > 0 ? item.entrada.cantidad.toFixed(2) : "",
-            item.salida.cantidad > 0 ? item.salida.cantidad.toFixed(2) : "",
-            firstBatch ? firstBatch.cantidad.toFixed(2) : "0.00"
-        ]);
+        for (let i = 0; i < rowCount; i++) {
+            const isFirstRow = i === 0;
+            const saldoBatch = i < saldoBatches.length ? saldoBatches[i] : null;
 
-        // Filas adicionales para el resto de lotes en el reporte físico
-        if (hasBatches && batches.length > 1) {
-            for (let i = 1; i < batches.length; i++) {
-                const batch = batches[i];
-                physicalReportData.push([
-                    "", // Fecha
-                    "", // Tipo
-                    "", // Serie
-                    "", // Numero
-                    "", // Op
-                    "", // Ent Cant
-                    "", // Sal Cant
-                    batch.cantidad.toFixed(2) // Saldo Cant
-                ]);
+            const colFecha = isFirstRow ? item.fecha : "";
+            const colType = isFirstRow ? item.type : "";
+            const colSerie = isFirstRow ? item.serie : "";
+            const colNumero = isFirstRow ? item.numero : "";
+            const colOpType = isFirstRow ? item.operationType : "";
+
+            const colEntCant = (isFirstRow && item.entrada.cantidad > 0) ? item.entrada.cantidad.toFixed(2) : "";
+            const colSalCant = (isFirstRow && item.salida.cantidad > 0) ? item.salida.cantidad.toFixed(2) : ""; // Formato fisico no suele detallar lotes en la salida, solo cantidad total o quizas si?
+            // El usuario dijo "El de unidades esta en teoria correcto... pero...". 
+            // Si seguimos el patrón visual del 13.1, quizás deberíamos desglosar también?
+            // En formato 12.1 estándar SUNAT, solo pide "Entrada", "Salida", "Saldo Final".
+            // Para mantener consistencia con "distribución de filas", alineamos con el saldo.
+
+            let colBalCant = "";
+            if (saldoBatch) {
+                colBalCant = saldoBatch.cantidad.toFixed(2);
+            } else if (isFirstRow && !saldoBatches.length) {
+                colBalCant = "0.00";
             }
+
+            physicalReportData.push([
+                colFecha,
+                colType,
+                colSerie,
+                colNumero,
+                colOpType,
+                colEntCant,
+                colSalCant,
+                colBalCant
+            ]);
         }
     });
 

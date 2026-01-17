@@ -2,118 +2,104 @@ import type { ProcessedKardexItem, KardexTotals } from "./kardexCalculations";
 import type { IAuthUser } from "@/domains/auth/types";
 
 interface PDFGeneratorProps {
-    processedData: ProcessedKardexItem[];
-    companyInfo: IAuthUser["persona"];
-    reportInfo: {
-        periodo: string;
-        almacen: string;
-        codigoProducto: string;
-        producto: string;
-        inventarioInicialCantidad: number;
-        inventarioInicialCostoTotal: number;
-        year: string;
-        metodoValuacion: string;
-    };
-    totals: KardexTotals;
-    physicalTotals: KardexTotals;
+  processedData: ProcessedKardexItem[];
+  companyInfo: IAuthUser["persona"];
+  reportInfo: {
+    periodo: string;
+    almacen: string;
+    codigoProducto: string;
+    producto: string;
+    inventarioInicialCantidad: number;
+    inventarioInicialCostoTotal: number;
+    year: string;
+    metodoValuacion: string;
+  };
+  totals: KardexTotals;
+  physicalTotals: KardexTotals;
 }
 
 export const generateKardexPDF = ({
-    processedData,
-    companyInfo,
-    reportInfo,
-    totals,
-    physicalTotals
+  processedData,
+  companyInfo,
+  reportInfo,
+  totals,
+  physicalTotals
 }: PDFGeneratorProps) => {
-    const costoUnitarioInicial = reportInfo.inventarioInicialCantidad > 0
-        ? reportInfo.inventarioInicialCostoTotal / reportInfo.inventarioInicialCantidad
-        : 0;
+  const costoUnitarioInicial = reportInfo.inventarioInicialCantidad > 0
+    ? reportInfo.inventarioInicialCostoTotal / reportInfo.inventarioInicialCantidad
+    : 0;
 
-    // Filas del cuerpo para Formato 13.1 (Valorizado)
-    const rowsValorizado = processedData.map(item => {
-        const batches = item.saldo.batches;
-        const hasBatches = batches && batches.length > 0;
-        const firstBatch = hasBatches ? batches[0] : null;
+  // Filas del cuerpo para Formato 13.1 (Valorizado)
+  const rowsValorizado = processedData.map(item => {
+    const saldoBatches = item.saldo.batches;
+    const salidaBatches = item.salida.batches || [];
+    const rowCount = Math.max(1, salidaBatches.length, saldoBatches.length);
 
-        let html = `
-    <tr>
-      <td>${item.fecha}</td>
-      <td>${item.type}</td>
-      <td>${item.serie}</td>
-      <td>${item.numero}</td>
-      <td>${item.operationType}</td>
-      
-      <td>${item.entrada.cantidad > 0 ? item.entrada.cantidad.toFixed(2) : ""}</td>
-      <td>${item.entrada.costoUnitario > 0 ? item.entrada.costoUnitario.toFixed(4) : ""}</td>
-      <td>${item.entrada.costoTotal > 0 ? item.entrada.costoTotal.toFixed(2) : ""}</td>
-      
-      <td>${item.salida.cantidad > 0 ? item.salida.cantidad.toFixed(2) : ""}</td>
-      <td>${item.salida.costoUnitario > 0 ? item.salida.costoUnitario.toFixed(4) : ""}</td>
-      <td>${item.salida.costoTotal > 0 ? item.salida.costoTotal.toFixed(2) : ""}</td>
-      
-      <td>${firstBatch ? firstBatch.cantidad.toFixed(2) : "0.00"}</td>
-      <td>${firstBatch ? firstBatch.costoUnitario.toFixed(4) : "0.0000"}</td>
-      <td>${firstBatch ? firstBatch.costoTotal.toFixed(2) : "0.00"}</td>
-    </tr>
-  `;
+    let rowsHtml = "";
 
-        // Add extra rows for remaining batches
-        if (hasBatches && batches.length > 1) {
-            for (let i = 1; i < batches.length; i++) {
-                const batch = batches[i];
-                html += `
-        <tr>
-          <td></td><td></td><td></td><td></td><td></td>
-          <td></td><td></td><td></td>
-          <td></td><td></td><td></td>
-          <td>${batch.cantidad.toFixed(2)}</td>
-          <td>${batch.costoUnitario.toFixed(4)}</td>
-          <td>${batch.costoTotal.toFixed(2)}</td>
-        </tr>`;
-            }
-        }
-        return html;
-    }).join("");
+    for (let i = 0; i < rowCount; i++) {
+      const isFirstRow = i === 0;
+      const salidaBatch = i < salidaBatches.length ? salidaBatches[i] : null;
+      const saldoBatch = i < saldoBatches.length ? saldoBatches[i] : null;
 
-    // Filas del cuerpo para Formato 12.1 (Físico)
-    const rowsFisico = processedData.map(item => {
-        const batches = item.saldo.batches;
-        const hasBatches = batches && batches.length > 0;
-        const firstBatch = hasBatches ? batches[0] : null;
+      rowsHtml += `
+            <tr>
+              <td>${isFirstRow ? item.fecha : ""}</td>
+              <td>${isFirstRow ? item.type : ""}</td>
+              <td>${isFirstRow ? item.serie : ""}</td>
+              <td>${isFirstRow ? item.numero : ""}</td>
+              <td>${isFirstRow ? item.operationType : ""}</td>
+              
+              <!-- ENTRADA -->
+              <td>${(isFirstRow && item.entrada.cantidad > 0) ? item.entrada.cantidad.toFixed(2) : ""}</td>
+              <td>${(isFirstRow && item.entrada.costoUnitario > 0) ? item.entrada.costoUnitario.toFixed(4) : ""}</td>
+              <td>${(isFirstRow && item.entrada.costoTotal > 0) ? item.entrada.costoTotal.toFixed(2) : ""}</td>
+              
+              <!-- SALIDA -->
+              <td>${salidaBatch ? salidaBatch.cantidad.toFixed(2) : ((isFirstRow && item.salida.cantidad > 0 && !salidaBatches.length) ? item.salida.cantidad.toFixed(2) : "")}</td>
+              <td>${salidaBatch ? salidaBatch.costoUnitario.toFixed(4) : ((isFirstRow && item.salida.costoUnitario > 0 && !salidaBatches.length) ? item.salida.costoUnitario.toFixed(4) : "")}</td>
+              <td>${salidaBatch ? salidaBatch.costoTotal.toFixed(2) : ((isFirstRow && item.salida.costoTotal > 0 && !salidaBatches.length) ? item.salida.costoTotal.toFixed(2) : "")}</td>
+              
+              <!-- SALDO -->
+              <td>${saldoBatch ? saldoBatch.cantidad.toFixed(2) : ((isFirstRow && !saldoBatches.length) ? "0.00" : "")}</td>
+              <td>${saldoBatch ? saldoBatch.costoUnitario.toFixed(4) : ((isFirstRow && !saldoBatches.length) ? "0.0000" : "")}</td>
+              <td>${saldoBatch ? saldoBatch.costoTotal.toFixed(2) : ((isFirstRow && !saldoBatches.length) ? "0.00" : "")}</td>
+            </tr>`;
+    }
+    return rowsHtml;
+  }).join("");
 
-        let html = `
-    <tr>
-      <td>${item.fecha}</td>
-      <td>${item.type}</td>
-      <td>${item.serie}</td>
-      <td>${item.numero}</td>
-      <td>${item.operationType}</td>
-      
-      <td>${item.entrada.cantidad > 0 ? item.entrada.cantidad.toFixed(2) : ""}</td>
-      
-      <td>${item.salida.cantidad > 0 ? item.salida.cantidad.toFixed(2) : ""}</td>
-      
-      <td>${firstBatch ? firstBatch.cantidad.toFixed(2) : "0.00"}</td>
-    </tr>
-  `;
+  // Filas del cuerpo para Formato 12.1 (Físico)
+  const rowsFisico = processedData.map(item => {
+    const saldoBatches = item.saldo.batches;
+    const rowCount = Math.max(1, saldoBatches.length);
 
-        // Add extra rows for remaining batches
-        if (hasBatches && batches.length > 1) {
-            for (let i = 1; i < batches.length; i++) {
-                const batch = batches[i];
-                html += `
-        <tr>
-          <td></td><td></td><td></td><td></td><td></td>
-          <td></td><td></td>
-          <td>${batch.cantidad.toFixed(2)}</td>
-        </tr>`;
-            }
-        }
-        return html;
-    }).join("");
+    let rowsHtml = "";
+
+    for (let i = 0; i < rowCount; i++) {
+      const isFirstRow = i === 0;
+      const saldoBatch = i < saldoBatches.length ? saldoBatches[i] : null;
+
+      rowsHtml += `
+            <tr>
+              <td>${isFirstRow ? item.fecha : ""}</td>
+              <td>${isFirstRow ? item.type : ""}</td>
+              <td>${isFirstRow ? item.serie : ""}</td>
+              <td>${isFirstRow ? item.numero : ""}</td>
+              <td>${isFirstRow ? item.operationType : ""}</td>
+              
+              <td>${(isFirstRow && item.entrada.cantidad > 0) ? item.entrada.cantidad.toFixed(2) : ""}</td>
+              
+              <td>${(isFirstRow && item.salida.cantidad > 0) ? item.salida.cantidad.toFixed(2) : ""}</td>
+              
+              <td>${saldoBatch ? saldoBatch.cantidad.toFixed(2) : ((isFirstRow && !saldoBatches.length) ? "0.00" : "")}</td>
+            </tr>`;
+    }
+    return rowsHtml;
+  }).join("");
 
 
-    const htmlContent = `
+  const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -280,12 +266,12 @@ export const generateKardexPDF = ({
     </html>
   `;
 
-    // Abrir nueva ventana e imprimir
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-        printWindow.focus();
-        printWindow.print();
-    }
+  // Abrir nueva ventana e imprimir
+  const printWindow = window.open("", "_blank");
+  if (printWindow) {
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  }
 };

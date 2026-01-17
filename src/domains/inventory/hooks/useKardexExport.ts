@@ -39,6 +39,11 @@ export const useKardexExport = ({
     valuationMethod
 }: UseKardexExportProps) => {
 
+    // DEBUG: Check what we receive
+    console.log("useKardexExport valuationMethod:", valuationMethod);
+    console.log("useKardexExport type:", typeof valuationMethod);
+
+
     const getCommonData = useCallback(() => {
         if (!kardexResponse || !kardexData.length || !user?.persona) {
             return null;
@@ -52,15 +57,18 @@ export const useKardexExport = ({
         const selectedProduct = products.find(p => p.id.toString() === selectedProductId);
         const codigoProducto = selectedProduct?.codigo || "001";
 
+        const methodStr = (valuationMethod as string).toLowerCase();
+        const isFifo = methodStr === 'fifo' || methodStr === 'peps' || methodStr.includes('peps');
+
         const processedData = calculateKardexBalances(kardexData, {
             cantidad: reportes.inventarioInicialCantidad,
             costoTotal: reportes.inventarioInicialCostoTotal
-        }, valuationMethod === 'fifo' ? 'PEPS' : 'promedio');
+        }, isFifo ? 'PEPS' : 'promedio');
 
         const totals = calculateTotals(kardexData);
         const physicalTotals = calculatePhysicalTotals(kardexData);
 
-        const methodLabel = valuationMethod === 'fifo' ? 'PEPS' : 'PROMEDIO';
+        const methodLabel = isFifo ? 'PEPS' : 'PROMEDIO';
 
         return {
             processedData,
