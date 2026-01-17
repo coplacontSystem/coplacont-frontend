@@ -92,6 +92,9 @@ export const Main: React.FC<CreateProductModalProps> = ({
   { label: "Kilogramo", value: "kg" },
   { label: "Litro", value: "litro" },
   { label: "Tonelada", value: "tonelada" },
+  { label: "Caja", value: "caja" },
+  { label: "Paquete", value: "paquete" },
+  { label: "Saco", value: "saco" },
  ];
 
  const handleSubmit = async () => {
