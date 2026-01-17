@@ -205,10 +205,11 @@ export const useKardexData = () => {
         kardexData,
         loading,
         error,
+        isError,
         kardexResponse: formattedKardexResponse,
         reportes,
         isDirectLoad,
         valuationMethod,
-        fetchKardex
+        fetchKardex,
     };
 };

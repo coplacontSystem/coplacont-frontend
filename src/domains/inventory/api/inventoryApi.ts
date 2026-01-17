@@ -12,6 +12,7 @@ interface CreateInventoryPayload {
     idProducto: number;
     stockInicial?: number;
     precioUnitario?: number;
+    fechaInicial?: string;
 }
 
 interface UpdateInitialInventoryPayload {

@@ -6,7 +6,6 @@ export const filterTypeOptions: ComboBoxOption[] = [
   { value: 'rango-fechas', label: 'Rango de fechas' },
 ];
 
-// Re-exportar funciones de shared para compatibilidad
 export { getYearOptions, getMonthOptions };
 
 export const documentTypeOptions: ComboBoxOption[] = [
