@@ -1,4 +1,5 @@
 @use "sass:map";
+@use "sass:string";
 
 // =============================================================================
 // VARIABLES DE SASS - COPLACONT FRONTEND
@@ -93,9 +94,9 @@ $_dark: (
  --error-text: #{map.get($t, error-text)};
  --neutral-soft: #{map.get($t, neutral-soft)};
  --neutral-text: #{map.get($t, neutral-text)};
- --shadow-sm: #{unquote(map.get($t, shadow-sm))};
- --shadow-md: #{unquote(map.get($t, shadow-md))};
- --shadow-lg: #{unquote(map.get($t, shadow-lg))};
+ --shadow-sm: #{string.unquote(map.get($t, shadow-sm))};
+ --shadow-md: #{string.unquote(map.get($t, shadow-md))};
+ --shadow-lg: #{string.unquote(map.get($t, shadow-lg))};
 
  // Nombres históricos mapeados a la nueva paleta
  --bg-color: #{map.get($t, surface)};

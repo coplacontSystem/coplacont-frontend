@@ -5,9 +5,9 @@
   width: 100%;
   //padding: $spacing-sm $spacing-md;
   // Estilos por defecto (variante createSale)
-  background-color: transparent;
-  border: 0.5px solid var(--border-input);
-  border-radius: $border-radius-lg;
+  background-color: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: $border-radius-md;
   transition: all 0.2s ease;
 
   &__trigger {
@@ -25,7 +25,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    opacity: 0.8;
     flex: 1;
     min-height: 20px;
     line-height: 20px;
@@ -50,7 +49,7 @@
     font-weight: inherit;
     
     &::placeholder {
-      color: rgba($text-color, 0.6);
+      color: var(--text-3);
     }
   }
 
@@ -58,8 +57,7 @@
     display: flex;
     margin-left: $spacing-sm;
     font-size: 0.8em;
-    color: $text-color;
-    opacity: 0.7;
+    color: var(--text-3);
     transition: transform 0.2s ease;
   }
 
@@ -72,10 +70,10 @@
     top: calc(100% + 4px);
     left: 0;
     right: 0;
-    background: $bg-color;
-    border: 1px solid var(--border-input);
-    border-radius: $border-radius-md;
-    box-shadow: $box-shadow-lg;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-md);
     z-index: $z-index-dropdown;
     max-height: 240px;
     overflow: auto;
@@ -84,22 +82,24 @@
   &__options {
     list-style: none;
     margin: 0;
-    padding: $spacing-xs 0;
+    padding: 6px;
   }
 
   &__option {
-    padding: $spacing-sm $spacing-md;
+    padding: 8px 10px;
+    border-radius: $border-radius-sm;
     cursor: pointer;
     font-size: $font-size-sm;
     color: $text-color;
     transition: background-color 0.15s ease;
 
     &:hover {
-      background-color: rgba($primary-blue, 0.08);
+      background-color: var(--surface-2);
     }
 
     &--selected {
-      background-color: rgba($primary-blue, 0.12);
+      background-color: var(--active-bg);
+      color: var(--active-text);
       font-weight: $font-weight-medium;
     }
   }
@@ -107,19 +107,21 @@
   &__noResults {
     padding: $spacing-sm $spacing-md;
     font-size: $font-size-sm;
-    color: rgba($text-color, 0.6);
+    color: var(--text-3);
     font-style: italic;
     text-align: center;
     cursor: default;
   }
 
   &--error {
-    border-color: $danger-color;
-    box-shadow: $box-shadow-error;
+    border-color: var(--error);
+    box-shadow: 0 0 0 3px var(--error-soft);
   }
 
   &--disabled {
-    opacity: 0.6;
+    background-color: var(--surface-2);
+    border-color: var(--border);
+    color: var(--text-3);
     cursor: not-allowed;
     
     .comboBox__trigger {
@@ -128,12 +130,12 @@
   }
 
   &:hover:not(&--disabled) {
-    border-color: var(--color-blue);;
+    border-color: var(--text-3);
   }
 
   &:focus-within {
-    border-color: $primary-blue;
-    box-shadow: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
   }
 
   // -----------------------------------------------------------------------------
