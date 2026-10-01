@@ -120,7 +120,7 @@ export const FormCategory = ({
    </div>
 
    {/* Descripcion */}
-   <div className={styles.FormCategory__FormField}>
+   <div className={`${styles.FormCategory__FormField} ${styles["FormCategory__FormField--full"]}`}>
     <Text size="xs" color="neutral-primary">
      Descripción (opcional)
     </Text>

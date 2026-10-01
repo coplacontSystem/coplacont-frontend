@@ -104,7 +104,7 @@ export const FormEntidad = ({
 
    {/* Razon Social o Datos Naturales */}
    {entidad.tipo === "JURIDICA" && (
-    <div className={styles.FormEntidad__FormField}>
+    <div className={`${styles.FormEntidad__FormField} ${styles["FormEntidad__FormField--full"]}`}>
      <Text size="xs" color="neutral-primary">
       Razón Social
      </Text>
@@ -212,7 +212,7 @@ export const FormEntidad = ({
    )}
 
    {/* Direccion */}
-   <div className={styles.FormEntidad__FormField}>
+   <div className={`${styles.FormEntidad__FormField} ${styles["FormEntidad__FormField--full"]}`}>
     <Text size="xs" color="neutral-primary">
      Direccion (opcional)
     </Text>

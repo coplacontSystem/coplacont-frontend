@@ -164,7 +164,7 @@ export const FormWarehouse = ({
     />
    </div>
    {/* Dirección */}
-   <div className={styles.FormWarehouse__FormField}>
+   <div className={`${styles.FormWarehouse__FormField} ${styles["FormWarehouse__FormField--full"]}`}>
     <Text size="xs" color="neutral-primary">
      Descripción (Opcional)
     </Text>
