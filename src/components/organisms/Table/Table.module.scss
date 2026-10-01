@@ -2,11 +2,11 @@
 
 .tableWrapper {
   flex: 1;
-  background: $bg-color;
-  border: 1px solid var(--border-color);
-  border-radius: $border-radius-xl;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: $border-radius-lg;
   overflow: hidden;
-  box-shadow: $box-shadow-sm;
+  box-shadow: var(--shadow-sm);
   max-height: 600px;
   display: flex;
 }
@@ -14,7 +14,7 @@
 .table {
   width: 100%;
   display: grid;
-  grid-auto-rows: 36px;
+  grid-auto-rows: 48px;
 }
 
 .scrollableContent {
@@ -26,8 +26,8 @@
 .actionsColumn {
   width: 80px;
   flex-shrink: 0;
-  border-left: 1px solid var(--border-color);
-  background: $bg-color;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
   overflow-y: auto;
   box-sizing: border-box;
   
@@ -36,7 +36,7 @@
   }
   
   .headerCell {
-    background: $bg-color-secondary;
+    background: var(--surface-2);
   }
 }
 
@@ -44,16 +44,20 @@
   display: grid;
   grid-template-columns: var(--grid-template, 1fr);
   align-items: center;
-  border-bottom: 1px solid  var(--border-color);
-  
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.15s ease;
 
   &:first-child {
     border-top: none;
   }
+
+  &:not(.header):hover {
+    background: var(--surface-2);
+  }
 }
 
 .header {
-  background: $bg-color-secondary;
+  background: var(--surface-2);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -64,10 +68,9 @@
   padding: $spacing-xs $spacing-lg;
   overflow-x: auto;
   overflow-y: hidden;
-  font-size: $font-size-xs;
-  color: $text-color;
-  border-right: 1px solid  var(--border-color);
-  height: 36px;
+  font-size: $font-size-sm;
+  color: var(--text);
+  height: 48px;
   display: flex;
   align-items: center;
   
@@ -79,13 +82,12 @@
   scrollbar-width: none; 
   -ms-overflow-style: none;
 
-  &:last-child {
-    border-right: none;
-  }
 }
 
 .headerCell {
+  font-size: 13px;
   font-weight: $font-weight-semibold;
+  color: var(--text-2);
 }
 
 .actions {
@@ -95,8 +97,9 @@
 }
 
 .iconButton {
-  border: 1px solid  var(--border-color);
+  border: 1px solid var(--border-strong);
   background: transparent;
+  color: var(--text-2);
   padding: 6px 8px;
   border-radius: $border-radius-md;
   cursor: pointer;
@@ -113,7 +116,7 @@
   justify-content: center;
   padding: $spacing-2xl;
   text-align: center;
-  color: $neutral-4;
+  color: var(--text-3);
   min-height: 300px;
 }
 
