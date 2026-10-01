@@ -12,11 +12,22 @@ $mobile: 767px;
   }
 }
 
-.content {
+.main {
   flex: 1;
   min-width: 0; // permite que las tablas hagan scroll en lugar de ensanchar la página
-  padding: $spacing-xl;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: $mobile) {
+    height: auto;
+  }
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  padding: 32px;
   overflow-y: auto;
 
   &::-webkit-scrollbar {
@@ -33,11 +44,10 @@ $mobile: 767px;
   }
 
   @media (max-width: 1099px) {
-    padding: $spacing-lg;
+    padding: $spacing-xl;
   }
 
   @media (max-width: $mobile) {
-    height: auto;
     overflow-y: visible;
     padding: $spacing-md;
   }

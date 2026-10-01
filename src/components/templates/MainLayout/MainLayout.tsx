@@ -4,6 +4,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { LuMenu } from "react-icons/lu";
 
 import { Sidebar } from "@/components/organisms/Sidebar/Sidebar";
+import { AppHeader } from "@/components/organisms/AppHeader/AppHeader";
 
 const MOBILE_QUERY = "(max-width: 767px)";
 const TABLET_QUERY = "(max-width: 1099px)";
@@ -89,9 +90,12 @@ export const MainLayout: React.FC = () => {
         />
       </div>
 
-      <main className={styles.content}>
-        <Outlet />
-      </main>
+      <div className={styles.main}>
+        <AppHeader />
+        <main className={styles.content}>
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };
