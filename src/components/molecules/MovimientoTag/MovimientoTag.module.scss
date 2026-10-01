@@ -8,12 +8,12 @@
   width: 100%;
 
   &--Entrada{
-    background-color:#26C9541A;
+    background-color: var(--success-soft);
 ;
   }
 
   &--Salida{
-    background-color: #F747471A;
+    background-color: var(--error-soft);
 ;
   }
 }

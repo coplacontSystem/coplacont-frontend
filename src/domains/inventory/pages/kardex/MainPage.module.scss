@@ -23,8 +23,8 @@
   &__Error {
     margin-top: 1rem;
     padding: 0.75rem;
-    background-color: #fef2f2;
-    border: 1px solid #fecaca;
+    background-color: var(--error-soft);
+    border: 1px solid transparent;
     border-radius: 0.375rem;
   }
 
@@ -38,9 +38,9 @@
     align-items: center;
     margin-bottom: 1rem;
     padding: 1rem;
-    background-color: #f9fafb;
+    background-color: var(--surface-2);
     border-radius: 0.5rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border);
   }
 
   &__ReportInfo {

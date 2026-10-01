@@ -25,13 +25,13 @@
   }
   
   .warningIcon {
-    color: #f59e0b;
+    color: var(--warning-text);
     margin-right: 8px;
     font-size: 1.2em;
   }
   
   .dangerIcon {
-    color: #dc2626;
+    color: var(--error);
     margin-right: 8px;
     font-size: 1.2em;
   }

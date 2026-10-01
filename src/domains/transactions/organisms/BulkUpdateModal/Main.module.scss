@@ -64,7 +64,7 @@
       transition: border-color 0.2s ease;
 
       &:hover {
-        border-color: $primary-blue;
+        border-color: var(--primary);
       }
 
       &::file-selector-button {
@@ -74,7 +74,7 @@
 
     .uploadButton {
       padding: $spacing-md $spacing-lg;
-      background-color: $primary-blue;
+      background-color: var(--primary);
       color: $text-color-reverse;
       border: none;
       border-radius: $border-radius-md;
@@ -84,11 +84,11 @@
       transition: background-color 0.2s ease;
 
       &:hover {
-        background-color: color.scale($primary-blue, $lightness: 10%);
+        background-color: var(--primary-hover);
       }
 
       &:focus {
-        outline: 2px solid $primary-blue;
+        outline: 2px solid var(--primary);
         outline-offset: 2px;
       }
     }

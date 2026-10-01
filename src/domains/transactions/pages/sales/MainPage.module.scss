@@ -74,12 +74,12 @@
 .header {
   font-weight: 600;
   padding: 12px 8px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border);
 }
 
 .cell {
   padding: 8px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--border);
 }
 
 .actions {
