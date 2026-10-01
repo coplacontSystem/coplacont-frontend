@@ -23,7 +23,7 @@
   border: 1px solid var(--border);
   border-radius: $border-radius-xl;
   box-shadow: var(--shadow-lg);
-  min-width: 600px;
+  min-width: min(600px, 100%);
   max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
@@ -168,7 +168,7 @@
 }
 
 // Responsive design
-@include respond-to(sm) {
+@include mobile-only {
   .backdrop {
     padding: $spacing-md;
   }

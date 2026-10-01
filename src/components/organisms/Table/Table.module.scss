@@ -13,6 +13,7 @@
 
 .table {
   width: 100%;
+  min-width: 880px; // en pantallas chicas la tabla hace scroll horizontal
   display: grid;
   grid-auto-rows: 48px;
 }

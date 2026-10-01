@@ -188,7 +188,7 @@ export const MainPage: React.FC = () => {
   "Acciones",
  ];
 
- const gridTemplate = "0.6fr 0.8fr 1fr 0.8fr 1fr 1fr 1fr 1fr";
+ const gridTemplate = "0.8fr 1.1fr 2.2fr 1.3fr 1fr 1.1fr 1fr 1fr";
 
  return (
   <PageLayout
@@ -362,7 +362,7 @@ export const MainPage: React.FC = () => {
     onClose={handleCloseModal}
     title={`Detalle de Venta - ${selectedSale?.numero || ""}`}
     description={`${selectedSale?.persona?.razonSocial || ""} - ${
-     selectedSale?.fechaEmision || ""
+     formatDateDMY(selectedSale?.fechaEmision)
     }`}
    >
     {selectedSale && (

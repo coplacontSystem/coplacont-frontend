@@ -211,7 +211,7 @@ export const MainPage: React.FC = () => {
   "Acciones",
  ];
 
- const gridTemplate = "0.6fr 0.8fr 1fr 0.8fr 1fr 1fr 1fr 1fr";
+ const gridTemplate = "0.8fr 1.1fr 2.2fr 1.3fr 1fr 1.1fr 1fr 1fr";
 
  return (
   <PageLayout
@@ -388,7 +388,7 @@ export const MainPage: React.FC = () => {
      selectedPurchase?.entidad?.razonSocial ||
      selectedPurchase?.entidad?.nombreCompleto ||
      ""
-    } - ${selectedPurchase?.fechaEmision || ""}`}
+    } - ${formatDateDMY(selectedPurchase?.fechaEmision)}`}
    >
     {selectedPurchase && (
      <div>

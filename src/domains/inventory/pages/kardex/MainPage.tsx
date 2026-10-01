@@ -92,9 +92,9 @@ export const MainPage: React.FC = () => {
    id: "reporter-row",
    cells: [
     reportes.cantidadActual,
-    reportes.costoUnitarioFinal,
-    reportes.costoTotalFinal,
-    reportes.costoVentasTotal,
+    formatNumber(reportes.costoUnitarioFinal),
+    formatNumber(reportes.costoTotalFinal),
+    formatNumber(reportes.costoVentasTotal),
    ],
   },
  ];
