@@ -31,69 +31,82 @@ $warning-color: #f3cb26;
 // SISTEMA DE TEMAS UNIFICADO
 // -----------------------------------------------------------------------------
 
-// Variables CSS que se adaptan automáticamente al tema del sistema
-:root {
- // Tema claro por defecto
- --bg-color: #{$neutral-5}; // #FFFFFF
- --bg-color-secondary: #{$neutral-4};
- --text-color: #{$neutral-1}; // #1F1F1F
- --text-color-1: #{$neutral-2}; // #3A3A3A
- --text-color-muted: #{$neutral-2}; // #3A3A3A - Para EmptyState
- --text-color-reverse: #{$neutral-5}; // #FFFFFF
- --bg-card-v1: #{$neutral-4}; // #F6F6F6
- --bg-card-v2: #{$neutral-5}; // #FFFFFF
- --text-color-card-skills: #{$neutral-2}; // #3A3A3A
- --border-color: #{$neutral-3};
- --border-input: #{$border-light};
- --color-blue: #{$primary-blue};
+// Tokens del rediseño (ver docs/diseno). Los nombres históricos (--bg-color,
+// --text-color, etc.) se conservan y se reasignan a la nueva paleta para que
+// todos los componentes existentes adopten el nuevo estilo sin cambios.
+$_light: (
+ bg: #f4f6f9, surface: #ffffff, surface-2: #f1f4f8, border: #e3e8ef, border-strong: #cfd7e2,
+ text: #0e1c2b, text-2: #526377, text-3: #8594a6,
+ primary: #003869, primary-hover: #002b52, on-primary: #ffffff, accent: #1a98ca,
+ primary-soft: #e8eff7,
+ success: #26c954, success-bg: #e6f8ec, success-text: #13803a,
+ danger: #cc2525, danger-bg: #fbe9e9, danger-text: #b31f1f,
+ warning: #e0a100, warning-bg: #fdf3d9, warning-text: #8a5d00,
+);
+$_dark: (
+ bg: #0b1522, surface: #111d2c, surface-2: #172739, border: #1f3045, border-strong: #2a4059,
+ text: #e6edf5, text-2: #9db0c5, text-3: #6b8199,
+ primary: #1a98ca, primary-hover: #2aa9db, on-primary: #03121f, accent: #3fb2e0,
+ primary-soft: #12304a,
+ success: #26c954, success-bg: #0f2d1d, success-text: #5fdc8a,
+ danger: #e5484d, danger-bg: #331519, danger-text: #ff8b8f,
+ warning: #e0a100, warning-bg: #33280a, warning-text: #f3cb26,
+);
 
- // Tema oscuro automático basado en preferencias del sistema
+@mixin theme-tokens($t) {
+ // Tokens nuevos
+ --bg: #{map-get($t, bg)};
+ --surface: #{map-get($t, surface)};
+ --surface-2: #{map-get($t, surface-2)};
+ --border: #{map-get($t, border)};
+ --border-strong: #{map-get($t, border-strong)};
+ --text: #{map-get($t, text)};
+ --text-2: #{map-get($t, text-2)};
+ --text-3: #{map-get($t, text-3)};
+ --primary: #{map-get($t, primary)};
+ --primary-hover: #{map-get($t, primary-hover)};
+ --on-primary: #{map-get($t, on-primary)};
+ --accent: #{map-get($t, accent)};
+ --primary-soft: #{map-get($t, primary-soft)};
+ --success: #{map-get($t, success)};
+ --success-bg: #{map-get($t, success-bg)};
+ --success-text: #{map-get($t, success-text)};
+ --danger: #{map-get($t, danger)};
+ --danger-bg: #{map-get($t, danger-bg)};
+ --danger-text: #{map-get($t, danger-text)};
+ --warning: #{map-get($t, warning)};
+ --warning-bg: #{map-get($t, warning-bg)};
+ --warning-text: #{map-get($t, warning-text)};
+
+ // Nombres históricos mapeados a la nueva paleta
+ --bg-color: #{map-get($t, surface)};
+ --bg-color-secondary: #{map-get($t, bg)};
+ --text-color: #{map-get($t, text)};
+ --text-color-1: #{map-get($t, text-2)};
+ --text-color-muted: #{map-get($t, text-2)};
+ --text-color-reverse: #{map-get($t, surface)};
+ --bg-card-v1: #{map-get($t, surface-2)};
+ --bg-card-v2: #{map-get($t, surface)};
+ --text-color-card-skills: #{map-get($t, text-2)};
+ --border-color: #{map-get($t, border)};
+ --border-input: #{map-get($t, border-strong)};
+ --color-blue: #{map-get($t, primary)};
+}
+
+:root {
+ @include theme-tokens($_light);
  @media (prefers-color-scheme: dark) {
-  --bg-color: #{$neutral-1}; // #1F1F1F
-  --bg-color-secondary: #000000;
-  --text-color: #{$neutral-5}; // #FFFFFF
-  --text-color-1: #{$neutral-3}; // #DBD9D9
-  --text-color-muted: #{$neutral-4}; // #F6F6F6 - Para EmptyState
-  --text-color-reverse: #{$neutral-1}; // #1F1F1F
-  --bg-card-v1: #{$neutral-2}; // #3A3A3A
-  --bg-card-v2: #{$neutral-1}; // #1F1F1F
-  --text-color-card-skills: #{$neutral-3}; // #DBD9D9
-  --border-color: #{$neutral-2};
-  --border-input: #{$border-dark};
-  --color-blue: #{$secondary-blue};
+  @include theme-tokens($_dark);
  }
 }
 
 // Soporte explícito para data-theme establecido por ThemeProvider
 :root[data-theme="light"] {
- --bg-color: #{$neutral-5};
- --bg-color-secondary: #{$neutral-4};
- --text-color: #{$neutral-1};
- --text-color-1: #{$neutral-2};
- --text-color-muted: #{$neutral-2};
- --text-color-reverse: #{$neutral-5};
- --bg-card-v1: #{$neutral-4};
- --bg-card-v2: #{$neutral-5};
- --text-color-card-skills: #{$neutral-2};
- --border-color: #{$neutral-3};
- --border-input: #{$border-light};
-
- --color-blue: #{$primary-blue};
+ @include theme-tokens($_light);
 }
 
 :root[data-theme="dark"] {
- --bg-color: #{$neutral-1};
- --bg-color-secondary: #000000;
- --text-color: #{$neutral-5};
- --text-color-1: #{$neutral-3};
- --text-color-muted: #{$neutral-4};
- --text-color-reverse: #{$neutral-1};
- --bg-card-v1: #{$neutral-2};
- --bg-card-v2: #{$neutral-1};
- --text-color-card-skills: #{$neutral-3};
- --border-color: #{$neutral-2};
- --border-input: #{$border-dark};
- --color-blue: #{$secondary-blue};
+ @include theme-tokens($_dark);
 }
 
 // Variables Sass para compatibilidad con código existente
@@ -159,7 +172,8 @@ $line-height-relaxed: 1.6;
 // BORDES Y RADIOS
 // -----------------------------------------------------------------------------
 
-$border-radius-sm: 4px;
+$border-radius-xs: 4px;
+$border-radius-sm: 6px;
 $border-radius-md: 8px;
 $border-radius-lg: 12px;
 $border-radius-xl: 16px;
@@ -203,12 +217,12 @@ $z-index-tooltip: 1070;
 // SOMBRAS PREDEFINIDAS
 // -----------------------------------------------------------------------------
 
-$box-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-$box-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
-$box-shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.15);
+$box-shadow-sm: 0 1px 2px rgba(14, 28, 43, 0.06);
+$box-shadow-md: 0 6px 16px -4px rgba(14, 28, 43, 0.10);
+$box-shadow-lg: 0 24px 48px -12px rgba(14, 28, 43, 0.22);
 $box-shadow-xl: 0 8px 15px rgba(0, 0, 0, 0.2);
 $box-shadow-2xl: 0 15px 30px rgba(0, 0, 0, 0.25);
 
 // Sombras específicas
-$box-shadow-focus: 0 0 0 2px rgba(0, 56, 105, 0.25); // $primary-blue con transparencia
+$box-shadow-focus: 0 0 0 3px rgba(26, 152, 202, 0.35); // --accent con transparencia
 $box-shadow-error: 0 0 0 2px rgba(204, 37, 37, 0.25); // $danger-color con transparencia
