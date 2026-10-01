@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useCallback } from "react";
+import { LuBan, LuCheck, LuEye } from "react-icons/lu";
 import styles from "./MainPage.module.scss";
 
 import {
@@ -7,8 +8,7 @@ import {
  Table,
  type TableRow,
  StateTag,
- CloseIcon,
- CheckIcon,
+ IconAction,
  Modal,
  Text,
  Input,
@@ -151,28 +151,24 @@ export const MainPage: React.FC = () => {
      w.responsable,
      <StateTag state={w.estado} />,
      <div style={{ display: "flex", gap: "8px" }}>
-      <Button
-       size="tableItemSize"
-       variant="tableItemStyle"
-       onClick={() => {
+      <IconAction title="Ver detalles" onClick={() => {
         setSelectedWarehouse(w);
         setIsCreate(false);
         setIsView(true);
         setIsOpen(true);
-       }}
-      >
-       Ver detalles
-      </Button>
+       }}>
+       <LuEye size={16} />
+      </IconAction>
 
-      <Button
-       size="tableItemSize"
-       variant="tableItemStyle"
+      <IconAction
+       title={w.estado ? "Desactivar" : "Activar"}
+       tone={w.estado ? "danger" : "success"}
        onClick={() => {
         handleChangeState(w.id, w.estado);
        }}
       >
-       {w.estado ? <CloseIcon /> : <CheckIcon />}
-      </Button>
+       {w.estado ? <LuBan size={16} /> : <LuCheck size={16} />}
+      </IconAction>
      </div>,
     ],
    })),
@@ -195,7 +191,7 @@ export const MainPage: React.FC = () => {
    subtitle="Muestra los almacenes registrados."
    header={
     <Button
-     size="large"
+     size="medium"
      onClick={() => {
       setIsCreate(true);
       setIsOpen(true);

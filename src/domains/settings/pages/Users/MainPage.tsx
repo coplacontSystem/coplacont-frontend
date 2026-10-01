@@ -275,7 +275,7 @@ export const MainPage: React.FC = () => {
       subtitle="Gestiona la creación, edición y asignación de roles a los usuarios del sistema."
       header={
         <Button
-          size="large"
+          size="medium"
           onClick={() => {
             setIsCreate(true);
             setIsOpen(true);

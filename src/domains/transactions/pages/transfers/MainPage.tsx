@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { LuEye } from "react-icons/lu";
 import { formatDateDMY, formatSoles } from "@/shared/utils";
 import styles from "./MainPage.module.scss";
 import {
@@ -7,7 +8,6 @@ import {
  Text,
  ComboBox,
  Input,
- Divider,
 } from "@/components";
 import { Table, type TableRow } from "@/components/organisms/Table";
 import { useGetTransfersQuery } from "../../api/transactionsApi";
@@ -115,15 +115,19 @@ export const MainPage: React.FC = () => {
         : t.tipoOperacion?.descripcion || "N/A",
        `${t.serie || ""}-${t.numero || ""}`,
        formatDateDMY(t.fechaEmision) || "N/A",
-       formatSoles(t.totales?.totalGeneral),
-       <Button
+       <strong key={`total-${t.idComprobante}`} className={styles.amount}>
+        {formatSoles(t.totales?.totalGeneral)}
+       </strong>,
+       <button
         key={`view-${t.idComprobante}`}
-        size="tableItemSize"
-        variant="tableItemStyle"
+        type="button"
+        className={styles.iconAction}
+        title="Ver detalle"
+        aria-label="Ver detalle"
         onClick={() => handleRegisterTransfer()}
        >
-        Ver detalle
-       </Button>,
+        <LuEye size={16} />
+       </button>,
       ],
      }) as TableRow,
    ),
@@ -144,8 +148,16 @@ export const MainPage: React.FC = () => {
   <PageLayout
    title="Transferencias"
    subtitle="Listado de transferencias internas entre almacenes"
+   header={
+    <div className={styles.headerActions}>
+     <Button size="medium" onClick={handleRegisterTransfer}>
+      + Nueva transferencia
+     </Button>
+    </div>
+   }
   >
    <div className={styles.homePurchasePage}>
+    <div className={styles.toolbar}>
     <section className={styles.filtersTop}>
      <div className={styles.filter}>
       <Text size="xs" color="neutral-primary">
@@ -225,16 +237,6 @@ export const MainPage: React.FC = () => {
      </Button>
     </section>
 
-    <Divider />
-
-    <section className={styles.actionsRow}>
-     <Button size="medium" onClick={handleRegisterTransfer}>
-      + Nueva transferencia
-     </Button>
-    </section>
-
-    <Divider />
-
     <section className={styles.filtersSecondary}>
      <div className={styles.filter}>
       <Text size="xs" color="neutral-primary">
@@ -255,13 +257,13 @@ export const MainPage: React.FC = () => {
       Filtrar búsqueda
      </Button>
     </section>
-
-    <Divider />
+    </div>
 
     <Table
      headers={headers}
      rows={rows}
      gridTemplate={gridTemplate}
+     columnAlign={["left","left","left","left","right","right"]}
      isLoading={isLoading}
      isError={isError}
     />

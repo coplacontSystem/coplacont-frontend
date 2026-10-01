@@ -1,12 +1,12 @@
 import { useState, useMemo } from "react";
+import { LuBan, LuCheck, LuEye } from "react-icons/lu";
 import styles from "./MainPage.module.scss";
 import { PageLayout } from "@/components";
 import {
  Table,
  Button,
  StateTag,
- CloseIcon,
- CheckIcon,
+ IconAction,
  Modal,
  Text,
  Input,
@@ -133,27 +133,23 @@ export const MainPage: React.FC = () => {
    c.descripcion || "No especificado",
    <StateTag state={c.estado} />,
    <div style={{ display: "flex", gap: "8px" }}>
-    <Button
-     size="tableItemSize"
-     variant="tableItemStyle"
-     onClick={() => {
+    <IconAction title="Ver detalles" onClick={() => {
       setSelectedCategory(c);
       setIsView(true);
       setIsOpen(true);
-     }}
-    >
-     Ver detalles
-    </Button>
+     }}>
+     <LuEye size={16} />
+    </IconAction>
 
-    <Button
-     size="tableItemSize"
-     variant="tableItemStyle"
+    <IconAction
+     title={c.estado ? "Desactivar" : "Activar"}
+     tone={c.estado ? "danger" : "success"}
      onClick={() => {
       handleStateCategory(c.id, c.estado);
      }}
     >
-     {c.estado ? <CloseIcon /> : <CheckIcon />}
-    </Button>
+     {c.estado ? <LuBan size={16} /> : <LuCheck size={16} />}
+    </IconAction>
    </div>,
   ],
  }));
@@ -174,7 +170,7 @@ export const MainPage: React.FC = () => {
    subtitle="Listado de categorías registradas"
    header={
     <Button
-     size="large"
+     size="medium"
      onClick={() => {
       setIsOpen(true);
       setIsView(false);

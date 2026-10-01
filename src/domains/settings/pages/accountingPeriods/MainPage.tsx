@@ -256,7 +256,7 @@ export const MainPage: React.FC = () => {
    subtitle="Gestión de periodos contables y métodos de valoración"
    header={
     <Button
-     size="large"
+     size="medium"
      onClick={() => {
       setIsOpen(true);
       setIsView(false);

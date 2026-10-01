@@ -9,3 +9,4 @@ export * from './Loader';
 export * from './Divider';
 export * from './ComboBox';
 export * from './TextArea';
+export * from './IconAction';

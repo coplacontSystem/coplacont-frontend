@@ -1,12 +1,12 @@
 import { useState, useMemo } from "react";
+import { LuBan, LuCheck, LuEye } from "react-icons/lu";
 import styles from "./MainPage.module.scss";
 import {
  PageLayout,
  Table,
  Button,
  Modal,
- CloseIcon,
- CheckIcon,
+ IconAction,
  StateTag,
  Input,
  Text,
@@ -185,26 +185,22 @@ export const MainPage: React.FC = () => {
    c.telefono !== "" ? c.telefono : "No especificado",
    <StateTag state={c.activo} />,
    <div style={{ display: "flex", gap: "8px" }}>
-    <Button
-     size="tableItemSize"
-     variant="tableItemStyle"
-     onClick={() => {
+    <IconAction title="Ver detalles" onClick={() => {
       setSelectedClient(c);
       setIsView(true);
       setIsOpen(true);
-     }}
-    >
-     Ver detalles
-    </Button>
-    <Button
-     size="tableItemSize"
-     variant="tableItemStyle"
+     }}>
+     <LuEye size={16} />
+    </IconAction>
+    <IconAction
+     title={c.activo ? "Desactivar" : "Activar"}
+     tone={c.activo ? "danger" : "success"}
      onClick={() => {
       handleStateClient(c.id, c.activo);
      }}
     >
-     {c.activo ? <CloseIcon /> : <CheckIcon />}
-    </Button>
+     {c.activo ? <LuBan size={16} /> : <LuCheck size={16} />}
+    </IconAction>
    </div>,
   ],
  }));
@@ -222,7 +218,7 @@ export const MainPage: React.FC = () => {
       setIsView(false);
       setIsOpen(true);
      }}
-     size="large"
+     size="medium"
     >
      + Nuevo cliente
     </Button>
