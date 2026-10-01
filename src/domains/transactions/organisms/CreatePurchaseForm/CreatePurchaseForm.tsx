@@ -6,7 +6,6 @@ import {
  Text,
  Input,
  ComboBox,
- Divider,
  Button,
  CloseIcon,
  Loader,
@@ -1164,11 +1163,9 @@ export const CreatePurchaseForm = () => {
     </div>
    </div>
 
-   <Divider />
-
    {/** Detalle de compra - Solo se muestra si se ha seleccionado un tipo de producto/compra */}
    {formState.tipoProductoCompra && (
-    <>
+    <section className={styles.CreatePurchaseForm__Card}>
      <Text size="xl" color="neutral-primary">
       Detalle de compra
      </Text>
@@ -1291,9 +1288,9 @@ export const CreatePurchaseForm = () => {
           marginTop: "8px",
           marginBottom: "8px",
           padding: "8px",
-          backgroundColor: "#f8f9fa",
-          borderRadius: "4px",
-          border: "1px solid #e9ecef",
+          backgroundColor: "var(--accent-soft)",
+          borderRadius: "8px",
+          border: "1px solid transparent",
          }}
         >
          <Text size="xs" color="neutral-secondary">
@@ -1350,10 +1347,8 @@ export const CreatePurchaseForm = () => {
        </div>
       </>
      )}
-    </>
+    </section>
    )}
-
-   <Divider />
 
    <div className={styles.CreatePurchaseForm__Actions}>
     <Button
