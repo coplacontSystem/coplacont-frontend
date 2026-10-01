@@ -20,7 +20,7 @@ import {
   INVENTORY_ROUTES,
   FINANCIAL_STATEMENTS_ROUTES,
   SETTINGS_ROUTES,
-  AUTH_ROUTES,
+  WELCOME_ROUTE,
   MAINTAINERS_ROUTES,
 } from "@/router/routes";
 import { useAuth } from "@/domains/auth";
@@ -79,7 +79,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
 
   const handleLogout = () => {
     logout();
-    navigate(`${AUTH_ROUTES.AUTH}${AUTH_ROUTES.LOGIN}`, { replace: true });
+    navigate(WELCOME_ROUTE, { replace: true });
   };
 
   return (
@@ -550,7 +550,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
           >
             <CerrarSesionIcon />
             <Link
-              to={`${AUTH_ROUTES.AUTH}${AUTH_ROUTES.LOGIN}`}
+              to={WELCOME_ROUTE}
               onClick={handleLogout}
               className={styles.sectionTitle__title}
             >

@@ -47,6 +47,8 @@ $_light: (
  warning-soft: #fdf3d9, warning-text: #8a5d00,
  error: #cc2525, error-soft: #fbe9e9, error-text: #b31f1f,
  neutral-soft: #eef1f5, neutral-text: #4b5b6e,
+ grid: rgba(0,56,105,.06), g1: #002a50, g2: #003869, g3: #1a7fb0,
+ mark-filter: none, word-filter: none,
  shadow-sm: '0 1px 2px rgba(14,28,43,.06)',
  shadow-md: '0 6px 16px -4px rgba(14,28,43,.10)',
  shadow-lg: '0 24px 48px -12px rgba(14,28,43,.22)',
@@ -61,6 +63,8 @@ $_dark: (
  warning-soft: rgba(224,161,0,.15), warning-text: #f2c14e,
  error: #e04545, error-soft: rgba(204,37,37,.18), error-text: #ff8a8a,
  neutral-soft: rgba(157,176,197,.12), neutral-text: #b3c2d3,
+ grid: rgba(157,176,197,.06), g1: #06182b, g2: #0b2c4d, g3: #11699a,
+ mark-filter: brightness(1.9) saturate(1.1), word-filter: brightness(0) invert(1),
  shadow-sm: '0 1px 2px rgba(0,0,0,.3)',
  shadow-md: '0 8px 20px -6px rgba(0,0,0,.45)',
  shadow-lg: '0 24px 56px -12px rgba(0,0,0,.6)',
@@ -94,6 +98,12 @@ $_dark: (
  --error-text: #{map.get($t, error-text)};
  --neutral-soft: #{map.get($t, neutral-soft)};
  --neutral-text: #{map.get($t, neutral-text)};
+ --grid: #{map.get($t, grid)};
+ --g1: #{map.get($t, g1)};
+ --g2: #{map.get($t, g2)};
+ --g3: #{map.get($t, g3)};
+ --mark-filter: #{map.get($t, mark-filter)};
+ --word-filter: #{map.get($t, word-filter)};
  --shadow-sm: #{string.unquote(map.get($t, shadow-sm))};
  --shadow-md: #{string.unquote(map.get($t, shadow-md))};
  --shadow-lg: #{string.unquote(map.get($t, shadow-lg))};

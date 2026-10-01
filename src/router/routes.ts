@@ -3,6 +3,9 @@
  * Contiene todas las rutas utilizadas en el sistema para centralizar y reutilizar
  */
 
+// Ruta pública de bienvenida (previa al login)
+export const WELCOME_ROUTE = '/welcome';
+
 // Rutas de autenticación
 export const AUTH_ROUTES = {
   AUTH: '/auth',
