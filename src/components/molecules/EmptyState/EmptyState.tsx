@@ -1,7 +1,6 @@
 import React from "react";
+import { LuInbox, LuTriangleAlert } from "react-icons/lu";
 import styles from "./EmptyState.module.scss";
-import { Text, NoDataIcon } from "@/components/atoms";
-import { HiOutlineClock, HiOutlineExclamationTriangle } from "react-icons/hi2";
 
 export type EmptyStateVariant = "empty" | "loading" | "error";
 
@@ -13,21 +12,15 @@ export interface EmptyStateProps {
   * - 'error': Shows error message with icon
   */
  variant?: EmptyStateVariant;
- /**
-  * Custom title to display
-  */
+ /** Custom title to display */
  title?: string;
- /**
-  * Custom subtitle/description to display
-  */
+ /** Custom subtitle/description to display */
  subtitle?: string;
- /**
-  * Custom icon to display
-  */
+ /** Custom icon to display */
  icon?: React.ReactNode;
- /**
-  * Additional CSS class
-  */
+ /** Acción opcional (por ejemplo, un botón para crear el primer registro) */
+ action?: React.ReactNode;
+ /** Additional CSS class */
  className?: string;
 }
 
@@ -38,17 +31,17 @@ const defaultConfig: Record<
  empty: {
   title: "Sin datos",
   subtitle: "No se encontraron registros para mostrar",
-  icon: <NoDataIcon />,
+  icon: <LuInbox size={24} />,
  },
  loading: {
   title: "Cargando...",
   subtitle: "Por favor espera mientras se cargan los datos",
-  icon: <HiOutlineClock size={40} />,
+  icon: <span className={styles.spinner} />,
  },
  error: {
-  title: "Error",
+  title: "Ocurrió un error",
   subtitle: "Ha ocurrido un error al cargar los datos",
-  icon: <HiOutlineExclamationTriangle size={40} />,
+  icon: <LuTriangleAlert size={24} />,
  },
 };
 
@@ -57,16 +50,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
  title,
  subtitle,
  icon,
+ action,
  className,
 }) => {
  const config = defaultConfig[variant];
- const displayTitle = title ?? config.title;
- const displaySubtitle = subtitle ?? config.subtitle;
- const displayIcon = icon ?? config.icon;
 
  const iconClassName = [
   styles.emptyState__icon,
-  variant === "loading" ? styles.emptyState__iconLoading : "",
   variant === "error" ? styles.emptyState__iconError : "",
  ]
   .filter(Boolean)
@@ -75,18 +65,12 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
  return (
   <section className={`${styles.emptyState} ${className ?? ""}`.trim()}>
    <div className={styles.emptyState__content}>
-    <div className={iconClassName}>{displayIcon}</div>
-    <Text
-     size="xl"
-     color="info"
-     weight={500}
-     className={styles.emptyState__title}
-    >
-     {displayTitle}
-    </Text>
-    <Text size="md" color="info" className={styles.emptyState__subtitle}>
-     {displaySubtitle}
-    </Text>
+    <div className={iconClassName}>{icon ?? config.icon}</div>
+    <span className={styles.emptyState__title}>{title ?? config.title}</span>
+    <span className={styles.emptyState__subtitle}>
+     {subtitle ?? config.subtitle}
+    </span>
+    {action && <div className={styles.emptyState__action}>{action}</div>}
    </div>
   </section>
  );

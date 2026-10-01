@@ -55,7 +55,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   line-height: $line-height-normal;
   
   // Espaciado
-  padding: $spacing-md $spacing-lg;
+  padding: 0 $spacing-md;
+  min-height: 40px;
   
   // Interacción
   transition: all 0.2s ease;
@@ -84,23 +85,27 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   // -----------------------------------------------------------------------------
 
   &--xs {
-    padding: $spacing-xs $spacing-sm;
-    font-size: $font-size-xs;
+    padding: 0 $spacing-md;
+    min-height: 36px;
+    font-size: $font-size-sm;
   }
 
   &--small {
-    padding: $spacing-xs $spacing-sm;
+    padding: 0 $spacing-md;
+    min-height: 40px;
     font-size: $font-size-sm;
   }
 
   &--medium {
-    padding: $spacing-xs $spacing-sm;
-    font-size: $font-size-md;
+    padding: 0 $spacing-md;
+    min-height: 40px;
+    font-size: $font-size-sm;
   }
 
   &--large {
-    padding: $spacing-lg $spacing-xl;
-    font-size: $font-size-lg;
+    padding: 0 14px;
+    min-height: 48px;
+    font-size: $font-size-md;
   }
 
   // -----------------------------------------------------------------------------

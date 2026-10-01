@@ -32,57 +32,61 @@
 }
 
 .header {
-  padding: $spacing-xl $spacing-xl $spacing-md;
+  padding: 20px 24px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: $spacing-lg;
   border-bottom: 1px solid var(--border);
 }
 
 .titleContainer {
   display: flex;
-  align-items: start;
   flex-direction: column;
-  gap:20px
+  gap: 4px;
+  min-width: 0;
 }
 
 .title {
   margin: 0;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
   color: var(--text);
 }
 
 .closeButton {
-  background: none;
+  flex: none;
+  width: 36px;
+  height: 36px;
   border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: var(--text-color);
-  padding: $spacing-xs;
   border-radius: $border-radius-md;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  min-height: 32px;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background-color 0.15s ease, color 0.15s ease;
 
   &:hover {
-    color: $text-color-1;
+    background: var(--surface-2);
+    color: var(--text);
   }
 
-  &:focus {
+  &:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
 }
 
 .content {
-  padding: $spacing-lg $spacing-xl;
+  padding: 20px 24px 24px;
 }
 
 .description {
-  margin-bottom: $spacing-lg;
-  color: $text-color-1;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--text-2);
 }
 
 .downloadSection {
@@ -160,7 +164,7 @@
 }
 
 .footer {
-  padding: $spacing-xl $spacing-xl;
+  padding: 16px 24px;
   display: flex;
   justify-content: flex-end;
   gap: $spacing-md;

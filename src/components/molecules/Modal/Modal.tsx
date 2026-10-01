@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
+import { LuX } from "react-icons/lu";
 import styles from "./Modal.module.scss";
-import { Button, Text } from "@/components/atoms";
+import { Button } from "@/components/atoms";
 
 export interface ModalProps {
  isOpen: boolean;
@@ -42,23 +43,16 @@ export const Modal: React.FC<ModalProps> = ({
     {(title || description) && (
      <div className={styles.header}>
       <div className={styles.titleContainer}>
-       {title && (
-        <Text as="h2" color="neutral-primary" size="2xl">
-         {title}
-        </Text>
-       )}
-       {description && (
-        <Text as="p" className={styles.description} color="neutral-secondary">
-         {description}
-        </Text>
-       )}
+       {title && <h2 className={styles.title}>{title}</h2>}
+       {description && <div className={styles.description}>{description}</div>}
       </div>
       <button
+       type="button"
        className={styles.closeButton}
        aria-label="Cerrar"
        onClick={onClose}
       >
-       ×
+       <LuX size={20} />
       </button>
      </div>
     )}

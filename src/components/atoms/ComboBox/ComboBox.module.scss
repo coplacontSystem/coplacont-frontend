@@ -8,7 +8,10 @@
   background-color: var(--surface);
   border: 1px solid var(--border-strong);
   border-radius: $border-radius-md;
-  transition: all 0.2s ease;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
   &__trigger {
     display: flex;
@@ -143,19 +146,9 @@
   // -----------------------------------------------------------------------------
 
   &--xs {
-    padding: $spacing-xs $spacing-sm;
-    
-    .comboBox__trigger,
-    .comboBox__value,
-    .comboBox__input,
-    .comboBox__option {
-      font-size: $font-size-xs;
-    }
-  }
+    padding: 0 $spacing-md;
+    min-height: 36px;
 
-  &--small {
-    padding: $spacing-sm $spacing-md;
-    
     .comboBox__trigger,
     .comboBox__value,
     .comboBox__input,
@@ -164,25 +157,27 @@
     }
   }
 
+  &--small,
   &--medium {
-    padding: $spacing-xs $spacing-sm;
-    
+    padding: 0 $spacing-md;
+
+    .comboBox__trigger,
+    .comboBox__value,
+    .comboBox__input,
+    .comboBox__option {
+      font-size: $font-size-sm;
+    }
+  }
+
+  &--large {
+    padding: 0 14px;
+    min-height: 48px;
+
     .comboBox__trigger,
     .comboBox__value,
     .comboBox__input,
     .comboBox__option {
       font-size: $font-size-md;
-    }
-  }
-
-  &--large {
-    padding: $spacing-lg $spacing-xl;
-    
-    .comboBox__trigger,
-    .comboBox__value,
-    .comboBox__input,
-    .comboBox__option {
-      font-size: $font-size-lg;
     }
   }
 }
