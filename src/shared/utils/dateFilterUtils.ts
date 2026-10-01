@@ -70,3 +70,23 @@ export const getMonthOptions = (selectedYear?: string): ComboBoxOption[] => {
  * Obtiene todos los meses disponibles
  */
 export const getAllMonths = (): ComboBoxOption[] => allMonths;
+
+
+/**
+ * Formatea una fecha ISO (YYYY-MM-DD o con hora) como dd/mm/aaaa sin aplicar zona horaria.
+ * Devuelve el valor original si no tiene el formato esperado.
+ */
+export const formatDateDMY = (value?: string | null): string => {
+  if (!value) return "";
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
+};
+
+/** Formatea un importe como "S/ 1,234.50". */
+export const formatSoles = (value?: number | string | null): string => {
+  const amount = Number(value ?? 0);
+  return `S/ ${amount.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+};

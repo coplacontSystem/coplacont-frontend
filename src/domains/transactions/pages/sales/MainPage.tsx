@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { formatDateDMY, formatSoles } from "@/shared/utils";
 import styles from "./MainPage.module.scss";
 import type { Transaction } from "../../services/types";
 import { useGetSalesQuery } from "../../api/transactionsApi";
@@ -157,11 +158,11 @@ export const MainPage: React.FC = () => {
         ? sale.entidad?.razonSocial || "N/A"
         : sale.entidad?.nombreCompleto || "N/A",
        `${sale.serie || ""}-${sale.numero || ""}`,
-       sale.fechaEmision || "N/A",
+       formatDateDMY(sale.fechaEmision) || "N/A",
        sale.fechaVencimiento !== null && sale.fechaVencimiento !== undefined
-        ? sale.fechaVencimiento
+        ? formatDateDMY(sale.fechaVencimiento)
         : "No especificado",
-       sale.totales?.totalGeneral?.toString() || "0",
+       formatSoles(sale.totales?.totalGeneral),
        <Button
         key={`btn-${sale.idComprobante}`}
         size="tableItemSize"

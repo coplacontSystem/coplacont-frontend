@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { formatDateDMY, formatSoles } from "@/shared/utils";
 import styles from "./MainPage.module.scss";
 import {
  PageLayout,
@@ -113,8 +114,8 @@ export const MainPage: React.FC = () => {
         ? (t.tipoOperacion as string)
         : t.tipoOperacion?.descripcion || "N/A",
        `${t.serie || ""}-${t.numero || ""}`,
-       t.fechaEmision || "N/A",
-       t.totales?.totalGeneral?.toString() || "0",
+       formatDateDMY(t.fechaEmision) || "N/A",
+       formatSoles(t.totales?.totalGeneral),
        <Button
         key={`view-${t.idComprobante}`}
         size="tableItemSize"

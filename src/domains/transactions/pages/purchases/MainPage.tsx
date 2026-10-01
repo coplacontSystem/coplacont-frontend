@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { formatDateDMY, formatSoles } from "@/shared/utils";
 import styles from "./HomePurchasePage.module.scss";
 
 import type { Transaction } from "../../services/types";
@@ -179,12 +180,12 @@ export const MainPage: React.FC = () => {
         ? purchase.entidad?.razonSocial || "N/A"
         : purchase.entidad?.nombreCompleto || "N/A",
        `${purchase.serie || ""}-${purchase.numero || ""}`,
-       purchase.fechaEmision || "N/A",
+       formatDateDMY(purchase.fechaEmision) || "N/A",
        purchase.fechaVencimiento !== null &&
        purchase.fechaVencimiento !== undefined
-        ? purchase.fechaVencimiento
+        ? formatDateDMY(purchase.fechaVencimiento)
         : "No especificado",
-       purchase.totales?.totalGeneral?.toString() || "0",
+       formatSoles(purchase.totales?.totalGeneral),
        <Button
         key={`btn-${purchase.idComprobante}`}
         size="tableItemSize"
@@ -443,7 +444,7 @@ export const MainPage: React.FC = () => {
          <Text size="sm" weight={500}>
           Fecha de Emisión:
          </Text>
-         <Text size="sm">{selectedPurchase.fechaEmision || "N/A"}</Text>
+         <Text size="sm">{formatDateDMY(selectedPurchase.fechaEmision) || "N/A"}</Text>
         </div>
         <div>
          <Text size="sm" weight={500}>
