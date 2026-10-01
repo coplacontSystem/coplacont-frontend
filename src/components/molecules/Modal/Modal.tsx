@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { LuX } from "react-icons/lu";
 import styles from "./Modal.module.scss";
 import { Button } from "@/components/atoms";
+import { ModalFooterContext } from "./ModalActions";
 
 export interface ModalProps {
  isOpen: boolean;
@@ -10,7 +11,7 @@ export interface ModalProps {
  onClose: () => void;
  children?: React.ReactNode;
  /** Contenido opcional para el pie del modal. Si se provee, reemplaza el footer por defecto. */
- footer?: React.ReactNode;
+ footer?: React.ReactNode | null;
  loading?: boolean;
  buttonText?: string;
 }
@@ -35,6 +36,8 @@ export const Modal: React.FC<ModalProps> = ({
   return () => document.removeEventListener("keydown", handler);
  }, [isOpen, onClose]);
 
+ const [footerSlot, setFooterSlot] = useState<HTMLElement | null>(null);
+
  if (!isOpen) return null;
 
  return (
@@ -57,22 +60,30 @@ export const Modal: React.FC<ModalProps> = ({
      </div>
     )}
 
-    <div className={styles.content}>{children}</div>
+    <ModalFooterContext.Provider value={{ inModal: true, slot: footerSlot }}>
+     <div className={styles.content}>{children}</div>
 
-    <div className={styles.footer}>
-     {footer !== undefined ? (
-      footer
-     ) : (
-      <Button
-       disabled={loading}
-       size="medium"
-       variant="secondary"
-       onClick={onClose}
-      >
-       {buttonText}
-      </Button>
+     {footer !== null && (
+      <div className={styles.footer}>
+       {footer !== undefined ? (
+        footer
+       ) : (
+        <>
+         <Button
+          disabled={loading}
+          size="medium"
+          variant="secondary"
+          onClick={onClose}
+         >
+          {buttonText}
+         </Button>
+         {/* Aquí aparecen las acciones enviadas por los formularios (ModalActions) */}
+         <span ref={setFooterSlot} className={styles.footerSlot} />
+        </>
+       )}
+      </div>
      )}
-    </div>
+    </ModalFooterContext.Provider>
    </div>
   </div>
  );

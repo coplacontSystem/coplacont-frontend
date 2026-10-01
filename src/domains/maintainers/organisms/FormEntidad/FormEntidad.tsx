@@ -5,7 +5,7 @@ import type {
  EntidadParcial,
  EntidadToUpdate,
 } from "../../services/entitiesService";
-import { Text, ComboBox, Input, Button } from "@/components";
+import { Text, ComboBox, Input, Button, ModalActions } from "@/components";
 import { useUpdateEntityMutation } from "../../api/entitiesApi";
 
 type FormEntidadProps = {
@@ -267,6 +267,7 @@ export const FormEntidad = ({
     />
    </div>
 
+   <ModalActions>
    {!readOnly || isEdit ? (
     <Button
      disabled={loading || isUpdating}
@@ -284,6 +285,7 @@ export const FormEntidad = ({
      Activar edición
     </Button>
    )}
+   </ModalActions>
   </div>
  );
 };

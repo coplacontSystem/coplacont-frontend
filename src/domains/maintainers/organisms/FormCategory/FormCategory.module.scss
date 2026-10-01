@@ -2,12 +2,19 @@
     &__FormField{
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 6px;
+
+    // etiqueta del campo según el diseño
+    > :first-child {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
   }
 
   &__Form{
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 16px;
   }
 }
