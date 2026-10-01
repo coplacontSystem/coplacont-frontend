@@ -7,14 +7,14 @@
   padding: $spacing-md;
   margin-bottom: $spacing-sm;
   border-radius: $border-radius-lg;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   background-color: transparent;
   width: 100%;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: var(--text-color);
+    border-color: var(--text-3);
   }
 
   &__label {
@@ -37,7 +37,7 @@
       }
 
       &--inactive {
-        color: $neutral-3;
+        color: var(--text-3);
       }
     }
   }

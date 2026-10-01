@@ -5,7 +5,6 @@ import { GoHomeFill } from "react-icons/go";
 import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
 
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Logo } from "@/components/atoms";
 import { ThemeToggle } from "@/components/atoms/ThemeToggle/ThemeToggle";
 import {
   TransaccionesIcon,
@@ -89,7 +88,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
     >
       <div className={styles.header}>
         {!isCollapsed && (
-          <Logo src="/assets/sidebar/logo.svg" width={141} height={52} />
+          <div className={styles.brand}>
+            <img
+              className={styles.brandMark}
+              src="/images/brand/logo-mark.png"
+              alt=""
+            />
+            <img
+              className={styles.brandWord}
+              src="/images/brand/logo-wordmark.png"
+              alt="Coplacont"
+            />
+          </div>
         )}
         <div
           onClick={onToggle}

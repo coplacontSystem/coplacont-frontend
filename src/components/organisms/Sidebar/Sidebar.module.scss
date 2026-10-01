@@ -1,11 +1,11 @@
 @use "@/styles" as *;
 
 .sidebar {
-  width: 280px;
+  width: 272px;
   height: 100vh;
-  background-color: $bg-color-secondary;
-  border-right: 1px solid var(--border-color);
-  padding: $spacing-lg;
+  background-color: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: $spacing-md;
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
@@ -36,7 +36,7 @@
       transition: background-color 0.2s ease;
 
       &:hover {
-        background-color: var(--hover-color, rgba(0, 0, 0, 0.05));
+        background-color: var(--surface-2);
       }
 
       &__title {
@@ -60,27 +60,34 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-xs;
-  padding: $spacing-sm $spacing-md;
-  background-color: $bg-color-secondary;
+  padding: $spacing-md;
   border-radius: $border-radius-lg;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   background-color: transparent;
 
   .userName {
     overflow-x: auto;
-    font-size: $font-size-lg;
+    font-size: $font-size-sm;
     font-weight: $font-weight-semibold;
-    color: $text-color;
+    color: var(--text);
   }
   .userEmail {
     font-size: $font-size-xs;
-    color: $text-color-1;
-    font-weight: $font-weight-medium;
+    color: var(--text-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .userRole {
-    font-size: $font-size-xs;
-    color: $text-color-1;
+    align-self: flex-start;
+    margin-top: $spacing-xs;
+    padding: 2px $spacing-sm;
+    border-radius: $border-radius-full;
+    background: var(--surface-2);
+    font-size: 11px;
+    font-weight: $font-weight-medium;
+    color: var(--text-2);
   }
 }
 
@@ -88,8 +95,9 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: $spacing-xl;
+  gap: $spacing-lg;
   overflow-y: auto;
+  padding: $spacing-sm 0;
 
   //Para ocultar scrollbar
   &::-webkit-scrollbar {
@@ -108,7 +116,7 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: $neutral-3;
+    background: var(--border-strong);
     border-radius: $border-radius-full;
   }
 }
@@ -116,7 +124,7 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: $spacing-sm;
 }
 
 .sectionTitle {
@@ -125,11 +133,13 @@
   align-items: center;
   gap: 4px;
   &__title {
-    font-size: $font-size-sm;
-    font-weight: $font-weight-medium;
-    color: $text-color-1;
-    letter-spacing: 0.5px;
+    font-size: 12px;
+    font-weight: $font-weight-semibold;
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     margin: 0;
+    padding: 0 $spacing-md;
   }
 }
 
@@ -139,27 +149,58 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 2px;
 
   li {
-    font-size: $font-size-xs;
+    font-size: $font-size-sm;
     a {
       display: block;
-      padding: $spacing-xs $spacing-md;
-      color: $text-color;
+      padding: 7px $spacing-md;
+      line-height: 20px;
+      color: var(--text-2);
       text-decoration: none;
-      border-radius: 6px;
-      transition: all 0.2s ease;
+      border-radius: $border-radius-md;
+      transition: background-color 0.15s ease, color 0.15s ease;
 
       &:hover {
-        box-shadow: 0px 0px 1.5px 0px var(--border-input);
-        background-color: var(--border-input);
+        background-color: var(--surface-2);
+        color: var(--text);
       }
 
       &.active {
-        box-shadow: 0px 0px 1.5px 0px var(--border-input);
-        background-color: var(--border-input);
+        background-color: var(--active-bg);
+        color: var(--active-text);
+        font-weight: $font-weight-semibold;
       }
     }
+  }
+}
+
+// Marca (logo + nombre). En oscuro se aclaran con filtros, como en el diseño.
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandMark {
+  height: 36px;
+  width: auto;
+  display: block;
+}
+
+.brandWord {
+  height: 14px;
+  width: auto;
+  display: block;
+}
+
+:root[data-theme="dark"] {
+  .brandMark {
+    filter: brightness(1.9) saturate(1.1);
+  }
+
+  .brandWord {
+    filter: brightness(0) invert(1);
   }
 }
