@@ -4,7 +4,6 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  //gap: $spacing-lg;
   margin-bottom: 40px;
 }
 
@@ -13,6 +12,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: $spacing-lg;
+  flex-wrap: wrap;
+  padding-bottom: $spacing-xs;
 }
 
 
@@ -30,8 +32,8 @@
 
 
 .subtitle {
-  font-size: $font-size-lg;
-  color: $text-color-1;
+  font-size: $font-size-md;
+  color: var(--text-2);
 }
 
 .content {

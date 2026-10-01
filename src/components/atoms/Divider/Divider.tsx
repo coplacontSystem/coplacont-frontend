@@ -11,8 +11,8 @@ export interface DividerProps {
 export const Divider: React.FC<DividerProps> = ({
   orientation = 'horizontal',
   thickness = 1,
-  color = 'var(--border-color)',
-  margin = '0.5rem 0',
+  color = 'var(--border)',
+  margin = '0.75rem 0',
 }) => {
   const style = {
     borderTopWidth: orientation === 'horizontal' ? `${thickness}px` : 0,

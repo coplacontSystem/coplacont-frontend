@@ -28,13 +28,9 @@
 }
 
 .actionsRow {
- display: grid;
- grid-template-columns: repeat(1, 1fr);
- gap: $spacing-xl;
-
- button {
-  justify-self: stretch;
- }
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
 }
 
 // Responsive tweaks

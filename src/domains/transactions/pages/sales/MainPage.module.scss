@@ -45,16 +45,16 @@
 }
 
 .actionsRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
   margin-bottom: 16px;
 }
 
 .tableWrapper {
-  background: $bg-color;
-  border: 1px solid $border-color;
-  border-radius: $border-radius-xl;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: $border-radius-lg;
   overflow: hidden;
   box-shadow: $box-shadow-sm;
 }

@@ -44,19 +44,15 @@
 }
 
 .actionsRow {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: $spacing-xl;
-
-  button {
-    justify-self: stretch;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
 }
 
 .tableWrapper {
-  background: $bg-color;
-  border: 1px solid $border-color;
-  border-radius: $border-radius-xl;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: $border-radius-lg;
   overflow: hidden;
   box-shadow: $box-shadow-sm;
 }
