@@ -110,3 +110,69 @@
     grid-template-columns: 1.2fr 1fr 1.2fr 0.8fr 1fr 0.8fr 0.8fr 0.4fr 0.6fr;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Rediseño: barra de filtros en tarjeta, acciones de cabecera y celdas
+// ---------------------------------------------------------------------------
+
+.headerActions {
+  display: flex;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  margin: $spacing-lg 0;
+  padding: $spacing-lg $spacing-xl;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: $border-radius-lg;
+  box-shadow: var(--shadow-sm);
+}
+
+.party {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.partyName {
+  font-weight: 500;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.partyDoc {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.amount {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.iconAction {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: $border-radius-md;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--accent-soft);
+    color: var(--accent-text);
+  }
+}

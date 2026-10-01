@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { LuEye } from "react-icons/lu";
 import { formatDateDMY, formatSoles } from "@/shared/utils";
 import styles from "./HomePurchasePage.module.scss";
 
@@ -12,7 +13,6 @@ import {
  Modal,
  ComboBox,
  Input,
- Divider,
 } from "@/components";
 import { Table, type TableRow } from "@/components/organisms/Table";
 import {
@@ -176,24 +176,36 @@ export const MainPage: React.FC = () => {
        typeof purchase.tipoComprobante === "string"
         ? purchase.tipoComprobante
         : purchase.tipoComprobante?.descripcion || "N/A",
-       purchase.entidad?.tipo === "JURIDICA"
-        ? purchase.entidad?.razonSocial || "N/A"
-        : purchase.entidad?.nombreCompleto || "N/A",
+       <div key={`party-${purchase.idComprobante}`} className={styles.party}>
+        <span className={styles.partyName}>
+         {purchase.entidad?.tipo === "JURIDICA"
+          ? purchase.entidad?.razonSocial || "N/A"
+          : purchase.entidad?.nombreCompleto || "N/A"}
+        </span>
+        <span className={styles.partyDoc}>
+         {purchase.entidad?.tipo === "JURIDICA" ? "RUC" : "DOC"}{" "}
+         {purchase.entidad?.numeroDocumento}
+        </span>
+       </div>,
        `${purchase.serie || ""}-${purchase.numero || ""}`,
        formatDateDMY(purchase.fechaEmision) || "N/A",
        purchase.fechaVencimiento !== null &&
        purchase.fechaVencimiento !== undefined
         ? formatDateDMY(purchase.fechaVencimiento)
-        : "No especificado",
-       formatSoles(purchase.totales?.totalGeneral),
-       <Button
+        : "—",
+       <strong key={`total-${purchase.idComprobante}`} className={styles.amount}>
+        {formatSoles(purchase.totales?.totalGeneral)}
+       </strong>,
+       <button
         key={`btn-${purchase.idComprobante}`}
-        size="tableItemSize"
-        variant="tableItemStyle"
+        type="button"
+        className={styles.iconAction}
+        title="Ver detalle"
+        aria-label="Ver detalle"
         onClick={() => handleOpenDetailModal(purchase)}
        >
-        Ver Detalle
-       </Button>,
+        <LuEye size={16} />
+       </button>,
       ],
      }) as TableRow,
    ),
@@ -205,19 +217,30 @@ export const MainPage: React.FC = () => {
   "Tipo Comprobante",
   "Proveedor",
   "Serie y Número",
-  "Fecha Emisión",
-  "Fecha Vencimiento",
+  "F. Emisión",
+  "F. Vencimiento",
   "Total General",
   "Acciones",
  ];
 
- const gridTemplate = "0.8fr 1.1fr 2.2fr 1.3fr 1fr 1.1fr 1fr 1fr";
+ const gridTemplate = "1.1fr 1.4fr 2.2fr 1.3fr 1fr 1.1fr 1.1fr 0.9fr";
 
  return (
   <PageLayout
    title="Compras"
    subtitle={`Muestra la lista de compras registradas.`}
+   header={
+    <div className={styles.headerActions}>
+     <Button disabled={true} size="medium" variant="secondary" onClick={() => setUploadOpen(true)}>
+      Subir compras
+     </Button>
+     <Button size="medium" onClick={handleRegisterPurchase}>
+      + Nueva compra
+     </Button>
+    </div>
+   }
   >
+   <div className={styles.toolbar}>
    <section className={styles.filtersTop}>
     <div className={styles.filter}>
      <Text size="xs" color="neutral-primary">
@@ -304,19 +327,6 @@ export const MainPage: React.FC = () => {
     </Button>
    </section>
 
-   <Divider />
-
-   <section className={styles.actionsRow}>
-    <Button size="medium" onClick={handleRegisterPurchase}>
-     + Nueva compra
-    </Button>
-    <Button disabled={true} size="medium" onClick={() => setUploadOpen(true)}>
-     ⇪ Subir compras
-    </Button>
-   </section>
-
-   <Divider />
-
    <section className={styles.filtersSecondary}>
     <div className={styles.filter}>
      <Text size="xs" color="neutral-primary">
@@ -366,13 +376,13 @@ export const MainPage: React.FC = () => {
      Filtrar búsqueda
     </Button>
    </section>
-
-   <Divider />
+   </div>
 
    <Table
     headers={headers}
     rows={rows}
     gridTemplate={gridTemplate}
+    columnAlign={["left", "left", "left", "left", "left", "left", "right", "right"]}
     isLoading={isLoading}
     loadingText="Procesando..."
     isError={isError}
