@@ -47,6 +47,7 @@ $_light: (
  warning-soft: #fdf3d9, warning-text: #8a5d00,
  error: #cc2525, error-soft: #fbe9e9, error-text: #b31f1f,
  neutral-soft: #eef1f5, neutral-text: #4b5b6e,
+ chart-1: #003869, chart-2: #7cc7e6,
  grid: rgba(0,56,105,.06), g1: #002a50, g2: #003869, g3: #1a7fb0,
  mark-filter: none, word-filter: none,
  shadow-sm: '0 1px 2px rgba(14,28,43,.06)',
@@ -63,6 +64,7 @@ $_dark: (
  warning-soft: rgba(224,161,0,.15), warning-text: #f2c14e,
  error: #e04545, error-soft: rgba(204,37,37,.18), error-text: #ff8a8a,
  neutral-soft: rgba(157,176,197,.12), neutral-text: #b3c2d3,
+ chart-1: #3fb2e0, chart-2: #4f6884,
  grid: rgba(157,176,197,.06), g1: #06182b, g2: #0b2c4d, g3: #11699a,
  mark-filter: brightness(1.9) saturate(1.1), word-filter: brightness(0) invert(1),
  shadow-sm: '0 1px 2px rgba(0,0,0,.3)',
@@ -98,6 +100,8 @@ $_dark: (
  --error-text: #{map.get($t, error-text)};
  --neutral-soft: #{map.get($t, neutral-soft)};
  --neutral-text: #{map.get($t, neutral-text)};
+ --chart-1: #{map.get($t, chart-1)};
+ --chart-2: #{map.get($t, chart-2)};
  --grid: #{map.get($t, grid)};
  --g1: #{map.get($t, g1)};
  --g2: #{map.get($t, g2)};
