@@ -19,7 +19,11 @@ import {
  useLazyGetExchangeRateQuery,
  useRegisterSaleMutation,
 } from "../../api/transactionsApi";
-import { useGetTablasByIdsQuery } from "../../api/tablaApi";
+import {
+  CODIGO_OPERACION,
+  useIdTipoOperacion,
+  useTiposComprobante,
+} from "../../hooks/useCatalogo";
 import type { IApiError } from "@/shared";
 import {
  useGetClientsQuery,
@@ -67,9 +71,10 @@ export const CreateSaleForm = () => {
  });
 
  // RTK Query hooks
+ const idTipoOperacion = useIdTipoOperacion(CODIGO_OPERACION.VENTA);
  const { data: correlativoData, refetch: refetchCorrelativo } =
-  useGetNextCorrelativoQuery(13);
- const { data: tiposComprobante = [] } = useGetTablasByIdsQuery("2,4,5,8,9");
+  useGetNextCorrelativoQuery(idTipoOperacion ?? 0, { skip: !idTipoOperacion });
+ const tiposComprobante = useTiposComprobante();
  const { data: ventasRegistradas = [] } = useGetSalesQuery();
  const [getExchangeRate] = useLazyGetExchangeRateQuery();
  const [registerSale, { isLoading: isRegistering }] = useRegisterSaleMutation();
@@ -425,7 +430,7 @@ export const CreateSaleForm = () => {
    const ventaData: RegisterSalePayload = {
     correlativo: formState.correlativo,
     idPersona: getSelectedClientId() || 1,
-    idTipoOperacion: 13,
+    idTipoOperacion: idTipoOperacion ?? 0,
     idTipoComprobante: seleccionado?.idTablaDetalle || 0,
     fechaEmision: fechaEmisionValida
      ? new Date(formState.fechaEmision).toISOString()
@@ -481,7 +486,7 @@ export const CreateSaleForm = () => {
    const ventaData2: RegisterSalePayload = {
     correlativo: formState.correlativo || "CORR-12345", // Usar valor del form o fake
     idPersona: getSelectedClientId() || 1, // Usar ID del cliente seleccionado o valor por defecto
-    idTipoOperacion: 13,
+    idTipoOperacion: idTipoOperacion ?? 0,
     idTipoComprobante: seleccionado2?.idTablaDetalle || 0,
     fechaEmision: fechaEmisionValida
      ? new Date(formState.fechaEmision).toISOString()

@@ -18,7 +18,11 @@ import {
  useLazyGetExchangeRateQuery,
  useRegisterPurchaseMutation,
 } from "../../api/transactionsApi";
-import { useGetTablasByIdsQuery } from "../../api/tablaApi";
+import {
+  CODIGO_OPERACION,
+  useIdTipoOperacion,
+  useTiposComprobante,
+} from "../../hooks/useCatalogo";
 import {
  useGetSuppliersQuery,
  useCreateEntityMutation,
@@ -132,9 +136,10 @@ export const CreatePurchaseForm = () => {
  });
 
  // RTK Query hooks
+ const idTipoOperacion = useIdTipoOperacion(CODIGO_OPERACION.COMPRA);
  const { data: correlativoData, refetch: refetchCorrelativo } =
-  useGetNextCorrelativoQuery(14);
- const { data: tiposComprobante = [] } = useGetTablasByIdsQuery("2,4,5,8,9");
+  useGetNextCorrelativoQuery(idTipoOperacion ?? 0, { skip: !idTipoOperacion });
+ const tiposComprobante = useTiposComprobante();
  const { data: comprasRegistradas = [] } = useGetPurchasesQuery();
  const [getExchangeRate] = useLazyGetExchangeRateQuery();
  const [registerPurchase, { isLoading: isRegistering }] =
@@ -214,17 +219,17 @@ export const CreatePurchaseForm = () => {
   return items.map((item) => {
    const nuevoPrecioUnitario = item.precioUnitario + costoAdicionalPorUnidad;
 
-   // Recalcular todos los valores basados en el nuevo precio unitario
+   // Recalcular con la misma regla que al agregar una línea:
+   // subtotal = cantidad × precio, IGV 18 % aparte, total = subtotal + IGV + ISV
    const subtotal = item.cantidad * nuevoPrecioUnitario;
-   const baseGravado = subtotal / 1.18; // Asumiendo IGV del 18%
-   const igv = subtotal - baseGravado;
-   const total = subtotal;
+   const igv = subtotal * 0.18;
+   const total = subtotal + igv + item.isv;
 
    return {
     ...item,
     precioUnitario: nuevoPrecioUnitario,
     subtotal,
-    baseGravado,
+    baseGravado: subtotal,
     igv,
     total,
    };
@@ -719,7 +724,7 @@ export const CreatePurchaseForm = () => {
    const compraData: RegisterPurchasePayload = {
     correlativo: formState.correlativo,
     idPersona: getSelectedProviderId() || 1, // Usar ID del proveedor seleccionado o valor por defecto
-    idTipoOperacion: 14,
+    idTipoOperacion: idTipoOperacion ?? 0,
     idTipoComprobante: seleccionado?.idTablaDetalle || 0,
     fechaEmision: fechaEmisionValida
      ? new Date(formState.fechaEmision).toISOString()
@@ -797,7 +802,7 @@ export const CreatePurchaseForm = () => {
    const compraData2: import("../../services/types").RegisterPurchasePayload = {
     correlativo: formState.correlativo, // Usar valor del form o fake
     idPersona: getSelectedProviderId() || 1, // Usar ID del proveedor seleccionado o valor por defecto
-    idTipoOperacion: 14,
+    idTipoOperacion: idTipoOperacion ?? 0,
     idTipoComprobante: seleccionado2?.idTablaDetalle || 0,
     fechaEmision: fechaEmisionValida
      ? new Date(formState.fechaEmision).toISOString()
