@@ -13,8 +13,8 @@ import { CostOfSalesStatementService } from "../../services/CostOfSalesStatement
 import { useGetProductsQuery } from "@/domains/maintainers/api/productApi/api";
 import { useGetWarehousesQuery } from "@/domains/maintainers/api/warehouseApi/api";
 import type { CostOfSalesStatement } from "../../services/CostOfSalesStatement";
-import { downloadFile } from "@/shared/utils/downloadUtils";
-import * as XLSX from "xlsx";
+import { useDescargarReporte } from "@/shared/hooks";
+import type { FiltrosReporte, FormatoReporte } from "@/shared/utils/reportes";
 
 export const MainPage: React.FC = () => {
  const [searchParams] = useSearchParams();
@@ -32,6 +32,10 @@ export const MainPage: React.FC = () => {
   useState<CostOfSalesStatement | null>(null);
  const [loading, setLoading] = useState(false);
  const [error, setError] = useState<string>("");
+ // Filtros con que se generó el reporte en pantalla: la exportación usa los mismos
+ const [filtrosReporte, setFiltrosReporte] = useState<FiltrosReporte>({});
+ const { descargar, descargando, error: errorExportacion } =
+  useDescargarReporte("costo-ventas");
 
  useEffect(() => {
   const productIdFromUrl = searchParams.get("productId");
@@ -73,6 +77,11 @@ export const MainPage: React.FC = () => {
     await CostOfSalesStatementService.getCostOfSalesStatement(requestParams);
 
    setCostOfSalesData(response);
+   setFiltrosReporte({
+    año: requestParams.año,
+    idAlmacen: requestParams.idAlmacen || undefined,
+    idProducto: requestParams.idProducto || undefined,
+   });
    console.log("Cost of sales data:", response);
   } catch (error) {
    console.error("Error fetching cost of sales statement:", error);
@@ -163,229 +172,8 @@ export const MainPage: React.FC = () => {
  const summaryGridTemplate = "1fr 1fr 1fr";
  const monthlyGridTemplate = "1fr 1fr 1fr 1fr";
 
- /**
-  * Exporta los datos del estado de costo de ventas a CSV
-  */
- const handleExportToCSV = () => {
-  if (!costOfSalesData) {
-   return;
-  }
-
-  // Crear contenido CSV
-  const csvContent = generateCostOfSalesCSV(costOfSalesData);
-
-  // Agregar BOM para UTF-8 para mejor compatibilidad con Excel
-  const BOM = "\uFEFF";
-  const blob = new Blob([BOM + csvContent], {
-   type: "text/csv;charset=utf-8;",
-  });
-
-  // Generar nombre del archivo
-  const producto = costOfSalesData.producto || "producto";
-  const almacen = costOfSalesData.almacen || "almacen";
-  const filename = `estado_costo_ventas_${producto.replace(/\s+/g, "_")}_${almacen.replace(/\s+/g, "_")}_${costOfSalesData.año}.csv`;
-
-  downloadFile(blob, filename);
- };
-
- /**
-  * Exporta los datos del estado de costo de ventas a Excel (.xlsx)
-  */
- const handleExportToExcel = () => {
-  if (!costOfSalesData) {
-   return;
-  }
-
-  // Crear un nuevo libro de trabajo
-  const workbook = XLSX.utils.book_new();
-
-  // Crear hoja de resumen
-  const summaryData = [
-   ["ESTADO DE COSTO DE VENTAS"],
-   [],
-   ["Producto:", costOfSalesData.producto],
-   ["Almacén:", costOfSalesData.almacen],
-   ["Año:", costOfSalesData.año],
-   [
-    "Fecha de Generación:",
-    new Date(costOfSalesData.fechaGeneracion).toLocaleDateString(),
-   ],
-   [],
-   ["RESUMEN ANUAL"],
-   ["Total Compras Anual", "Total Salidas Anual", "Inventario Final Anual"],
-   [
-    `S/ ${costOfSalesData.sumatorias.totalComprasAnual}`,
-    `S/ ${costOfSalesData.sumatorias.totalSalidasAnual}`,
-    `S/ ${costOfSalesData.sumatorias.inventarioFinalAnual}`,
-   ],
-  ];
-
-  const summaryWorksheet = XLSX.utils.aoa_to_sheet(summaryData);
-  XLSX.utils.book_append_sheet(workbook, summaryWorksheet, "Resumen");
-
-  // Crear hoja de datos mensuales
-  const monthlyData = [
-   ["DATOS MENSUALES"],
-   [],
-   ["Mes", "Compras Totales", "Salidas Totales", "Inventario Final"],
-   ...costOfSalesData.datosMensuales.map((dato) => [
-    dato.nombreMes,
-    `S/ ${dato.comprasTotales}`,
-    `S/ ${dato.salidasTotales}`,
-    `S/ ${dato.inventarioFinal}`,
-   ]),
-  ];
-
-  const monthlyWorksheet = XLSX.utils.aoa_to_sheet(monthlyData);
-  XLSX.utils.book_append_sheet(workbook, monthlyWorksheet, "Datos Mensuales");
-
-  // Generar nombre del archivo
-  const producto = costOfSalesData.producto || "producto";
-  const almacen = costOfSalesData.almacen || "almacen";
-  const filename = `estado_costo_ventas_${producto.replace(/\s+/g, "_")}_${almacen.replace(/\s+/g, "_")}_${costOfSalesData.año}.xlsx`;
-
-  // Escribir el archivo
-  XLSX.writeFile(workbook, filename);
- };
-
- /**
-  * Exporta los datos del estado de costo de ventas a PDF (usando ventana de impresión)
-  */
- const handleExportToPDF = () => {
-  if (!costOfSalesData) {
-   return;
-  }
-
-  // Crear contenido HTML para imprimir
-  const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Estado de Costo de Ventas - ${costOfSalesData.producto} - ${costOfSalesData.almacen} - ${costOfSalesData.año}</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; }
-          h1 { text-align: center; margin-bottom: 30px; }
-          h2 { margin-bottom: 15px; }
-          table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #f5f5f5; }
-          .info { margin-bottom: 20px; }
-          @media print {
-            body { margin: 0; }
-            .no-print { display: none; }
-          }
-        </style>
-      </head>
-      <body>
-        <h1>ESTADO DE COSTO DE VENTAS</h1>
-        
-        <div class="info">
-          <p><strong>Producto:</strong> ${costOfSalesData.producto}</p>
-          <p><strong>Almacén:</strong> ${costOfSalesData.almacen}</p>
-          <p><strong>Año:</strong> ${costOfSalesData.año}</p>
-          <p><strong>Fecha de Generación:</strong> ${new Date(costOfSalesData.fechaGeneracion).toLocaleDateString()}</p>
-        </div>
-        
-        <h2>RESUMEN ANUAL</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Total Compras Anual</th>
-              <th>Total Salidas Anual</th>
-              <th>Inventario Final Anual</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>S/ ${costOfSalesData.sumatorias.totalComprasAnual}</td>
-              <td>S/ ${costOfSalesData.sumatorias.totalSalidasAnual}</td>
-              <td>S/ ${costOfSalesData.sumatorias.inventarioFinalAnual}</td>
-            </tr>
-          </tbody>
-        </table>
-        
-        <h2>DATOS MENSUALES</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Mes</th>
-              <th>Compras Totales</th>
-              <th>Salidas Totales</th>
-              <th>Inventario Final</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${costOfSalesData.datosMensuales
-             .map(
-              (dato) => `
-              <tr>
-                <td>${dato.nombreMes}</td>
-                <td>S/ ${dato.comprasTotales}</td>
-                <td>S/ ${dato.salidasTotales}</td>
-                <td>S/ ${dato.inventarioFinal}</td>
-              </tr>
-            `,
-             )
-             .join("")}
-          </tbody>
-        </table>
-        
-        <div class="no-print" style="margin-top: 30px; text-align: center;">
-          <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Imprimir / Guardar como PDF</button>
-          <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Cerrar</button>
-        </div>
-      </body>
-      </html>
-    `;
-
-  // Abrir nueva ventana con el contenido
-  const printWindow = window.open("", "_blank");
-  if (printWindow) {
-   printWindow.document.write(htmlContent);
-   printWindow.document.close();
-   printWindow.focus();
-  } else {
-   alert("Por favor, permite las ventanas emergentes para generar el PDF");
-  }
- };
-
- /**
-  * Genera el contenido CSV para el estado de costo de ventas
-  */
- const generateCostOfSalesCSV = (data: CostOfSalesStatement): string => {
-  const lines: string[] = [];
-
-  // Información del reporte
-  lines.push("ESTADO DE COSTO DE VENTAS");
-  lines.push("");
-  lines.push(`Producto:,${data.producto}`);
-  lines.push(`Almacén:,${data.almacen}`);
-  lines.push(`Año:,${data.año}`);
-  lines.push(
-   `Fecha de Generación:,${new Date(data.fechaGeneracion).toLocaleDateString()}`,
-  );
-  lines.push("");
-
-  // Resumen anual
-  lines.push("RESUMEN ANUAL");
-  lines.push("Total Compras Anual,Total Salidas Anual,Inventario Final Anual");
-  lines.push(
-   `S/ ${data.sumatorias.totalComprasAnual},S/ ${data.sumatorias.totalSalidasAnual},S/ ${data.sumatorias.inventarioFinalAnual}`,
-  );
-  lines.push("");
-
-  // Datos mensuales
-  lines.push("DATOS MENSUALES");
-  lines.push("Mes,Compras Totales,Salidas Totales,Inventario Final");
-
-  data.datosMensuales.forEach((dato) => {
-   lines.push(
-    `${dato.nombreMes},S/ ${dato.comprasTotales},S/ ${dato.salidasTotales},S/ ${dato.inventarioFinal}`,
-   );
-  });
-
-  return lines.join("\n");
- };
+ /** Descarga el reporte generado en el backend (mismos datos que la pantalla). */
+ const exportar = (formato: FormatoReporte) => descargar(formato, filtrosReporte);
 
  return (
   <PageLayout
@@ -443,10 +231,10 @@ export const MainPage: React.FC = () => {
      </Button>
     </div>
 
-    {error && (
+    {(error || errorExportacion) && (
      <div className={styles.MainPage__Error}>
       <Text size="xs" color="danger">
-       {error}
+       {error || errorExportacion}
       </Text>
      </div>
     )}
@@ -476,27 +264,27 @@ export const MainPage: React.FC = () => {
        <Button
         size="small"
         variant="primary"
-        onClick={handleExportToCSV}
-        disabled={!costOfSalesData}
+        onClick={() => exportar("csv")}
+        disabled={!costOfSalesData || descargando !== null}
        >
-        Exportar como CSV
+        {descargando === "csv" ? "Generando..." : "Exportar como CSV"}
        </Button>
        <Button
         size="small"
         variant="primary"
-        onClick={handleExportToExcel}
-        disabled={!costOfSalesData}
+        onClick={() => exportar("xlsx")}
+        disabled={!costOfSalesData || descargando !== null}
        >
-        Exportar como Excel
+        {descargando === "xlsx" ? "Generando..." : "Exportar como Excel"}
        </Button>
 
        <Button
         size="small"
         variant="primary"
-        onClick={handleExportToPDF}
-        disabled={!costOfSalesData}
+        onClick={() => exportar("pdf")}
+        disabled={!costOfSalesData || descargando !== null}
        >
-        Exportar como PDF
+        {descargando === "pdf" ? "Generando..." : "Exportar como PDF"}
        </Button>
       </div>
      </div>
