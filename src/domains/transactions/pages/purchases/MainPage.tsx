@@ -23,7 +23,7 @@ import {
 } from "./HomePurchaseFilterData";
 import { useNavigate } from "react-router-dom";
 import { MAIN_ROUTES, TRANSACTIONS_ROUTES, COMMON_ROUTES } from "@/router";
-import { usePurchasesTemplateDownload } from "../../hooks/usePurchasesTemplateDownload";
+import { useDescargarReporte } from "@/shared/hooks";
 
 export const MainPage: React.FC = () => {
  const { data: purchases = [], isLoading, isError } = useGetPurchasesQuery();
@@ -31,7 +31,12 @@ export const MainPage: React.FC = () => {
  const [hasFiltered, setHasFiltered] = useState(false);
 
  const navigate = useNavigate();
- const { downloadPurchasesTemplate } = usePurchasesTemplateDownload();
+ // Plantilla de carga masiva (XLSX generado en el backend)
+ const {
+  descargar: descargarPlantilla,
+  descargando: descargandoPlantilla,
+  error: errorPlantilla,
+ } = useDescargarReporte("plantilla-compras");
 
  const displayedPurchases = hasFiltered ? filteredPurchases : purchases;
 
@@ -557,9 +562,18 @@ export const MainPage: React.FC = () => {
    >
     <div>
      <div style={{ marginBottom: "16px" }}>
-      <Button variant="secondary" onClick={downloadPurchasesTemplate}>
-       ⬇️ Descargar plantilla de Excel
+      <Button
+       variant="secondary"
+       onClick={() => descargarPlantilla("xlsx")}
+       disabled={descargandoPlantilla !== null}
+      >
+       {descargandoPlantilla ? "Generando..." : "⬇️ Descargar plantilla de Excel"}
       </Button>
+      {errorPlantilla && (
+       <Text size="xs" color="danger">
+        {errorPlantilla}
+       </Text>
+      )}
      </div>
 
      <div style={{ marginBottom: "16px" }}>

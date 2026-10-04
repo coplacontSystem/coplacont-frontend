@@ -1,1 +1,0 @@
-export { MainPage as BulkUploadModal } from './Main';
