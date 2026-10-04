@@ -83,12 +83,18 @@ export const useKardexData = () => {
     }, [isDirectLoad, inventoryIdFromUrl, fetchParams]);
 
     // Query para obtener movimientos de kardex
-    const { data: kardexResponse, isLoading: loading, isError } = useGetKardexMovementsQuery(
-        {
-            idInventario: effectiveInventoryId!,
+    // Filtros del kardex consultado (la exportación usa los mismos)
+    const filtrosKardex = useMemo(
+        () => ({
+            idInventario: effectiveInventoryId ?? undefined,
             fechaInicio: fetchParams?.startDate || startDate,
-            fechaFin: fetchParams?.endDate || endDate
-        },
+            fechaFin: fetchParams?.endDate || endDate,
+        }),
+        [effectiveInventoryId, fetchParams, startDate, endDate]
+    );
+
+    const { data: kardexResponse, isLoading: loading, isError } = useGetKardexMovementsQuery(
+        { ...filtrosKardex, idInventario: effectiveInventoryId! },
         { skip: !effectiveInventoryId }
     );
 
@@ -228,5 +234,6 @@ export const useKardexData = () => {
         isDirectLoad,
         valuationMethod,
         fetchKardex,
+        filtrosKardex,
     };
 };

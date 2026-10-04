@@ -1,15 +1,12 @@
 import React from "react";
 import styles from "./MainPage.module.scss";
 import { PageLayout, Table, Divider, MovimientoTag, Text } from "@/components";
-import { useAuth } from "@/domains/auth";
 import { useKardexData } from "../../hooks/useKardexData";
-import { useKardexExport } from "../../hooks/useKardexExport";
+import { useDescargarReporte } from "@/shared/hooks";
 import { KardexFilters } from "./components/KardexFilters";
 import { KardexReportInfo } from "./components/KardexReportInfo";
 
 export const MainPage: React.FC = () => {
- const { user } = useAuth();
-
  const {
   products,
   warehouses,
@@ -28,21 +25,13 @@ export const MainPage: React.FC = () => {
   kardexResponse,
   reportes,
   isDirectLoad,
-  valuationMethod,
   fetchKardex,
+  filtrosKardex,
  } = useKardexData();
 
- const { handleExportToExcel, handleExportToPDF } = useKardexExport({
-  kardexData,
-  kardexResponse,
-  user,
-  selectedYear,
-  selectedMonth,
-  products,
-  selectedProductId,
-  reportes,
-  valuationMethod,
- });
+ // Formatos SUNAT 13.1 y 12.1 generados en el backend con los mismos filtros
+ const { descargar, descargando, error: errorExportacion } =
+  useDescargarReporte("kardex");
 
  const headers = [
   "Fecha",
@@ -129,8 +118,9 @@ export const MainPage: React.FC = () => {
      kardexResponse={kardexResponse}
      kardexData={kardexData}
      selectedYear={selectedYear}
-     onExportExcel={handleExportToExcel}
-     onExportPDF={handleExportToPDF}
+     onExport={(formato) => descargar(formato, filtrosKardex)}
+     descargando={descargando}
+     errorExportacion={errorExportacion}
     />
 
     {error && (

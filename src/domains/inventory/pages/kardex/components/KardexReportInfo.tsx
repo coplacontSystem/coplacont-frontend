@@ -2,6 +2,7 @@ import React from "react";
 import { Text, Button } from "@/components";
 import styles from "../MainPage.module.scss";
 import type { KardexMovement } from "@/domains/inventory/services/types";
+import type { FormatoReporte } from "@/shared/utils/reportes";
 
 interface KardexReportInfoProps {
   kardexResponse: {
@@ -10,16 +11,26 @@ interface KardexReportInfoProps {
   } | null;
   kardexData: KardexMovement[];
   selectedYear: string;
-  onExportExcel: () => void;
-  onExportPDF: () => void;
+  /** Descarga el kardex (formatos SUNAT 13.1 y 12.1) generado en el backend. */
+  onExport: (formato: FormatoReporte) => void;
+  /** Formato que se está generando, para deshabilitar los botones. */
+  descargando: FormatoReporte | null;
+  errorExportacion: string | null;
 }
+
+const FORMATOS: { formato: FormatoReporte; texto: string }[] = [
+  { formato: "xlsx", texto: "Excel" },
+  { formato: "pdf", texto: "PDF" },
+  { formato: "csv", texto: "CSV" },
+];
 
 export const KardexReportInfo: React.FC<KardexReportInfoProps> = ({
   kardexResponse,
   kardexData,
   selectedYear,
-  onExportExcel,
-  onExportPDF,
+  onExport,
+  descargando,
+  errorExportacion,
 }) => {
   if (!kardexData.length || !kardexResponse) {
     return null;
@@ -37,30 +48,31 @@ export const KardexReportInfo: React.FC<KardexReportInfoProps> = ({
         </Text>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "0.25rem",
-        }}
-      >
-        <Button
-          size="small"
-          variant="primary"
-          onClick={onExportExcel}
-          disabled={!kardexData || kardexData.length === 0}
+      <div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr",
+            gap: "0.25rem",
+          }}
         >
-          Exportar como Excel
-        </Button>
-
-        <Button
-          size="small"
-          variant="primary"
-          onClick={onExportPDF}
-          disabled={!kardexData || kardexData.length === 0}
-        >
-          Exportar como PDF
-        </Button>
+          {FORMATOS.map(({ formato, texto }) => (
+            <Button
+              key={formato}
+              size="small"
+              variant="primary"
+              onClick={() => onExport(formato)}
+              disabled={kardexData.length === 0 || descargando !== null}
+            >
+              {descargando === formato ? "Generando..." : `Exportar como ${texto}`}
+            </Button>
+          ))}
+        </div>
+        {errorExportacion && (
+          <Text size="xs" color="danger">
+            {errorExportacion}
+          </Text>
+        )}
       </div>
     </div>
   );
