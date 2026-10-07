@@ -106,15 +106,16 @@ export const buildMenu = (role: string): NavGroup[] => {
   const settingsItems: NavItem[] =
     role === UserRoleType.EMPRESA
       ? [
-          { label: "Periodos Contables", to: `${st}${SETTINGS_ROUTES.ACCOUNTING_PERIODS}` },
-          { label: "Parámetros", to: `${st}${SETTINGS_ROUTES.PARAMS}` },
-          { label: "Mi cuenta", to: `${st}${SETTINGS_ROUTES.MY_ACCOUNT}` },
+          { label: "Mi cuenta", to: `${st}${SETTINGS_ROUTES.CUENTA}` },
+          { label: "Empresa", to: `${st}${SETTINGS_ROUTES.EMPRESA}` },
+          { label: "Periodos contables", to: `${st}${SETTINGS_ROUTES.PERIODOS}` },
+          { label: "Parámetros", to: `${st}${SETTINGS_ROUTES.PARAMETROS}` },
         ]
       : role === UserRoleType.ADMIN
         ? [
             { label: "Usuarios y Roles", to: `${st}${SETTINGS_ROUTES.USERS}` },
             { label: "Métodos de Valoración", to: `${st}${SETTINGS_ROUTES.VALUATION_METHODS}` },
-            { label: "Mi cuenta", to: `${st}${SETTINGS_ROUTES.MY_ACCOUNT}` },
+            { label: "Mi cuenta", to: `${st}${SETTINGS_ROUTES.CUENTA}` },
           ]
         : [];
 

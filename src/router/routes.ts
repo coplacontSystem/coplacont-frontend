@@ -81,10 +81,12 @@ export const FINANCIAL_STATEMENTS_ROUTES = {
 // Rutas del módulo de configuración
 export const SETTINGS_ROUTES = {
   USERS: '/users',
-  PARAMS: '/params',
-  ACCOUNTING_PERIODS: '/accounting-periods',
   VALUATION_METHODS: '/valuation-methods',
-  MY_ACCOUNT: '/my-account',
+  // Secciones de la pantalla de Configuración
+  CUENTA: '/cuenta',
+  EMPRESA: '/empresa',
+  PERIODOS: '/periodos',
+  PARAMETROS: '/parametros',
 } as const;
 
 // Rutas comunes de páginas

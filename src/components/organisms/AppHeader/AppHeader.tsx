@@ -1,15 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { LuBell, LuBuilding2, LuCalendar, LuChevronRight } from "react-icons/lu";
 import styles from "./AppHeader.module.scss";
 import { useAuth } from "@/domains/auth";
-import { Api as PeriodosApi } from "@/domains/settings/api/periodosApi/api";
+import { useGetPeriodosQuery } from "@/domains/settings/pages/Configuracion/configuracionApi";
 import { buildMenu } from "@/components/organisms/Sidebar/menu";
-
-interface ActivePeriod {
-  año: number;
-  cerrado: boolean;
-}
 
 /**
  * Barra superior del sistema: ruta actual, periodo contable activo,
@@ -20,23 +15,9 @@ export const AppHeader: React.FC = () => {
   const location = useLocation();
   const role = user?.roles?.[0]?.nombre ?? "";
   const isCompany = role === "EMPRESA";
-  const [period, setPeriod] = useState<ActivePeriod | null>(null);
-
-  useEffect(() => {
-    if (!isCompany) return;
-    let cancelled = false;
-    PeriodosApi.getPeriodoActivo()
-      .then((res) => {
-        const data = res.data as unknown as { año: number; cerrado: boolean };
-        if (!cancelled) setPeriod({ año: data.año, cerrado: !!data.cerrado });
-      })
-      .catch(() => {
-        if (!cancelled) setPeriod(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [isCompany]);
+  // Se actualiza solo al crear, cerrar o reabrir periodos (tag Periodos)
+  const { data: periodos } = useGetPeriodosQuery(undefined, { skip: !isCompany });
+  const period = periodos?.find((p) => p.estado === "activo" || p.estado === "reabierto");
 
   // Migas de pan a partir de la configuración del menú: Grupo > Página
   const crumbs = useMemo(() => {
@@ -74,13 +55,19 @@ export const AppHeader: React.FC = () => {
       </nav>
 
       <div className={styles.actions}>
-        {isCompany && period && (
+        {isCompany && periodos && (
           <div className={styles.chip}>
             <LuCalendar size={16} />
-            Periodo <strong>{period.año}</strong>
-            <span className={period.cerrado ? styles.badgeClosed : styles.badgeOpen}>
-              {period.cerrado ? "Cerrado" : "Abierto"}
-            </span>
+            {period ? (
+              <>
+                Periodo <strong>{period.año}</strong>
+                <span className={styles.badgeOpen}>
+                  {period.estado === "reabierto" ? "Reabierto" : "Abierto"}
+                </span>
+              </>
+            ) : (
+              <span className={styles.badgeClosed}>Sin periodo activo</span>
+            )}
           </div>
         )}
 
