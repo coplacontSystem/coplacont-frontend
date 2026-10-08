@@ -1,0 +1,1885 @@
+// Panel del administrador (diseño CoplacontAdmin). Breakpoints del ancho del
+// panel (container queries): desktop ≥ 900 (4 columnas), tablet 560–899 (2)
+// y móvil < 560 (KPIs 2×2, el resto a todo el ancho). Drawer y modales van en
+// portal, con media queries.
+
+.admin {
+  container: adm / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  min-width: 0;
+
+  svg {
+    flex: none;
+  }
+}
+
+/* ---------- Tonos ---------- */
+
+.tonoAccent {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.tonoNeutral {
+  background: var(--neutral-soft);
+  color: var(--neutral-text);
+}
+.tonoSuccess {
+  background: var(--success-soft);
+  color: var(--success-text);
+}
+.tonoWarning {
+  background: var(--warning-soft);
+  color: var(--warning-text);
+}
+.tonoError {
+  background: var(--error-soft);
+  color: var(--error-text);
+}
+
+.textoPeligro {
+  color: var(--error-text) !important;
+}
+.textoOk {
+  color: var(--success-text) !important;
+}
+.textoAviso {
+  color: var(--warning-text);
+}
+.textoSuave {
+  color: var(--text-2);
+}
+
+.soloMovil {
+  display: none;
+}
+
+/* ---------- Encabezado ---------- */
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.titulo {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.fechaHoy {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-2);
+
+  svg {
+    font-size: 15px;
+    color: var(--text-3);
+  }
+}
+
+/* ---------- Botones ---------- */
+
+%btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+
+  svg {
+    font-size: 16px;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.btnPrimary {
+  @extend %btn;
+  padding: 0 18px;
+  background: var(--primary);
+  color: var(--on-primary);
+
+  &:hover:not(:disabled) {
+    background: var(--primary-hover);
+  }
+}
+
+.btnSecondary {
+  @extend %btn;
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+
+  &:hover:not(:disabled) {
+    background: var(--surface-2);
+  }
+}
+
+.btnPeligro {
+  @extend %btn;
+  padding: 0 18px;
+  background: var(--error);
+  color: #fff;
+}
+
+.btnLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--accent-text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+
+  svg {
+    font-size: 15px;
+  }
+
+  &:hover {
+    background: var(--accent-soft);
+  }
+}
+
+.btnMini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+
+  svg {
+    font-size: 14px;
+  }
+
+  &:hover {
+    background: var(--surface-2);
+  }
+}
+
+.btnMas {
+  @extend .btnLink;
+  align-self: flex-start;
+  margin-left: -10px;
+}
+
+.btnIcono {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 15px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--surface-2);
+  }
+}
+
+/* ---------- Grilla y tarjetas ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.cardHead {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardHeadFila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.cardTitle,
+.cardTitleFila {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.cardTitleFila {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardSub {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.skel {
+  border-radius: 8px;
+  background: var(--surface-2);
+  animation: latido 1.4s ease-in-out infinite;
+}
+
+@keyframes latido {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.estadoTitulo {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.estadoTexto {
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--text-2);
+  max-width: 320px;
+}
+
+.errorCard {
+  padding: 40px 24px;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.errorIcono,
+.okIcono {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  background: var(--error-soft);
+  color: var(--error-text);
+}
+
+.okIcono {
+  background: var(--success-soft);
+  color: var(--success-text);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  svg {
+    font-size: 13px;
+  }
+}
+
+.chipMini {
+  height: 20px;
+  padding: 0 7px;
+  font-size: 11px;
+}
+
+.chipEstado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chipEstadoMini {
+  flex: none;
+  gap: 5px;
+  height: 22px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.dotOn {
+  background: var(--success);
+}
+.dotOff {
+  background: var(--text-3);
+}
+
+/* ---------- Banner (plataforma vacía) ---------- */
+
+.banner {
+  grid-column: 1 / -1;
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #003869 0%, #0b5a8f 60%, #1a98ca 100%);
+  padding: 28px 32px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.bannerCirculo {
+  position: absolute;
+  right: -80px;
+  top: -120px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.bannerTexto {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 520px;
+
+  span:nth-child(1) {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  span:nth-child(2) {
+    font-size: 24px;
+    line-height: 30px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  span:nth-child(3) {
+    font-size: 14px;
+    line-height: 21px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+}
+
+.bannerBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 10px;
+  background: #fff;
+  color: #003869;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: #e5f3f9;
+  }
+}
+
+/* ---------- KPIs ---------- */
+
+.kpi {
+  gap: 10px;
+}
+
+.kpiHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.kpiIcono {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+}
+
+.kpiLabel {
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--text-2);
+}
+
+.kpiValorFila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+
+.kpiValor {
+  font-size: clamp(20px, 3.2cqi, 30px);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.kpiSuf {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.kpiPie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.kpiNota {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-3);
+}
+
+/* ---------- Gráfico ---------- */
+
+.chartCard {
+  grid-column: span 2;
+  padding: 20px;
+}
+
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 13px;
+  color: var(--text-2);
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.leyendaBarra,
+.leyendaPunto {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--chart-1);
+}
+
+.leyendaPunto {
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.chartSkel {
+  height: 240px;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 56px 0 28px 44px;
+
+  div {
+    flex: 1;
+  }
+}
+
+.chart {
+  padding-top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chartPlot {
+  display: flex;
+  height: 240px;
+}
+
+.chartEje {
+  position: relative;
+  width: 44px;
+  flex: none;
+
+  span {
+    position: absolute;
+    right: 6px;
+    transform: translateY(50%);
+    font-size: 11px;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+}
+
+.chartBarras {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.chartGrid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border);
+}
+
+.chartCol {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.chartColOn {
+  background: var(--surface-2);
+}
+
+.barra {
+  width: clamp(8px, 42%, 22px);
+  border-radius: 4px 4px 0 0;
+  background: var(--chart-1);
+}
+
+.nuevas {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  border: 2px solid var(--surface);
+  font-size: 10px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 184px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.tipIzq {
+  left: 0;
+  transform: none;
+}
+
+.tipDer {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.tooltipTitulo {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tooltipFila {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-2);
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  i {
+    width: 8px;
+    height: 8px;
+  }
+
+  b {
+    color: var(--text);
+    font-weight: 600;
+  }
+}
+
+.chartMeses {
+  display: flex;
+  padding-left: 44px;
+
+  > span {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-3);
+  }
+}
+
+.mesOn {
+  color: var(--text) !important;
+  font-weight: 600;
+}
+
+/* ---------- Atención ---------- */
+
+.atencion {
+  grid-column: span 2;
+  gap: 10px;
+}
+
+.contador {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--error-soft);
+  color: var(--error-text);
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-grid;
+  place-items: center;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+
+  > * + * {
+    border-top: 1px solid var(--border);
+  }
+}
+
+.atencionItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  padding: 11px 0;
+}
+
+.atencionIcono {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+}
+
+.atencionTexto {
+  flex: 1;
+  min-width: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  > span:first-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  > span:last-child {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--text-2);
+  }
+}
+
+.sev {
+  height: 20px;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.todoEnOrden {
+  flex: 1;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+/* ---------- Tabla de empresas ---------- */
+
+.tablaCard {
+  grid-column: 1 / -1;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
+
+.tablaHead {
+  padding: 18px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.controles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 460px;
+  max-width: 620px;
+}
+
+.buscador {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+
+  input {
+    width: 100%;
+    height: 40px;
+    padding: 0 36px 0 38px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+
+    &:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+  }
+
+  button {
+    position: absolute;
+    right: 4px;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-3);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--surface-2);
+    }
+  }
+}
+
+.buscadorIcono {
+  position: absolute;
+  left: 12px;
+  font-size: 16px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+
+.segmento {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 2px;
+  padding: 3px;
+  border-radius: 8px;
+  background: var(--surface-2);
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 10px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-2);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+}
+
+.segmentoOn {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.segmentoN {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.tablaSkel {
+  padding: 0 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sinResultados {
+  padding: 32px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 600;
+
+  > svg {
+    font-size: 24px;
+    color: var(--text-3);
+  }
+}
+
+.tablaScroll {
+  overflow-x: auto;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th {
+    padding: 10px;
+    background: var(--surface-2);
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    line-height: 1.3;
+  }
+
+  td {
+    padding: 11px 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  th:first-child,
+  td:first-child {
+    padding-left: 24px;
+  }
+
+  th:last-child,
+  td:last-child {
+    padding-right: 24px;
+  }
+
+  tbody tr:hover {
+    background: var(--surface-2);
+  }
+}
+
+.der {
+  text-align: right !important;
+}
+
+.num {
+  font-weight: 500;
+}
+
+.numFuerte {
+  font-weight: 600;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.filaApagada {
+  opacity: 0.72;
+}
+
+.apagado {
+  opacity: 0.72;
+}
+
+.celdaEmpresa {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+
+  > div {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+
+    span:first-child {
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 220px;
+    }
+
+    span:last-child {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+  }
+}
+
+.empresaIni {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 8px;
+  background: var(--active-bg);
+  color: var(--active-text);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.empresaIniLg {
+  width: 40px;
+  height: 40px;
+  font-size: 13px;
+}
+
+.celdaPeriodo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.acciones {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tarjetas {
+  display: none;
+  flex-direction: column;
+}
+
+.tarjeta {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tarjetaHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.tarjetaNombre {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  span:first-child {
+    font-size: 14px;
+    line-height: 19px;
+    font-weight: 600;
+  }
+
+  span:last-child {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+}
+
+.tarjetaDatos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  font-size: 12px;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    > span:first-child {
+      color: var(--text-3);
+    }
+
+    > span:last-child {
+      font-weight: 500;
+    }
+  }
+}
+
+.tarjetaBotones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+
+  button {
+    height: 44px;
+  }
+}
+
+.paginacion {
+  padding: 12px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  > span {
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  > div {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  button {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 6px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.paginaOn {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--on-primary) !important;
+}
+
+/* ---------- Accesos y altas ---------- */
+
+.mitad {
+  grid-column: span 2;
+}
+
+.acceso {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+}
+
+.accesoFoto,
+.accesoIni {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 50%;
+}
+
+.accesoFoto {
+  object-fit: cover;
+  display: block;
+}
+
+.accesoIni {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.accesoTexto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  span:first-child {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  span:last-child {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+}
+
+.accesoHora {
+  flex: none;
+  font-size: 12px;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.alta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: calc(100% + 16px);
+  margin: 0 -8px;
+  padding: 10px 8px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--surface-2);
+  }
+
+  & + & {
+    border-top: 1px solid var(--border);
+  }
+}
+
+.altaUsuarios {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-2);
+  white-space: nowrap;
+
+  svg {
+    font-size: 14px;
+    color: var(--text-3);
+  }
+}
+
+/* ---------- Tablet (560–899) ---------- */
+
+@container adm (max-width: 899px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chartCard,
+  .atencion {
+    grid-column: 1 / -1;
+  }
+
+  .mitad {
+    grid-column: span 1;
+  }
+
+  .chartPlot {
+    height: 220px;
+  }
+
+  .tabla {
+    min-width: 820px;
+  }
+
+  .kpiValor {
+    font-size: clamp(20px, 4.4cqi, 30px);
+  }
+}
+
+/* ---------- Móvil (< 560) ---------- */
+
+@container adm (max-width: 559px) {
+  .admin {
+    gap: 20px;
+  }
+
+  .grid {
+    gap: 12px;
+  }
+
+  .titulo {
+    font-size: 24px;
+  }
+
+  .soloAncho {
+    display: none;
+  }
+
+  .soloMovil {
+    display: inline;
+  }
+
+  .anchoMovil {
+    width: 100%;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    height: 44px;
+  }
+
+  .banner {
+    padding: 20px;
+
+    .bannerBtn {
+      width: 100%;
+    }
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .kpi {
+    padding: 14px;
+    gap: 6px;
+  }
+
+  .kpiIcono {
+    display: none;
+  }
+
+  .kpiLabel {
+    font-size: 12px;
+  }
+
+  .kpiValor {
+    font-size: clamp(20px, 7cqi, 28px);
+  }
+
+  .mitad {
+    grid-column: 1 / -1;
+  }
+
+  .chartPlot {
+    height: 180px;
+  }
+
+  .chartEje {
+    width: 34px;
+  }
+
+  .chartMeses {
+    padding-left: 34px;
+  }
+
+  .tooltip {
+    width: 164px;
+  }
+
+  .atencionItem .btnMini {
+    width: 100%;
+    height: 40px;
+  }
+
+  .tablaHead {
+    padding: 16px;
+  }
+
+  .controles {
+    flex-direction: column;
+    align-items: stretch;
+    flex-basis: auto;
+    width: 100%;
+    max-width: none;
+  }
+
+  .buscador input {
+    height: 44px;
+  }
+
+  .segmento button {
+    height: 38px;
+  }
+
+  .tablaScroll {
+    display: none;
+  }
+
+  .tarjetas {
+    display: flex;
+  }
+
+  .paginacion {
+    padding: 12px 16px;
+
+    button {
+      min-width: 40px;
+      height: 40px;
+    }
+  }
+}
+
+/* ---------- Drawer y modales (en portal) ---------- */
+
+.drawerCapa {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+
+  svg {
+    flex: none;
+  }
+}
+
+.velo {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 20, 34, 0.45);
+}
+
+.drawer {
+  position: relative;
+  width: 480px;
+  max-width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+.drawerHead {
+  flex: none;
+  padding: 16px 12px 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.drawerIni {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 10px;
+  background: var(--active-bg);
+  color: var(--active-text);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.drawerTitulo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  > span:first-child {
+    font-size: 17px;
+    line-height: 22px;
+    font-weight: 600;
+  }
+
+  > span:last-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-3);
+  }
+}
+
+.cerrar {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 20px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+}
+
+.drawerCuerpo {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.drawerPie {
+  flex: none;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bloqueHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bloqueTitulo {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.caja {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px 14px;
+}
+
+.cajaLista {
+  padding: 0;
+  overflow: hidden;
+
+  > * + * {
+    border-top: 1px solid var(--border);
+  }
+}
+
+.fiscalFila {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 0;
+  font-size: 13px;
+
+  & + & {
+    border-top: 1px solid var(--border);
+  }
+
+  span:first-child {
+    flex: none;
+    color: var(--text-2);
+  }
+
+  span:last-child {
+    font-weight: 500;
+    text-align: right;
+  }
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+
+  .accesoIni {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+  }
+}
+
+.usuarioTexto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 12px;
+  }
+
+  span:nth-child(1) {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  span:nth-child(2) {
+    color: var(--text-3);
+  }
+
+  span:nth-child(3) {
+    color: var(--text-2);
+  }
+}
+
+.periodos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.periodo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.avisoAmarillo {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--warning-soft);
+  color: var(--warning-text);
+  font-size: 13px;
+  line-height: 19px;
+
+  svg {
+    font-size: 16px;
+    margin-top: 1px;
+  }
+}
+
+.miniChart {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 96px;
+  padding-top: 10px;
+
+  > div {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px;
+
+    span {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-2);
+    }
+
+    div {
+      width: 100%;
+      max-width: 28px;
+      min-height: 2px;
+      border-radius: 4px 4px 0 0;
+      background: var(--chart-2);
+    }
+  }
+
+  .miniActual {
+    background: var(--chart-1);
+  }
+}
+
+.miniMeses {
+  display: flex;
+  gap: 8px;
+  padding: 6px 0 8px;
+
+  span {
+    flex: 1;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-3);
+  }
+}
+
+/* Contenido de los modales (el marco viene de Configuración) */
+
+.modalFila {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.modalIcono {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+}
+
+.modalTexto {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+
+  span:first-child {
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  span:last-child {
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--text-2);
+  }
+}
+
+.consecuencias {
+  margin: 0;
+  padding: 12px 14px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 10px;
+  background: var(--surface-2);
+
+  li {
+    display: flex;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 19px;
+    color: var(--text);
+  }
+
+  svg {
+    font-size: 15px;
+    color: var(--text-3);
+    margin-top: 2px;
+  }
+}
+
+.botonesFin {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  > span:first-child {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+}
+
+.input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+
+  &:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+}
+
+.inputError {
+  border-color: var(--error);
+}
+
+@media (max-width: 559px) {
+  .drawer {
+    width: 100%;
+    border-left: none;
+  }
+
+  .drawerCuerpo {
+    padding: 20px 16px;
+  }
+
+  .drawerPie,
+  .botonesFin {
+    display: grid;
+    grid-template-columns: 1fr;
+
+    button {
+      height: 44px;
+    }
+  }
+
+  .input {
+    height: 44px;
+  }
+}

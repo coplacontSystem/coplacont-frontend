@@ -21,7 +21,6 @@ import {
   LuTrendingUp,
   LuTriangleAlert,
 } from 'react-icons/lu';
-import { PageLayout, Text } from '@/components';
 import { useAuth } from '@/domains/auth';
 import {
   COMMON_ROUTES,
@@ -33,6 +32,7 @@ import {
 import { useGetDashboardQuery, type DashboardData, type KpiComprobantes } from './dashboardApi';
 import { Grafico } from './Grafico';
 import { fecha, iniciales, MESES, nombreMes, numero, porcentaje, soles } from './formato';
+import { AdminDashboard } from './admin/AdminDashboard';
 import styles from './Dashboard.module.scss';
 
 const RUTAS = {
@@ -158,18 +158,8 @@ function notaComprobantes(kpi: KpiComprobantes, mesAnterior: string): React.Reac
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const esAdmin = user?.roles?.some((r) => r.nombre === 'ADMIN');
-  return esAdmin ? <DashboardAdmin nombre={user?.nombre} /> : <DashboardEmpresa />;
+  return esAdmin ? <AdminDashboard nombre={user?.nombre} /> : <DashboardEmpresa />;
 };
-
-/** El administrador no tiene empresa: por ahora solo un saludo. */
-const DashboardAdmin: React.FC<{ nombre?: string }> = ({ nombre }) => (
-  <PageLayout title="Panel de control" subtitle="Administración de empresas y usuarios">
-    <Text size="lg" color="neutral-primary">
-      {saludo()}
-      {nombre ? `, ${nombre}` : ''}. Gestiona las empresas desde Configuración → Usuarios.
-    </Text>
-  </PageLayout>
-);
 
 const DashboardEmpresa: React.FC = () => {
   const navigate = useNavigate();
