@@ -5,18 +5,18 @@
 .formField {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 6px;
   width: 100%;
 
   .label {
     font-family: $font-family-primary;
-    font-size: $font-size-md;
+    font-size: $font-size-sm;
     font-weight: $font-weight-medium;
-    color: $text-color-1;
+    color: var(--text);
     margin: 0;
     
     .required {
-      color: $danger-color;
+      color: var(--error-text);
       margin-left: $spacing-xs;
     }
   }

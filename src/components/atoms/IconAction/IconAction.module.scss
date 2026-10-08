@@ -1,0 +1,40 @@
+@use "@/styles" as *;
+
+.iconAction {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border: none;
+  border-radius: $border-radius-md;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+}
+
+.default:hover:not(:disabled) {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.danger:hover:not(:disabled) {
+  background: var(--error-soft);
+  color: var(--error-text);
+}
+
+.success:hover:not(:disabled) {
+  background: var(--success-soft);
+  color: var(--success-text);
+}

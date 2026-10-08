@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { LuEye } from "react-icons/lu";
 import styles from "./MainPage.module.scss";
 import type { Transaction } from "../../services/types";
 import { useGetOperationsQuery } from "../../api/transactionsApi";
@@ -10,7 +11,6 @@ import {
  Modal,
  ComboBox,
  Input,
- Divider,
 } from "@/components";
 import { Table, type TableRow } from "@/components/organisms/Table";
 import {
@@ -147,29 +147,41 @@ const MainPage: React.FC = () => {
     operation.serie || "-",
     operation.numero || "-",
     operation.persona?.razonSocial || "-",
-    `S/ ${parseFloat(operation.totales?.totalGeneral || "0").toFixed(2)}`,
-    <Button
+    <strong key={`total-${operation.idComprobante}`} className={styles.amount}>
+     S/ {parseFloat(operation.totales?.totalGeneral || "0").toFixed(2)}
+    </strong>,
+    <button
      key={`btn-${operation.idComprobante}`}
-     size="tableItemSize"
-     variant="tableItemStyle"
+     type="button"
+     className={styles.iconAction}
+     title="Ver detalle"
+     aria-label="Ver detalle"
      onClick={() => handleOpenDetailModal(operation)}
     >
-     Ver Detalle
-    </Button>,
+     <LuEye size={16} />
+    </button>,
    ],
   }));
 
   return { headers, rows };
  }, [displayedOperations]);
 
- const gridTemplate = "0.5fr 0.5fr 1fr 0.8fr 0.5fr 0.5fr 0.8fr 0.5fr 0.8fr";
+ const gridTemplate = "1fr 0.9fr 1.3fr 1.2fr 0.7fr 0.9fr 1.4fr 1fr 0.8fr";
 
  return (
   <PageLayout
    title="Operaciones"
    subtitle="Gestiona las operaciones distintas a compras y ventas"
+   header={
+    <div className={styles.headerActions}>
+     <Button size="medium" onClick={handleRegisterOperation}>
+      + Nueva operación
+     </Button>
+    </div>
+   }
   >
    <div className={styles.homePurchasePage}>
+    <div className={styles.toolbar}>
     <section className={styles.filtersTop}>
      <div className={styles.filter}>
       <Text size="xs" color="neutral-primary">
@@ -248,16 +260,6 @@ const MainPage: React.FC = () => {
      </Button>
     </section>
 
-    <Divider />
-
-    <section className={styles.actionsRow}>
-     <Button size="medium" onClick={handleRegisterOperation}>
-      + Nueva operación
-     </Button>
-    </section>
-
-    <Divider />
-
     <section className={styles.filtersSecondary}>
      <div className={styles.filter}>
       <Text size="xs" color="neutral-primary">
@@ -302,13 +304,13 @@ const MainPage: React.FC = () => {
       Filtrar búsqueda
      </Button>
     </section>
-
-    <Divider />
+    </div>
 
     <Table
      headers={tableData.headers}
      rows={tableData.rows}
      gridTemplate={gridTemplate}
+     columnAlign={["left","left","left","left","left","left","left","right","right"]}
      isLoading={isLoading}
      loadingText="Procesando..."
      isError={isError}

@@ -1,12 +1,26 @@
 .MainPage{
   display: flex;
-  gap: 2rem;
-  margin-bottom: 1rem;
+  gap: 1.25rem;
+  margin: 1rem 0;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+  align-items: flex-end;
 
   &__Filter{
     display: flex;
     flex-direction: column;
     align-items: start;
     gap: 0.5rem;
+    min-width: 220px;
+
+    > :first-child {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+    }
   }
 }

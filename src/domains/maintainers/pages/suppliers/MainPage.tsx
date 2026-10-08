@@ -1,13 +1,13 @@
 import { useState, useMemo } from "react";
+import { LuBan, LuCheck, LuEye } from "react-icons/lu";
 import styles from "./MainPage.module.scss";
 import {
  PageLayout,
  Table,
  Button,
  Modal,
- CloseIcon,
  StateTag,
- CheckIcon,
+ IconAction,
  Input,
  Text,
  ComboBox,
@@ -185,27 +185,23 @@ export const MainPage: React.FC = () => {
    s.telefono !== "" ? s.telefono : "No especificado",
    <StateTag state={s.activo} />,
    <div style={{ display: "flex", gap: "8px" }}>
-    <Button
-     size="tableItemSize"
-     variant="tableItemStyle"
-     onClick={() => {
+    <IconAction title="Ver detalles" onClick={() => {
       setSelectedSupplier(s);
       setIsView(true);
       setIsOpen(true);
-     }}
-    >
-     Ver detalles
-    </Button>
+     }}>
+     <LuEye size={16} />
+    </IconAction>
 
-    <Button
-     size="tableItemSize"
-     variant="tableItemStyle"
+    <IconAction
+     title={s.activo ? "Desactivar" : "Activar"}
+     tone={s.activo ? "danger" : "success"}
      onClick={() => {
       handleStateSupplier(s.id, s.activo);
      }}
     >
-     {s.activo ? <CloseIcon /> : <CheckIcon />}
-    </Button>
+     {s.activo ? <LuBan size={16} /> : <LuCheck size={16} />}
+    </IconAction>
    </div>,
   ],
  }));
@@ -223,7 +219,7 @@ export const MainPage: React.FC = () => {
       setIsView(false);
       setIsOpen(true);
      }}
-     size="large"
+     size="medium"
     >
      + Nuevo proveedor
     </Button>

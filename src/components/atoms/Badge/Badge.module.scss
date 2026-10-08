@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 500;
-  border-radius: 12px;
+  border-radius: 999px;
   white-space: nowrap;
   transition: all 0.2s ease;
   
@@ -28,33 +28,33 @@
   
   // Color variants
   &--default {
-    background-color: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    background-color: var(--neutral-soft);
+    color: var(--neutral-text);
+    border: 1px solid transparent;
   }
   
   &--success {
-    background-color: #dcfce7;
-    color: #166534;
-    border: 1px solid #bbf7d0;
+    background-color: var(--success-soft);
+    color: var(--success-text);
+    border: 1px solid transparent;
   }
   
   &--warning {
-    background-color: #fef3c7;
-    color: #92400e;
-    border: 1px solid #fde68a;
+    background-color: var(--warning-soft);
+    color: var(--warning-text);
+    border: 1px solid transparent;
   }
   
   &--danger {
-    background-color: #fee2e2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
+    background-color: var(--error-soft);
+    color: var(--error-text);
+    border: 1px solid transparent;
   }
   
   &--info {
-    background-color: #dbeafe;
-    color: #1d4ed8;
-    border: 1px solid #bfdbfe;
+    background-color: var(--accent-soft);
+    color: var(--accent-text);
+    border: 1px solid transparent;
   }
   
   // Clickable state

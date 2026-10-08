@@ -1,11 +1,10 @@
 import { useState } from "react";
+import { LuBan, LuCheck, LuEye } from "react-icons/lu";
 import { PageLayout } from "@/components";
 import {
  Table,
  type TableRow,
- Button,
- CloseIcon,
- CheckIcon,
+ IconAction,
  StateTag,
  AddDropdownButton,
 } from "@/components";
@@ -136,27 +135,23 @@ export const MainPage: React.FC = () => {
    p.categoria?.nombre || "Sin categoría",
    <StateTag state={p.estado} />,
    <div style={{ display: "flex", gap: "8px" }}>
-    <Button
-     size="tableItemSize"
-     variant="tableItemStyle"
-     onClick={() => {
+    <IconAction title="Ver detalles" onClick={() => {
       setSelectedProduct(p);
       setProductType(p.tipo as "producto" | "servicio");
       setIsView(true);
       setIsOpen(true);
-     }}
-    >
-     Ver detalles
-    </Button>
-    <Button
-     size="tableItemSize"
-     variant="tableItemStyle"
+     }}>
+     <LuEye size={16} />
+    </IconAction>
+    <IconAction
+     title={p.estado ? "Desactivar" : "Activar"}
+     tone={p.estado ? "danger" : "success"}
      onClick={() => {
       handleStateProduct(p.id, p.estado);
      }}
     >
-     {p.estado ? <CloseIcon /> : <CheckIcon />}
-    </Button>
+     {p.estado ? <LuBan size={16} /> : <LuCheck size={16} />}
+    </IconAction>
    </div>,
   ],
  }));

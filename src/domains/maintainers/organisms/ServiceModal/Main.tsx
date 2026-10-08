@@ -82,14 +82,19 @@ export const Main: React.FC<CreateServiceModalProps> = ({
    onClose={handleClose}
    loading={isLoading || isFetching}
    footer={
-    <Button
-     variant="primary"
-     size="large"
-     onClick={handleSubmit}
-     disabled={!isFormValid}
-    >
-     Guardar
-    </Button>
+    <>
+     <Button variant="secondary" size="medium" onClick={handleClose}>
+      Cancelar
+     </Button>
+     <Button
+      variant="primary"
+      size="medium"
+      onClick={handleSubmit}
+      disabled={!isFormValid}
+     >
+      Guardar
+     </Button>
+    </>
    }
   >
    <div className={styles.form}>

@@ -14,9 +14,10 @@ import {
   FinancialStatementsRouter,
   SettingsRouter,
 } from '@/domains';
-import { AUTH_ROUTES, MAIN_ROUTES } from '@/router';
+import { AUTH_ROUTES, MAIN_ROUTES, WELCOME_ROUTE } from '@/router';
 import { MaintainersRouter } from '@/domains/maintainers';
 import { Dashboard } from '@/pages';
+import { WelcomePage } from '@/pages/Welcome/WelcomePage';
 
 /**
  * Componente principal de enrutamiento de la aplicación
@@ -27,6 +28,9 @@ export const AppRouter: React.FC = () => {
     <Routes>
 
       {/* Rutas públicas */}
+      <Route element={<PublicRoute />}>
+        <Route path={WELCOME_ROUTE} element={<WelcomePage />} />
+      </Route>
       <Route path={AUTH_ROUTES.AUTH} element={<PublicRoute />} >
         <Route path={AUTH_ROUTES.LOGIN} element={<LoginPage />} />
         <Route path={AUTH_ROUTES.RECOVERY_PASSWORD} element={<RecoveryPasswordPage />} />
@@ -85,8 +89,8 @@ export const AppRouter: React.FC = () => {
         </Route>
       </Route>
 
-      {/* Ruta 404 - Redirecciona al login */}
-      <Route path="*" element={<Navigate to={`${AUTH_ROUTES.AUTH}/${AUTH_ROUTES.LOGIN}`} replace />} />
+      {/* Ruta 404 - Redirecciona a la bienvenida */}
+      <Route path="*" element={<Navigate to={WELCOME_ROUTE} replace />} />
     </Routes>
   );
 };

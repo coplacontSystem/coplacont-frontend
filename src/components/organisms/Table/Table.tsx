@@ -21,6 +21,8 @@ export interface TableProps {
  errorSubtitle?: string;
  emptyTitle?: string;
  emptySubtitle?: string;
+ /** Alineación por columna (por defecto, izquierda). Útil para importes. */
+ columnAlign?: Array<"left" | "right" | "center">;
 }
 
 export const Table: React.FC<TableProps> = ({
@@ -31,18 +33,55 @@ export const Table: React.FC<TableProps> = ({
  ariaLabel = "Tabla",
  isLoading = false,
  isError = false,
+ emptyTitle,
+ emptySubtitle,
+ columnAlign,
 }) => {
  if (isLoading) {
-  return <EmptyState variant="loading" />;
+  return (
+   <section className={`${styles.tableWrapper} ${className ?? ""}`.trim()}>
+    <EmptyState variant="loading" />
+   </section>
+  );
  }
 
  if (isError) {
-  return <EmptyState variant="empty" />;
+  return (
+   <section className={`${styles.tableWrapper} ${className ?? ""}`.trim()}>
+    <EmptyState variant="error" />
+   </section>
+  );
  }
 
  if (rows.length === 0) {
-  return <EmptyState variant="empty" />;
+  return (
+   <section className={`${styles.tableWrapper} ${className ?? ""}`.trim()}>
+    <EmptyState
+     variant="empty"
+     title={emptyTitle}
+     subtitle={emptySubtitle}
+    />
+   </section>
+  );
  }
+
+ const alignClass = (i: number) => {
+  const a = columnAlign?.[i];
+  return a === "right"
+   ? styles.alignRight
+   : a === "center"
+    ? styles.alignCenter
+    : "";
+ };
+
+ const renderContent = (content: React.ReactNode) =>
+  typeof content === "string" || typeof content === "number" ? (
+   <span className={styles.ellipsis} title={String(content)}>
+    {content}
+   </span>
+  ) : (
+   content
+  );
 
  const styleProps:
   | (React.CSSProperties & { ["--grid-template"]?: string })
@@ -63,10 +102,10 @@ export const Table: React.FC<TableProps> = ({
       {headers.map((h, i) => (
        <div
         key={i}
-        className={`${styles.cell} ${styles.headerCell}`}
+        className={`${styles.cell} ${styles.headerCell} ${alignClass(i)}`.trim()}
         role="columnheader"
        >
-        {h}
+        {renderContent(h)}
        </div>
       ))}
      </div>
@@ -74,8 +113,12 @@ export const Table: React.FC<TableProps> = ({
      {rows.map((r) => (
       <div key={r.id} className={styles.row} role="row">
        {r.cells.map((c, i) => (
-        <div key={i} className={styles.cell} role="cell">
-         {c}
+        <div
+         key={i}
+         className={`${styles.cell} ${alignClass(i)}`.trim()}
+         role="cell"
+        >
+         {renderContent(c)}
         </div>
        ))}
       </div>

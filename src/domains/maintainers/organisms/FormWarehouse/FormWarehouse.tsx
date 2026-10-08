@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styles from "./FormWarehouse.module.scss";
-import { Text, Input, Button } from "@/components";
+import { Text, Input, Button, ModalActions } from "@/components";
 import type { Warehouse, WarehouseParcial } from "../../types";
 import { useUpdateWarehouseMutation } from "../../api/warehouseApi";
 
@@ -164,7 +164,7 @@ export const FormWarehouse = ({
     />
    </div>
    {/* Dirección */}
-   <div className={styles.FormWarehouse__FormField}>
+   <div className={`${styles.FormWarehouse__FormField} ${styles["FormWarehouse__FormField--full"]}`}>
     <Text size="xs" color="neutral-primary">
      Descripción (Opcional)
     </Text>
@@ -189,6 +189,7 @@ export const FormWarehouse = ({
     />
    </div>
 
+   <ModalActions>
    {!readOnly || isEdit ? (
     <Button
      disabled={loading || isUpdating}
@@ -206,6 +207,7 @@ export const FormWarehouse = ({
      Activar edición
     </Button>
    )}
+   </ModalActions>
   </div>
  );
 };

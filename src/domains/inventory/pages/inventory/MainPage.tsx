@@ -10,6 +10,7 @@ import {
  Modal,
  Loader,
  Input,
+ ModalActions,
 } from "@/components";
 import {
  useGetInventoryQuery,
@@ -287,7 +288,7 @@ export const MainPage: React.FC = () => {
    title="Inventario"
    subtitle="Listado de productos disponibles con sus cantidades actuales en stock."
    header={
-    <Button onClick={handleOpenModal} size="large">
+    <Button onClick={handleOpenModal} size="medium">
      + Producto a almacen
     </Button>
    }
@@ -411,13 +412,15 @@ export const MainPage: React.FC = () => {
        {error}
       </Text>
      )}
-     <Button
-      onClick={handleSaveProductToWarehouse}
-      size="large"
-      disabled={isCreating || !selectedProduct || !selectedWarehouse}
-     >
-      Guardar
-     </Button>
+     <ModalActions>
+      <Button
+       onClick={handleSaveProductToWarehouse}
+       size="medium"
+       disabled={isCreating || !selectedProduct || !selectedWarehouse}
+      >
+       Guardar
+      </Button>
+     </ModalActions>
     </div>
    </Modal>
 
@@ -441,7 +444,7 @@ export const MainPage: React.FC = () => {
       <div style={{ display: "flex", gap: 8 }}>
        {!initialEditEnabled ? (
         <Button
-         size="large"
+         size="medium"
          onClick={() => setInitialEditEnabled(true)}
          disabled={initialLoading || isUpdatingInitial}
         >
@@ -450,7 +453,7 @@ export const MainPage: React.FC = () => {
        ) : (
         <>
          <Button
-          size="large"
+          size="medium"
           variant="secondary"
           onClick={() => {
            setInitialStockInput(initialOriginal.stock);
@@ -464,7 +467,7 @@ export const MainPage: React.FC = () => {
           Cancelar
          </Button>
          <Button
-          size="large"
+          size="medium"
           onClick={handleSaveInitialInventory}
           disabled={
            isUpdatingInitial ||

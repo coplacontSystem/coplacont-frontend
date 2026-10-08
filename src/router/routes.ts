@@ -3,6 +3,9 @@
  * Contiene todas las rutas utilizadas en el sistema para centralizar y reutilizar
  */
 
+// Ruta pública de bienvenida (previa al login)
+export const WELCOME_ROUTE = '/welcome';
+
 // Rutas de autenticación
 export const AUTH_ROUTES = {
   AUTH: '/auth',
@@ -78,10 +81,12 @@ export const FINANCIAL_STATEMENTS_ROUTES = {
 // Rutas del módulo de configuración
 export const SETTINGS_ROUTES = {
   USERS: '/users',
-  PARAMS: '/params',
-  ACCOUNTING_PERIODS: '/accounting-periods',
   VALUATION_METHODS: '/valuation-methods',
-  MY_ACCOUNT: '/my-account',
+  // Secciones de la pantalla de Configuración
+  CUENTA: '/cuenta',
+  EMPRESA: '/empresa',
+  PERIODOS: '/periodos',
+  PARAMETROS: '/parametros',
 } as const;
 
 // Rutas comunes de páginas

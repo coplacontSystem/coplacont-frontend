@@ -11,6 +11,19 @@
   grid-template-columns: repeat(6, 1fr);
   gap: $spacing-lg;
   align-items: end;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+
+  @media (max-width: 1099px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 639px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .alignEnd {

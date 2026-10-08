@@ -1,4 +1,6 @@
 import React, { useMemo, useState } from "react";
+import { LuEye } from "react-icons/lu";
+import { formatDateDMY, formatSoles } from "@/shared/utils";
 import styles from "./MainPage.module.scss";
 import type { Transaction } from "../../services/types";
 import { useGetSalesQuery } from "../../api/transactionsApi";
@@ -10,7 +12,6 @@ import {
  Modal,
  ComboBox,
  Input,
- Divider,
 } from "@/components";
 import { Table, type TableRow } from "@/components/organisms/Table";
 import {
@@ -153,23 +154,35 @@ export const MainPage: React.FC = () => {
        typeof sale.tipoComprobante === "string"
         ? sale.tipoComprobante
         : sale.tipoComprobante?.descripcion || "N/A",
-       sale.entidad?.tipo === "JURIDICA"
-        ? sale.entidad?.razonSocial || "N/A"
-        : sale.entidad?.nombreCompleto || "N/A",
+       <div key={`party-${sale.idComprobante}`} className={styles.party}>
+        <span className={styles.partyName}>
+         {sale.entidad?.tipo === "JURIDICA"
+          ? sale.entidad?.razonSocial || "N/A"
+          : sale.entidad?.nombreCompleto || "N/A"}
+        </span>
+        <span className={styles.partyDoc}>
+         {sale.entidad?.tipo === "JURIDICA" ? "RUC" : "DOC"}{" "}
+         {sale.entidad?.numeroDocumento}
+        </span>
+       </div>,
        `${sale.serie || ""}-${sale.numero || ""}`,
-       sale.fechaEmision || "N/A",
+       formatDateDMY(sale.fechaEmision) || "N/A",
        sale.fechaVencimiento !== null && sale.fechaVencimiento !== undefined
-        ? sale.fechaVencimiento
-        : "No especificado",
-       sale.totales?.totalGeneral?.toString() || "0",
-       <Button
+        ? formatDateDMY(sale.fechaVencimiento)
+        : "—",
+       <strong key={`total-${sale.idComprobante}`} className={styles.amount}>
+        {formatSoles(sale.totales?.totalGeneral)}
+       </strong>,
+       <button
         key={`btn-${sale.idComprobante}`}
-        size="tableItemSize"
-        variant="tableItemStyle"
+        type="button"
+        className={styles.iconAction}
+        title="Ver detalle"
+        aria-label="Ver detalle"
         onClick={() => handleOpenDetailModal(sale)}
        >
-        Ver Detalle
-       </Button>,
+        <LuEye size={16} />
+       </button>,
       ],
      }) as TableRow,
    ),
@@ -181,19 +194,30 @@ export const MainPage: React.FC = () => {
   "Tipo Comprobante",
   "Cliente",
   "Serie y Número",
-  "Fecha Emisión",
-  "Fecha Vencimiento",
+  "F. Emisión",
+  "F. Vencimiento",
   "Total General",
   "Acciones",
  ];
 
- const gridTemplate = "0.6fr 0.8fr 1fr 0.8fr 1fr 1fr 1fr 1fr";
+ const gridTemplate = "1.1fr 1.4fr 2.2fr 1.3fr 1fr 1.1fr 1.1fr 0.9fr";
 
  return (
   <PageLayout
    title="Ventas"
    subtitle={`Muestra la lista de ventas registradas.`}
+   header={
+    <div className={styles.headerActions}>
+     <Button disabled={true} size="medium" variant="secondary" onClick={() => setUploadOpen(true)}>
+      Subir ventas
+     </Button>
+     <Button size="medium" onClick={handleRegisterSale}>
+      + Nueva venta
+     </Button>
+    </div>
+   }
   >
+   <div className={styles.toolbar}>
    <section className={styles.filtersTop}>
     <div className={styles.filter}>
      <Text size="xs" color="neutral-primary">
@@ -280,19 +304,6 @@ export const MainPage: React.FC = () => {
     </Button>
    </section>
 
-   <Divider />
-
-   <section className={styles.actionsRow}>
-    <Button size="medium" onClick={handleRegisterSale}>
-     + Nueva venta
-    </Button>
-    <Button disabled={true} size="medium" onClick={() => setUploadOpen(true)}>
-     ⇪ Subir ventas
-    </Button>
-   </section>
-
-   <Divider />
-
    <section className={styles.filtersSecondary}>
     <div className={styles.filter}>
      <Text size="xs" color="neutral-primary">
@@ -342,13 +353,13 @@ export const MainPage: React.FC = () => {
      Filtrar búsqueda
     </Button>
    </section>
-
-   <Divider />
+   </div>
 
    <Table
     headers={headers}
     rows={rows}
     gridTemplate={gridTemplate}
+    columnAlign={["left", "left", "left", "left", "left", "left", "right", "right"]}
     isLoading={isLoading}
     loadingText="Procesando..."
     isError={isError}
@@ -361,7 +372,7 @@ export const MainPage: React.FC = () => {
     onClose={handleCloseModal}
     title={`Detalle de Venta - ${selectedSale?.numero || ""}`}
     description={`${selectedSale?.persona?.razonSocial || ""} - ${
-     selectedSale?.fechaEmision || ""
+     formatDateDMY(selectedSale?.fechaEmision)
     }`}
    >
     {selectedSale && (

@@ -3,24 +3,33 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xs;
+  gap: 6px;
 }
 
 .label {
   font-size: $font-size-sm;
-  color: $text-color-1;
+  font-weight: 500;
+  color: var(--text);
 }
 
 .textarea {
-  padding: $spacing-sm;
-  border: 1px solid $border-color;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
   border-radius: $border-radius-md;
-  font-size: $font-size-xs;
-  background-color: $bg-color;
-  color: $text-color;
+  font-family: $font-family-primary;
+  font-size: $font-size-sm;
+  line-height: 20px;
+  background-color: var(--surface);
+  color: var(--text);
+  resize: vertical;
+
+  &::placeholder {
+    color: var(--text-3);
+  }
 
   &:focus {
     outline: none;
-    border-color: $primary-blue;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
   }
 }

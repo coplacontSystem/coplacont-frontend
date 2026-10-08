@@ -1,0 +1,126 @@
+@use "@/styles" as *;
+
+.header {
+  height: 64px;
+  flex: none;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-lg;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+
+  @media (max-width: 1099px) {
+    padding: 0 $spacing-lg;
+  }
+
+  @media (max-width: 767px) {
+    display: none; // en móvil se usa la barra superior del layout
+  }
+}
+
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: $font-size-sm;
+  white-space: nowrap;
+}
+
+.sep {
+  flex: none;
+  color: var(--text-3);
+}
+
+.muted {
+  color: var(--text-3);
+}
+
+.current {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.chip {
+  height: 36px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: $border-radius-md;
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--text-2);
+  white-space: nowrap;
+
+  strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+}
+
+.company {
+  color: var(--text);
+  font-weight: 500;
+
+  @media (max-width: 1099px) {
+    display: none;
+  }
+}
+
+.companyName {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ruc {
+  color: var(--text-3);
+  font-weight: 400;
+}
+
+.badgeOpen,
+.badgeClosed {
+  padding: 2px 8px;
+  border-radius: $border-radius-full;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badgeOpen {
+  background: var(--success-soft);
+  color: var(--success-text);
+}
+
+.badgeClosed {
+  background: var(--neutral-soft);
+  color: var(--neutral-text);
+}
+
+.bell {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: $border-radius-md;
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--surface-2);
+  }
+}

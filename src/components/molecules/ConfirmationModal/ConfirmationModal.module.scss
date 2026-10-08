@@ -1,38 +1,83 @@
+@use '@/styles' as *;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: $z-index-modal-backdrop;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg;
+  background: rgba(11, 21, 34, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.dialog {
+  width: 440px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: $border-radius-xl;
+  box-shadow: var(--shadow-lg);
+}
+
+.body {
+  display: flex;
+  gap: 16px;
+}
+
+.icon {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.iconDanger {
+  background: var(--error-soft);
+  color: var(--error-text);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.title {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.message {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-2);
+}
+
 .buttonGroup {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
   align-items: center;
-  
-  // Responsive design for mobile
-  @media (max-width: 768px) {
+
+  @media (max-width: 480px) {
     flex-direction: column-reverse;
     gap: 8px;
-    
+
     button {
       width: 100%;
     }
-  }
-}
-
-// Additional styles for confirmation modal content
-.confirmationContent {
-  padding: 16px 0;
-  
-  .message {
-    margin-bottom: 16px;
-    line-height: 1.5;
-  }
-  
-  .warningIcon {
-    color: #f59e0b;
-    margin-right: 8px;
-    font-size: 1.2em;
-  }
-  
-  .dangerIcon {
-    color: #dc2626;
-    margin-right: 8px;
-    font-size: 1.2em;
   }
 }

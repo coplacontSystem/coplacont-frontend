@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styles from "./FormCategory.module.scss";
-import { Text, Input, Button, ComboBox } from "@/components";
+import { Text, Input, Button, ComboBox, ModalActions } from "@/components";
 import type { Category, CreateCategoryPayload } from "../../types";
 import { useUpdateCategoryMutation } from "../../api/categoryApi";
 
@@ -120,7 +120,7 @@ export const FormCategory = ({
    </div>
 
    {/* Descripcion */}
-   <div className={styles.FormCategory__FormField}>
+   <div className={`${styles.FormCategory__FormField} ${styles["FormCategory__FormField--full"]}`}>
     <Text size="xs" color="neutral-primary">
      Descripción (opcional)
     </Text>
@@ -145,6 +145,7 @@ export const FormCategory = ({
     />
    </div>
 
+   <ModalActions>
    {!readOnly || isEdit ? (
     <Button
      disabled={loading || isUpdating}
@@ -162,6 +163,7 @@ export const FormCategory = ({
      Activar edición
     </Button>
    )}
+   </ModalActions>
   </div>
  );
 };

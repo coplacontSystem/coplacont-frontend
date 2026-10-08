@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 10px 20px;
+  padding: 0;
 
   // Campo de contraseña personalizado
   .passwordField {
@@ -38,8 +38,9 @@
 
   // Link de recuperación de contraseña
   .recoveryLink {
-    text-align: center;
-    margin: $spacing-sm 0;
+    display: flex;
+    justify-content: flex-end;
+    margin: 0;
     
     a {
       text-decoration: none;
@@ -54,10 +55,10 @@
   // Mensaje de error general
   .generalError {
     padding: $spacing-md;
-    background-color: rgba($danger-color, 0.1);
-    border: 1px solid rgba($danger-color, 0.3);
+    background-color: var(--error-soft);
+    border: 1px solid transparent;
     border-radius: $border-radius-md;
-    color: $danger-color;
+    color: var(--error-text);
     font-size: $font-size-sm;
     text-align: center;
     font-weight: $font-weight-medium;
@@ -67,14 +68,6 @@
   button[type="submit"] {
     margin-top: $spacing-md;
     width: 100%;
-  }
-
-  // Dark theme adaptations
-  @media (prefers-color-scheme: dark) {
-    .generalError {
-      background-color: rgba($danger-color, 0.15);
-      border-color: rgba($danger-color, 0.4);
-    }
   }
 
   // Container for the button

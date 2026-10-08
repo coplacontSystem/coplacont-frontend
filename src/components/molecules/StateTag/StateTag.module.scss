@@ -1,18 +1,27 @@
-.StateTag{
-  display: flex;
+.StateTag {
+  display: inline-flex;
   justify-content: center;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: 12px;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
 
-  &--active{
-    background-color:#26C9541A;
-;
+  &__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
   }
 
-  &--inactive{
-    background-color: #0000000D;
-;
+  &--active {
+    background-color: var(--success-soft);
+    color: var(--success-text);
+  }
+
+  &--inactive {
+    background-color: var(--neutral-soft);
+    color: var(--neutral-text);
   }
 }

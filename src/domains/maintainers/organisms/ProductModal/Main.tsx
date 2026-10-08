@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styles from "./Main.module.scss";
-import { Modal, Button, Text, Input, ComboBox } from "@/components";
+import { Modal, ModalActions, Button, Text, Input, ComboBox } from "@/components";
 import type { Category } from "@/domains/maintainers/types";
 import { useGetCategoriesQuery } from "@/domains/maintainers/api/categoryApi";
 
@@ -188,14 +188,16 @@ export const Main: React.FC<CreateProductModalProps> = ({
      />
     </div>
 
-    <Button
-     variant="primary"
-     size="large"
-     onClick={handleSubmit}
-     disabled={!isFormValid}
-    >
-     {submitLabel}
-    </Button>
+    <ModalActions>
+     <Button
+      variant="primary"
+      size="medium"
+      onClick={handleSubmit}
+      disabled={!isFormValid}
+     >
+      {submitLabel}
+     </Button>
+    </ModalActions>
    </div>
   </Modal>
  );

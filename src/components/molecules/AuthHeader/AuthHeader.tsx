@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './AuthHeader.module.scss';
 
-import { Logo, Text } from '@/components';
+import { Text } from '@/components';
 
 
 /**
@@ -12,8 +12,6 @@ export interface AuthHeaderProps {
   title: string;
   /** Texto secundario/descripción */
   subtitle: string;
-  /** Tamaño del logo (opcional, por defecto 120) */
-  logoSize?: number;
 }
 
 /**
@@ -23,18 +21,15 @@ export interface AuthHeaderProps {
 export const AuthHeader: React.FC<AuthHeaderProps> = ({
   title,
   subtitle,
-  logoSize = 120
 }) => {
   return (
     <div className={styles.authHeader}>
-      <Logo size={logoSize} />
-      
       <Text 
         as="p" 
         size="2xl" 
         weight={600} 
         color="neutral-primary" 
-        align="center"
+        align="left"
         className={styles.title}
       >
         {title}
@@ -44,7 +39,7 @@ export const AuthHeader: React.FC<AuthHeaderProps> = ({
         as="p" 
         size="md" 
         color="neutral-secondary" 
-        align="center"
+        align="left"
         className={styles.subtitle}
       >
         {subtitle}

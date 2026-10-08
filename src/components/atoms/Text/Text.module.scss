@@ -78,31 +78,31 @@
  }
 
  &--color-secondary {
-  color: $secondary-blue;
+  color: var(--accent-text);
  }
 
  &--color-neutral-primary {
-  color: $text-color;
+  color: var(--text);
  }
 
  &--color-neutral-secondary {
-  color: $text-color-1;
+  color: var(--text-2);
  }
 
  &--color-disabled {
-  color: $neutral-3;
+  color: var(--text-3);
  }
 
  &--color-success {
-  color: $success-color;
+  color: var(--success-text);
  }
 
  &--color-danger {
-  color: $danger-color;
+  color: var(--error-text);
  }
 
  &--color-warning {
-  color: $warning-color;
+  color: var(--warning-text);
  }
 
  &--color-info {
@@ -151,7 +151,7 @@
 
  // Texto seleccionable con mejor UX
  &::selection {
-  background-color: rgba($primary-blue, 0.2);
+  background-color: var(--accent-soft);
   color: inherit;
  }
 

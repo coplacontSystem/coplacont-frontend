@@ -5,10 +5,20 @@
   flex-direction: column;
   gap: $spacing-lg;
 
-  &__Form{
+  &__Form,
+  &__Card {
     display: flex;
     flex-direction: column;
     gap: $spacing-md;
+    padding: $spacing-2xl;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: $border-radius-lg;
+    box-shadow: var(--shadow-sm);
+
+    @media (max-width: 768px) {
+      padding: $spacing-lg;
+    }
   }
 
   &__FormRow {
@@ -102,7 +112,7 @@
     gap: $spacing-xs;
     margin-top: $spacing-md;
     padding: $spacing-md;
-    background: $bg-color-secondary;
+    background: var(--surface-2);
     border-radius: $border-radius-md;
     max-width: 300px;
     margin-left: auto;
@@ -114,7 +124,7 @@
     align-items: center;
     
     &--total {
-      border-top: 1px solid $border-color;
+      border-top: 1px solid var(--border);
       padding-top: $spacing-xs;
       margin-top: $spacing-xs;
     }
@@ -123,9 +133,9 @@
   &__Actions {
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
-    gap: $spacing-2xl;
+    gap: $spacing-md;
     
     @media (max-width: 768px) {
       flex-direction: column;
@@ -133,7 +143,7 @@
     }
     
     button {
-      width: 50%;
+      width: auto;
       
       @media (max-width: 768px) {
         width: 100%;
