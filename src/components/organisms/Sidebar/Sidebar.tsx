@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   LuChevronDown,
@@ -15,6 +16,7 @@ import { MAIN_ROUTES, WELCOME_ROUTE } from "@/router/routes";
 import { buildMenu, type NavGroup } from "./menu";
 import { useAuth } from "@/domains/auth";
 import { ThemeContext } from "@/shared/context";
+import { ConfirmationModal } from "@/components/molecules/ConfirmationModal";
 
 const ROLE_DISPLAY_NAMES: Record<string, string> = {
   ADMIN: "Administrador del sistema",
@@ -71,6 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
 
   // Grupos abiertos: el que contiene la ruta activa se abre automáticamente.
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [confirmarSalida, setConfirmarSalida] = useState(false);
   useEffect(() => {
     const active = buildMenu(userRoleType).find((g) =>
       g.items?.some((i) => isActiveLink(i.to)),
@@ -246,13 +249,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
         <button
           type="button"
           className={isCollapsed ? styles.railBtn : styles.logoutBtn}
-          onClick={handleLogout}
+          onClick={() => setConfirmarSalida(true)}
           title="Cerrar sesión"
         >
           <LuLogOut size={isCollapsed ? 20 : 18} />
           {!isCollapsed && "Cerrar sesión"}
         </button>
       </div>
+
+      {/* En portal: en móvil el sidebar es un panel desplazado y recortaría el modal */}
+      {createPortal(
+        <ConfirmationModal
+          isOpen={confirmarSalida}
+          onClose={() => setConfirmarSalida(false)}
+          onConfirm={handleLogout}
+          title="¿Cerrar sesión?"
+          message="Tendrás que volver a ingresar tu correo y contraseña para entrar."
+          confirmText="Cerrar sesión"
+          confirmVariant="danger"
+        />,
+        document.body,
+      )}
     </aside>
   );
 };
