@@ -24,7 +24,7 @@ import {
   LuUsers,
 } from 'react-icons/lu';
 import { useAuth } from '@/domains/auth';
-import { MAIN_ROUTES, SETTINGS_ROUTES, COMMON_ROUTES } from '@/router';
+import { MAIN_ROUTES, SETTINGS_ROUTES } from '@/router';
 import { ToastProvider } from '@/domains/settings/pages/Configuracion/ui';
 import { cx, useToast } from '@/domains/settings/pages/Configuracion/util';
 import { escala, compacto, iniciales, MESES, numero, porcentaje } from '../formato';
@@ -49,13 +49,14 @@ export const AdminDashboard: React.FC<{ nombre?: string }> = (props) => (
 const Panel: React.FC<{ nombre?: string }> = ({ nombre }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const q = useGetAdminDashboardQuery();
+  // Se refresca al volver al panel (el alta de empresa no pasa por RTK Query)
+  const q = useGetAdminDashboardQuery(undefined, { refetchOnMountOrArgChange: true });
   const [drawer, setDrawer] = useState<number | null>(null);
   const [confirmar, setConfirmar] = useState<{ id: number; nombre: string; usuarios: number; habilitada: boolean } | null>(null);
 
   const hoy = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
-  const nuevaEmpresa = () => navigate(`${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.USERS}${COMMON_ROUTES.REGISTER}`);
+  const nuevaEmpresa = () => navigate(`${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.USERS}?nueva=1`);
   const primerNombre = (nombre ?? user?.nombre ?? '').split(' ')[0];
 
   const d = q.data;
