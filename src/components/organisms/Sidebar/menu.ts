@@ -81,6 +81,7 @@ export const buildMenu = (role: string): NavGroup[] => {
         icon: LuBookOpen,
         items: [
           { label: "Plan de cuentas", to: `${ac}${ACCOUNTING_ROUTES.CHART_OF_ACCOUNT}` },
+          { label: "Asientos contables", to: `${tx}${TRANSACTIONS_ROUTES.MANUAL_JOURNAL_ENTRY}` },
         ],
       },
       {

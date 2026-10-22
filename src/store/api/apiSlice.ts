@@ -65,6 +65,7 @@ export const apiSlice = createApi({
         'Periodos',
         'Admin',
         'PlanContable',
+        'Asientos',
     ],
     endpoints: () => ({}),
 });

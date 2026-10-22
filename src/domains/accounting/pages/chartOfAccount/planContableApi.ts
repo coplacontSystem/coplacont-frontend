@@ -46,7 +46,7 @@ export const planContableApi = apiSlice.injectEndpoints({
       query: () => '/plan-contable',
       providesTags: [LISTA],
     }),
-    getCuentasContables: b.query<Cuenta[], { elemento?: string; q?: string }>({
+    getCuentasContables: b.query<Cuenta[], { elemento?: string; q?: string; imputables?: boolean }>({
       query: (params) => ({ url: '/plan-contable/cuentas', params }),
       providesTags: [LISTA],
     }),
