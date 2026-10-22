@@ -208,8 +208,14 @@ export const MainPage: React.FC = () => {
    subtitle={`Muestra la lista de ventas registradas.`}
    header={
     <div className={styles.headerActions}>
-     <Button disabled={true} size="medium" variant="secondary" onClick={() => setUploadOpen(true)}>
-      Subir ventas
+     <Button
+      size="medium"
+      variant="secondary"
+      onClick={() =>
+       navigate(`${MAIN_ROUTES.TRANSACTIONS}${TRANSACTIONS_ROUTES.SALES}${COMMON_ROUTES.BULK_REGISTER}`)
+      }
+     >
+      Cargar XML
      </Button>
      <Button size="medium" onClick={handleRegisterSale}>
       + Nueva venta

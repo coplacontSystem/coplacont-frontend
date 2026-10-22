@@ -1,0 +1,335 @@
+// Carga de XML. Reutiliza Asientos.module.scss (botones, inputs, tarjetas);
+// aquí solo lo propio. Breakpoints del panel: tablet < 900, móvil < 560.
+
+.zona {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 28px 24px;
+  border: 1.5px dashed var(--border-strong);
+  box-shadow: none;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.zonaActiva {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.zonaCompacta {
+  padding: 14px 18px;
+}
+
+.zonaIcono {
+  font-size: 26px;
+  color: var(--text-3);
+}
+
+.zonaTexto {
+  flex: 1 1 260px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-2);
+
+  b {
+    font-size: 15px;
+    color: var(--text);
+  }
+}
+
+.opciones {
+  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.recordar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 22px;
+}
+
+.recordarFila {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+
+  b {
+    font-weight: 500;
+  }
+}
+
+.archivo {
+  overflow: visible;
+}
+
+.archivoFuera {
+  opacity: 0.6;
+}
+
+.archivoCab {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+}
+
+.archivoIcono {
+  font-size: 20px;
+  color: var(--text-3);
+}
+
+.archivoTitulo {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  b {
+    font-size: 15px;
+  }
+
+  span {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+}
+
+.archivoTotal {
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.mensajes {
+  list-style: none;
+  margin: 0;
+  padding: 0 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 18px;
+
+    svg {
+      margin-top: 2px;
+    }
+  }
+}
+
+.msgError {
+  background: var(--error-soft);
+  color: var(--error-text);
+}
+
+.msgAviso {
+  background: var(--warning-soft);
+  color: var(--warning-text);
+}
+
+.tc {
+  padding: 0 20px 14px;
+  max-width: 240px;
+}
+
+.lineas {
+  border-top: 1px solid var(--border);
+}
+
+.linea {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
+  gap: 16px;
+  padding: 14px 20px;
+
+  & + & {
+    border-top: 1px solid var(--border);
+  }
+}
+
+.lineaPendiente {
+  box-shadow: inset 3px 0 0 var(--warning-text);
+}
+
+.lineaXml {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  b {
+    font-size: 14px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+
+  span {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+}
+
+.lineaDecision {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.controles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.crece {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.medio {
+  flex: 0 1 170px;
+}
+
+.corto {
+  flex: 0 1 100px;
+}
+
+.mini {
+  width: 72px;
+}
+
+.factor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.estadoLinea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  min-height: 0;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.origen {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.origenOk {
+  color: var(--success-text);
+}
+
+.origenRevisar {
+  color: var(--warning-text);
+}
+
+.resultado {
+  padding: 20px;
+  gap: 16px;
+}
+
+.listaResultado {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+
+  li {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    font-size: 13px;
+
+    & + li {
+      border-top: 1px solid var(--border);
+    }
+  }
+}
+
+.ok svg {
+  color: var(--success-text);
+}
+
+.mal {
+  svg,
+  span {
+    color: var(--error-text);
+  }
+}
+
+@container as (max-width: 899px) {
+  .linea {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+}
+
+@container as (max-width: 559px) {
+  .opciones {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+
+  .recordar {
+    padding-top: 0;
+  }
+
+  .archivoCab,
+  .linea {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .mensajes,
+  .tc {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .tc {
+    max-width: none;
+  }
+
+  .listaResultado li {
+    grid-template-columns: auto minmax(0, 1fr);
+
+    span {
+      grid-column: 2;
+    }
+  }
+}

@@ -236,8 +236,8 @@ export const MainPage: React.FC = () => {
    subtitle={`Muestra la lista de compras registradas.`}
    header={
     <div className={styles.headerActions}>
-     <Button disabled={true} size="medium" variant="secondary" onClick={() => setUploadOpen(true)}>
-      Subir compras
+     <Button size="medium" variant="secondary" onClick={handleBulkRegister}>
+      Cargar XML
      </Button>
      <Button size="medium" onClick={handleRegisterPurchase}>
       + Nueva compra
