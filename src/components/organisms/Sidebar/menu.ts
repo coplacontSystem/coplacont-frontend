@@ -1,5 +1,6 @@
 import {
   LuArrowLeftRight,
+  LuBookOpen,
   LuBox,
   LuChartColumn,
   LuDatabase,
@@ -12,6 +13,7 @@ import {
   TRANSACTIONS_ROUTES,
   INVENTORY_ROUTES,
   FINANCIAL_STATEMENTS_ROUTES,
+  ACCOUNTING_ROUTES,
   SETTINGS_ROUTES,
   MAINTAINERS_ROUTES,
 } from "@/router/routes";
@@ -51,6 +53,7 @@ export const buildMenu = (role: string): NavGroup[] => {
     const inv = MAIN_ROUTES.INVENTORY;
     const fs = MAIN_ROUTES.FINANCIAL_STATEMENTS;
     const mt = MAIN_ROUTES.MAINTAINERS;
+    const ac = MAIN_ROUTES.ACCOUNTING;
     menu.push(
       {
         id: "transactions",
@@ -70,6 +73,14 @@ export const buildMenu = (role: string): NavGroup[] => {
         items: [
           { label: "Inventario", to: `${inv}${INVENTORY_ROUTES.INVENTORY}` },
           { label: "Kardex", to: `${inv}${INVENTORY_ROUTES.KARDEX}` },
+        ],
+      },
+      {
+        id: "accounting",
+        label: "Contabilidad",
+        icon: LuBookOpen,
+        items: [
+          { label: "Plan de cuentas", to: `${ac}${ACCOUNTING_ROUTES.CHART_OF_ACCOUNT}` },
         ],
       },
       {
