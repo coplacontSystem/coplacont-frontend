@@ -23,7 +23,6 @@ import {
 } from "./HomePurchaseFilterData";
 import { useNavigate } from "react-router-dom";
 import { MAIN_ROUTES, TRANSACTIONS_ROUTES, COMMON_ROUTES } from "@/router";
-import { useDescargarReporte } from "@/shared/hooks";
 
 export const MainPage: React.FC = () => {
  const { data: purchases = [], isLoading, isError } = useGetPurchasesQuery();
@@ -31,12 +30,6 @@ export const MainPage: React.FC = () => {
  const [hasFiltered, setHasFiltered] = useState(false);
 
  const navigate = useNavigate();
- // Plantilla de carga masiva (XLSX generado en el backend)
- const {
-  descargar: descargarPlantilla,
-  descargando: descargandoPlantilla,
-  error: errorPlantilla,
- } = useDescargarReporte("plantilla-compras");
 
  const displayedPurchases = hasFiltered ? filteredPurchases : purchases;
 
@@ -68,7 +61,6 @@ export const MainPage: React.FC = () => {
   }
  };
 
- const [isUploadOpen, setUploadOpen] = useState(false);
 
  const detailGridTemplate = "0.8fr 2fr 1.2fr 1.2fr 1fr 1fr 1.2fr";
 
@@ -237,7 +229,7 @@ export const MainPage: React.FC = () => {
    header={
     <div className={styles.headerActions}>
      <Button size="medium" variant="secondary" onClick={handleBulkRegister}>
-      Cargar XML
+      Cargar comprobantes
      </Button>
      <Button size="medium" onClick={handleRegisterPurchase}>
       + Nueva compra
@@ -554,60 +546,6 @@ export const MainPage: React.FC = () => {
     )}
    </Modal>
 
-   <Modal
-    isOpen={isUploadOpen}
-    onClose={() => setUploadOpen(false)}
-    title="Subir compras"
-    description="Sube un Excel y genera los registros de forma masiva."
-   >
-    <div>
-     <div style={{ marginBottom: "16px" }}>
-      <Button
-       variant="secondary"
-       onClick={() => descargarPlantilla("xlsx")}
-       disabled={descargandoPlantilla !== null}
-      >
-       {descargandoPlantilla ? "Generando..." : "⬇️ Descargar plantilla de Excel"}
-      </Button>
-      {errorPlantilla && (
-       <Text size="xs" color="danger">
-        {errorPlantilla}
-       </Text>
-      )}
-     </div>
-
-     <div style={{ marginBottom: "16px" }}>
-      <Text as="h3" size="md" weight={600}>
-       Información a tener en cuenta
-      </Text>
-      <ul style={{ marginTop: "8px" }}>
-       <li>Se proporciona un Excel de ejemplo para facilitar el registro.</li>
-       <li>La cabecera (fila 1) no debe borrarse.</li>
-       <li>Los registros deben ingresarse desde la fila 2.</li>
-       <li>Las Notas de Crédito y Débito no se cargan automáticamente.</li>
-       <li>Las fechas deben tener el formato DÍA/MES/AÑO.</li>
-       <li>El archivo Excel debe tener un máximo de 500 registros.</li>
-      </ul>
-     </div>
-
-     <div>
-      <Text as="h3" size="md" weight={600}>
-       Seleccionar archivo
-      </Text>
-      <div
-       style={{
-        display: "flex",
-        gap: "16px",
-        alignItems: "center",
-        marginTop: "8px",
-       }}
-      >
-       <input type="file" accept=".csv,.xlsx" />
-       <Button onClick={handleBulkRegister}>Subir Excel</Button>
-      </div>
-     </div>
-    </div>
-   </Modal>
   </PageLayout>
  );
 };

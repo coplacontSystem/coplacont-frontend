@@ -7,6 +7,7 @@ import {
   LuCircleCheck,
   LuCircleDashed,
   LuCircleSlash,
+  LuDownload,
   LuTriangleAlert,
   LuUpload,
 } from 'react-icons/lu';
@@ -14,6 +15,7 @@ import { ToastProvider, Switch } from '@/domains/settings/pages/Configuracion/ui
 import { cx, useToast } from '@/domains/settings/pages/Configuracion/util';
 import { useGetCategoriesQuery, useGetProductsQuery, useGetWarehousesQuery } from '@/domains/maintainers/api';
 import { MAIN_ROUTES, TRANSACTIONS_ROUTES } from '@/router';
+import { useDescargarReporte } from '@/shared/hooks';
 import { erroresDe } from '../manualJournalEntries/asientosApi';
 import { importe } from '../manualJournalEntries/formato';
 import {
@@ -50,7 +52,8 @@ type Estado =
   | { tipo: 'saltado' }
   | { tipo: 'error'; mensaje: string };
 
-const ACEPTA = '.xml,.txt,text/xml,application/xml,text/plain';
+const ACEPTA =
+  '.xml,.txt,.xlsx,text/xml,application/xml,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 const MAXIMO = 200;
 
 export const ImportarXmlPage: React.FC<{ desde: 'compras' | 'ventas' }> = ({ desde }) => (
@@ -60,7 +63,8 @@ export const ImportarXmlPage: React.FC<{ desde: 'compras' | 'ventas' }> = ({ des
 );
 
 /**
- * Carga de comprobantes en cola: se suben XML o TXT de SIRE y se registran
+ * Carga de comprobantes en cola: se suben XML, TXT de SIRE o la plantilla
+ * Excel de Coplacont y se registran
  * uno por uno. En cada uno el usuario elige los productos o el gasto de
  * cada línea (o escribe el detalle si el archivo no lo trae) y lo registra.
  */
@@ -75,6 +79,7 @@ const Importar: React.FC<{ desde: 'compras' | 'ventas' }> = ({ desde }) => {
   const categorias = useGetCategoriesQuery();
   const almacenes = useGetWarehousesQuery();
   const areas = useGetAreasContablesQuery();
+  const plantilla = useDescargarReporte('plantilla-comprobantes');
 
   const [archivos, setArchivos] = useState<Record<string, ArchivoXml>>({});
   const [cola, setCola] = useState<ArchivoPrevio[] | null>(null);
@@ -101,9 +106,9 @@ const Importar: React.FC<{ desde: 'compras' | 'ventas' }> = ({ desde }) => {
   );
 
   const agregar = async (files: FileList | null) => {
-    const elegidos = Array.from(files ?? []).filter((f) => /\.(xml|txt)$/i.test(f.name));
+    const elegidos = Array.from(files ?? []).filter((f) => /\.(xml|txt|xlsx)$/i.test(f.name));
     setErrores([]);
-    if (!elegidos.length) return setErrores(['Elige archivos .xml (comprobantes) o .txt (propuestas de SIRE).']);
+    if (!elegidos.length) return setErrores(['Elige archivos .xml (comprobantes), .txt (propuestas de SIRE) o la plantilla .xlsx.']);
     if (elegidos.length > MAXIMO) return setErrores([`Puedes subir hasta ${MAXIMO} archivos por carga.`]);
     const lista = await Promise.all(elegidos.map(async (f) => ({ nombre: f.name, contenido: await aBase64(f) })));
     try {
@@ -156,15 +161,25 @@ const Importar: React.FC<{ desde: 'compras' | 'ventas' }> = ({ desde }) => {
         >
           <LuUpload className={styles.zonaIcono} />
           <div className={styles.zonaTexto}>
-            <b>Arrastra aquí tus XML o el TXT de SIRE</b>
+            <b>Arrastra aquí tus XML, el TXT de SIRE o la plantilla Excel</b>
             <span>
               XML de facturas, boletas y notas, o la propuesta del Registro de Ventas o de Compras exportada de SIRE.
               Compras y ventas se reconocen por tu RUC.
             </span>
           </div>
-          <button type="button" className={base.btnSecondary} disabled={leyendo} onClick={() => entrada.current?.click()}>
-            {leyendo ? 'Leyendo…' : 'Elegir archivos'}
-          </button>
+          <div className={styles.zonaBotones}>
+            <button
+              type="button"
+              className={base.btnLink}
+              disabled={plantilla.descargando !== null}
+              onClick={() => void plantilla.descargar('xlsx')}
+            >
+              <LuDownload /> {plantilla.descargando ? 'Generando…' : 'Descargar plantilla Excel'}
+            </button>
+            <button type="button" className={base.btnSecondary} disabled={leyendo} onClick={() => entrada.current?.click()}>
+              {leyendo ? 'Leyendo…' : 'Elegir archivos'}
+            </button>
+          </div>
           <input
             ref={entrada}
             type="file"
@@ -177,7 +192,7 @@ const Importar: React.FC<{ desde: 'compras' | 'ventas' }> = ({ desde }) => {
             }}
           />
         </section>
-        <Alertas errores={errores} />
+        <Alertas errores={plantilla.error ? [...errores, plantilla.error] : errores} />
       </div>
     );
   }
@@ -345,7 +360,7 @@ const Importar: React.FC<{ desde: 'compras' | 'ventas' }> = ({ desde }) => {
                     <span className={styles.colaTexto}>
                       <b>{d ? `${TIPO[d.tipoComprobante]} ${d.serie}-${d.numero}` : a.nombre}</b>
                       <span>
-                        {a.contraparte?.razonSocial ?? (a.origen === 'txt' ? `Fila ${a.indice}` : a.nombre)}
+                        {a.contraparte?.razonSocial ?? (a.origen === 'xml' ? a.nombre : `Fila ${a.indice}`)}
                       </span>
                     </span>
                     {d && (
@@ -366,7 +381,7 @@ const Importar: React.FC<{ desde: 'compras' | 'ventas' }> = ({ desde }) => {
             <div className={styles.archivoCab}>
               <div className={styles.archivoTitulo}>
                 <span className={styles.posicion}>
-                  {actual + 1} de {cola.length} · {item.origen === 'txt' ? `${item.nombre}, fila ${item.indice}` : item.nombre}
+                  {actual + 1} de {cola.length} · {item.origen === 'xml' ? item.nombre : `${item.nombre}, fila ${item.indice}`}
                 </span>
                 <b>{doc ? `${TIPO[doc.tipoComprobante]} ${doc.serie}-${doc.numero}` : 'No se pudo leer'}</b>
                 {doc && item.contraparte && (
@@ -414,7 +429,7 @@ const Importar: React.FC<{ desde: 'compras' | 'ventas' }> = ({ desde }) => {
                   </li>
                 ))}
                 {item.avisos
-                  .filter((m) => !(item.origen === 'txt' && /no trae el detalle/.test(m)))
+                  .filter((m) => !/no trae el detalle/.test(m))
                   .map((m) => (
                     <li key={m} className={styles.msgAviso}>
                       <LuTriangleAlert /> {m}
@@ -444,8 +459,8 @@ const Importar: React.FC<{ desde: 'compras' | 'ventas' }> = ({ desde }) => {
                   <span className={base.cardTitle}>Detalle</span>
                   <span className={base.cardSub}>
                     {item.conDetalle
-                      ? 'Elige a qué producto o gasto va cada línea del XML.'
-                      : 'El TXT no trae el detalle: escríbelo o registra solo los totales (no mueve inventario).'}
+                      ? 'Elige a qué producto o gasto va cada línea.'
+                      : 'Este comprobante no trae el detalle: escríbelo o registra solo los totales (no mueve inventario).'}
                   </span>
                 </div>
                 {!item.conDetalle && (
@@ -559,7 +574,7 @@ const Encabezado: React.FC<{ volver: () => void; desde: 'compras' | 'ventas' }> 
       </button>
       <h1 className={base.titulo}>Cargar comprobantes</h1>
       <span className={base.subtitulo}>
-        Sube XML o el TXT de SIRE y regístralos uno por uno: revisa cada comprobante, completa su detalle y regístralo.
+        Sube XML, el TXT de SIRE o la plantilla Excel y regístralos uno por uno: revisa cada comprobante, completa su detalle y regístralo.
       </span>
     </div>
   </div>

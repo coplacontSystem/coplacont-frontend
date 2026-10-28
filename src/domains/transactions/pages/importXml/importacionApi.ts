@@ -25,7 +25,7 @@ export type Sugerencia =
       tipo: 'servicio';
       codigoCuenta: string;
       idArea: number | null;
-      origen: 'equivalencia';
+      origen: 'equivalencia' | 'plantilla';
       segura: true;
     };
 
@@ -50,7 +50,7 @@ export interface ArchivoPrevio {
   nombre: string;
   /** Fila del TXT; 0 en un XML */
   indice: number;
-  origen: 'xml' | 'txt';
+  origen: 'xml' | 'txt' | 'excel';
   /** El archivo trae el detalle (XML); si no, se escribe o se registra sin él */
   conDetalle: boolean;
   valido: boolean;

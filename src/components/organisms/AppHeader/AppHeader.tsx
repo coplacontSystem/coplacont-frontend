@@ -34,7 +34,7 @@ export const AppHeader: React.FC = () => {
         const extra = path.startsWith(match.to + "/") ? ["Detalle"] : [];
         if (path.endsWith("/register") || path.endsWith("/nuevo")) extra.splice(0, 1, "Nuevo registro");
         if (path.endsWith("/editar")) extra.splice(0, 1, "Edición");
-        if (path.endsWith("/bulk-register")) extra.splice(0, 1, "Cargar XML");
+        if (path.endsWith("/bulk-register")) extra.splice(0, 1, "Cargar comprobantes");
         return [group.label, match.label, ...extra];
       }
     }

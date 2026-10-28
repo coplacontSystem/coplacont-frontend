@@ -45,7 +45,6 @@ export const MainPage: React.FC = () => {
  const [client, setClient] = useState("");
  const [documentType, setDocumentType] = useState("");
 
- const [isUploadOpen, setUploadOpen] = useState(false);
 
  const detailGridTemplate = "0.8fr 2fr 1.2fr 1.2fr 1fr 1fr 1.2fr";
 
@@ -215,7 +214,7 @@ export const MainPage: React.FC = () => {
        navigate(`${MAIN_ROUTES.TRANSACTIONS}${TRANSACTIONS_ROUTES.SALES}${COMMON_ROUTES.BULK_REGISTER}`)
       }
      >
-      Cargar XML
+      Cargar comprobantes
      </Button>
      <Button size="medium" onClick={handleRegisterSale}>
       + Nueva venta
@@ -524,15 +523,6 @@ export const MainPage: React.FC = () => {
     )}
    </Modal>
 
-   <Modal
-    isOpen={isUploadOpen}
-    onClose={() => setUploadOpen(false)}
-    title="Subir ventas"
-   >
-    <Text size="sm" color="neutral-primary">
-     Funcionalidad de carga masiva en desarrollo.
-    </Text>
-   </Modal>
   </PageLayout>
  );
 };

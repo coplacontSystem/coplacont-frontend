@@ -60,6 +60,7 @@ export const ORIGEN: Record<string, string> = {
   codigo: 'Por código',
   gtin: 'Por código de barras',
   nombre: 'Nombre parecido: confírmalo',
+  plantilla: 'Cuenta de la plantilla',
 };
 
 /** Identifica un comprobante de la cola: archivo + fila del TXT */

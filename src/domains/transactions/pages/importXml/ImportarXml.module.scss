@@ -20,6 +20,13 @@
 }
 
 
+.zonaBotones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
 .zonaIcono {
   font-size: 26px;
   color: var(--text-3);
