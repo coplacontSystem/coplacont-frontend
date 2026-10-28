@@ -39,6 +39,7 @@ export interface FiltrosAsientos {
   hasta?: string;
   q?: string;
   estado?: EstadoAsiento;
+  origen?: OrigenAsiento;
   cuenta?: string;
   pagina?: number;
   limite?: number;
@@ -57,6 +58,22 @@ export interface GuardarAsiento {
   glosa: string;
   referencia?: string;
   lineas: { codigoCuenta: string; glosa?: string; debe: number; haber: number }[];
+}
+
+export interface CuentaAutomatica {
+  clave: string;
+  uso: string;
+  codigo: string;
+  porDefecto: string;
+  nombreCuenta: string | null;
+  /** La cuenta ya no sirve (no existe, está desactivada o agrupa) */
+  error: string | null;
+}
+
+export interface ResultadoGeneracion {
+  generados: number;
+  actualizados: number;
+  errores: { idComprobante: number; comprobante: string; error: string }[];
 }
 
 const LISTA = { type: 'Asientos' as const, id: 'LIST' };
@@ -84,6 +101,18 @@ export const asientosApi = apiSlice.injectEndpoints({
       query: ({ id, datos }) => ({ url: `/asientos/${id}`, method: 'PUT', body: datos }),
       invalidatesTags: (_r, _e, { id }) => [LISTA, PLAN, { type: 'Asientos', id }],
     }),
+    getCuentasAutomaticas: b.query<CuentaAutomatica[], void>({
+      query: () => '/asientos/automaticos/cuentas',
+      providesTags: [{ type: 'Asientos', id: 'CUENTAS' }],
+    }),
+    guardarCuentasAutomaticas: b.mutation<CuentaAutomatica[], Record<string, string>>({
+      query: (body) => ({ url: '/asientos/automaticos/cuentas', method: 'PUT', body }),
+      invalidatesTags: [{ type: 'Asientos', id: 'CUENTAS' }],
+    }),
+    generarAsientosAutomaticos: b.mutation<ResultadoGeneracion, { desde: string; hasta: string }>({
+      query: (body) => ({ url: '/asientos/automaticos/generar', method: 'POST', body }),
+      invalidatesTags: [LISTA, PLAN],
+    }),
     anularAsientoContable: b.mutation<Asiento, { id: number; motivo: string }>({
       query: ({ id, motivo }) => ({ url: `/asientos/${id}/anular`, method: 'PATCH', body: { motivo } }),
       invalidatesTags: (_r, _e, { id }) => [LISTA, PLAN, { type: 'Asientos', id }],
@@ -97,6 +126,9 @@ export const {
   useCrearAsientoContableMutation,
   useEditarAsientoContableMutation,
   useAnularAsientoContableMutation,
+  useGetCuentasAutomaticasQuery,
+  useGuardarCuentasAutomaticasMutation,
+  useGenerarAsientosAutomaticosMutation,
 } = asientosApi;
 
 /** Mensaje(s) legibles de un error del backend */

@@ -22,14 +22,16 @@ import {
   useGetAsientosContablesQuery,
   type Asiento,
   type EstadoAsiento,
+  type OrigenAsiento,
 } from './asientosApi';
 import { fecha, fechaHora, importe } from './formato';
+import { CuentasAutomaticas, GenerarAsientos } from './Automaticos';
 import styles from './Asientos.module.scss';
 
 const RUTA = `${MAIN_ROUTES.TRANSACTIONS}${TRANSACTIONS_ROUTES.MANUAL_JOURNAL_ENTRY}`;
 const ORIGEN: Record<string, string> = { manual: 'Manual', compra: 'Compra', venta: 'Venta' };
 
-/** Asientos contables de la empresa (Libro Diario manual). */
+/** Asientos contables de la empresa: manuales y automáticos de compras y ventas. */
 export const MainPage: React.FC = () => (
   <ToastProvider>
     <Asientos />
@@ -44,6 +46,8 @@ const Asientos: React.FC = () => {
   const [desde, setDesde] = useState('');
   const [hasta, setHasta] = useState('');
   const [estado, setEstado] = useState<EstadoAsiento | ''>('');
+  const [origen, setOrigen] = useState<OrigenAsiento | ''>('');
+  const [panel, setPanel] = useState<'cuentas' | 'generar' | null>(null);
   const [pagina, setPagina] = useState(1);
   const ver = params.get('ver');
 
@@ -60,11 +64,12 @@ const Asientos: React.FC = () => {
     desde: desde || undefined,
     hasta: hasta || undefined,
     estado: estado || undefined,
+    origen: origen || undefined,
     pagina,
     limite: 20,
   });
   const datos = lista.data?.datos ?? [];
-  const filtrado = !!(q || desde || hasta || estado);
+  const filtrado = !!(q || desde || hasta || estado || origen);
 
   const abrir = (id: number) => setParams({ ver: String(id) });
   const cerrar = () => setParams({});
@@ -75,17 +80,28 @@ const Asientos: React.FC = () => {
         <div className={styles.headerTexto}>
           <h1 className={styles.titulo}>Asientos contables</h1>
           <span className={styles.subtitulo}>
-            Operaciones que van al Libro Diario sin un comprobante: planilla, caja y bancos, depreciación, ajustes.
+            El Libro Diario: cada compra y venta genera su asiento; registra a mano lo demás (planilla, caja y bancos,
+            depreciación, ajustes).
           </span>
         </div>
-        <button
-          type="button"
-          className={cx(styles.btnPrimary, styles.anchoMovil)}
-          onClick={() => navigate(`${RUTA}/nuevo`)}
-        >
-          <LuPlus /> Nuevo asiento
-        </button>
+        <div className={styles.accionesHeader}>
+          <button type="button" className={styles.btnSecondary} onClick={() => setPanel('cuentas')}>
+            Cuentas automáticas
+          </button>
+          <button type="button" className={styles.btnSecondary} onClick={() => setPanel('generar')}>
+            Generar asientos
+          </button>
+          <button
+            type="button"
+            className={cx(styles.btnPrimary, styles.anchoMovil)}
+            onClick={() => navigate(`${RUTA}/nuevo`)}
+          >
+            <LuPlus /> Nuevo asiento
+          </button>
+        </div>
       </div>
+      {panel === 'cuentas' && <CuentasAutomaticas onClose={() => setPanel(null)} />}
+      {panel === 'generar' && <GenerarAsientos onClose={() => setPanel(null)} />}
 
       <section className={styles.card}>
         <div className={styles.filtros}>
@@ -126,6 +142,22 @@ const Asientos: React.FC = () => {
                 setPagina(1);
               }}
             />
+          </label>
+          <label className={styles.campoFiltro}>
+            <span>Origen</span>
+            <select
+              className={styles.input}
+              value={origen}
+              onChange={(e) => {
+                setOrigen(e.target.value as OrigenAsiento | '');
+                setPagina(1);
+              }}
+            >
+              <option value="">Todos</option>
+              <option value="manual">Manuales</option>
+              <option value="compra">Compras</option>
+              <option value="venta">Ventas</option>
+            </select>
           </label>
           <div role="tablist" aria-label="Estado" className={styles.segmento}>
             {(

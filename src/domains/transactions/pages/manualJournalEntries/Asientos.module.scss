@@ -1191,3 +1191,60 @@
     }
   }
 }
+
+/* ---------- Asientos automáticos ---------- */
+
+.accionesHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cuentasAuto {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.cuentaAuto {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+
+  > :nth-child(2) {
+    align-self: stretch;
+  }
+}
+
+.cuentaAutoUso {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.rangoFechas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.resultadoGen {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 19px;
+
+  svg {
+    margin-top: 2px;
+    flex: none;
+  }
+
+  ul {
+    margin: 6px 0 0;
+    padding-left: 16px;
+  }
+}
