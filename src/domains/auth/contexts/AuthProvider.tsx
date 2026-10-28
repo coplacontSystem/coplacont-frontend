@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import type { IAuthUser, IAuthContextState, IAuthProviderProps, IPersona, IRole } from '@/domains/auth';
 
+import { useDispatch } from 'react-redux';
+import { apiSlice } from '@/store/api/apiSlice';
 import { AuthContext } from './context';
 
 /**
@@ -11,6 +13,7 @@ export const AuthProvider: React.FC<IAuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<IAuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const dispatch = useDispatch();
 
   /**
    * Función de debug para monitorear localStorage
@@ -159,6 +162,8 @@ export const AuthProvider: React.FC<IAuthProviderProps> = ({ children }) => {
    * Guarda los datos en el estado y en localStorage
    */
   const login = (nombre: string, email: string, jwt: string, persona: IPersona, roles: IRole[]) => {
+    // Sin esto, la caché de la API mostraría datos de la sesión anterior
+    dispatch(apiSlice.util.resetApiState());
     try {
       console.log('AuthProvider: Iniciando proceso de login', {
         email,
@@ -258,6 +263,7 @@ export const AuthProvider: React.FC<IAuthProviderProps> = ({ children }) => {
    */
   const logout = () => {
     debugLocalStorage('ANTES de logout');
+    dispatch(apiSlice.util.resetApiState());
     
     setUser(null);
     setToken(null);
