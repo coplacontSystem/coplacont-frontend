@@ -82,6 +82,7 @@ export const buildMenu = (role: string): NavGroup[] => {
         items: [
           { label: "Plan de cuentas", to: `${ac}${ACCOUNTING_ROUTES.CHART_OF_ACCOUNT}` },
           { label: "Asientos contables", to: `${tx}${TRANSACTIONS_ROUTES.MANUAL_JOURNAL_ENTRY}` },
+          { label: "Libro Diario", to: `${ac}${ACCOUNTING_ROUTES.GENERAL_JOURNAL}` },
         ],
       },
       {
