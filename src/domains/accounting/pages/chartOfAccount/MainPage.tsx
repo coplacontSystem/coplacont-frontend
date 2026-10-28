@@ -21,6 +21,7 @@ import {
   type Naturaleza,
 } from './planContableApi';
 import { SubcuentaDrawer, type DrawerEstado } from './SubcuentaDrawer';
+import { CambiarPlanDrawer } from './CambiarPlanDrawer';
 import styles from './PlanDeCuentas.module.scss';
 
 const NATURALEZA: Record<Naturaleza, { label: string; tono: string }> = {
@@ -44,6 +45,7 @@ const PlanDeCuentas: React.FC = () => {
   const [soloMovimiento, setSoloMovimiento] = useState(false);
   const [drawer, setDrawer] = useState<DrawerEstado | null>(null);
   const [resaltada, setResaltada] = useState<string | null>(null);
+  const [cambiandoPlan, setCambiandoPlan] = useState(false);
 
   // Búsqueda con pausa para no consultar en cada tecla
   useEffect(() => {
@@ -79,14 +81,22 @@ const PlanDeCuentas: React.FC = () => {
             )}
           </span>
         </div>
-        <button
-          type="button"
-          className={cx(styles.btnPrimary, styles.anchoMovil)}
-          onClick={() => setDrawer({ modo: 'crear' })}
-        >
-          <LuPlus /> Nueva subcuenta
-        </button>
+        <div className={styles.accionesHeader}>
+          {plan && (
+            <button type="button" className={styles.btnSecondary} onClick={() => setCambiandoPlan(true)}>
+              Cambiar de plan
+            </button>
+          )}
+          <button
+            type="button"
+            className={cx(styles.btnPrimary, styles.anchoMovil)}
+            onClick={() => setDrawer({ modo: 'crear' })}
+          >
+            <LuPlus /> Nueva subcuenta
+          </button>
+        </div>
       </div>
+      {cambiandoPlan && plan && <CambiarPlanDrawer actual={plan} onClose={() => setCambiandoPlan(false)} />}
 
       {resumen.isError ? (
         <ErrorCarga onRetry={resumen.refetch} />

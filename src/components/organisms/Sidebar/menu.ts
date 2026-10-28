@@ -128,6 +128,7 @@ export const buildMenu = (role: string): NavGroup[] => {
         ? [
             { label: "Usuarios y Roles", to: `${st}${SETTINGS_ROUTES.USERS}` },
             { label: "Métodos de Valoración", to: `${st}${SETTINGS_ROUTES.VALUATION_METHODS}` },
+            { label: "Planes de cuentas", to: `${st}${SETTINGS_ROUTES.PLANES_CONTABLES}` },
             { label: "Mi cuenta", to: `${st}${SETTINGS_ROUTES.CUENTA}` },
           ]
         : [];

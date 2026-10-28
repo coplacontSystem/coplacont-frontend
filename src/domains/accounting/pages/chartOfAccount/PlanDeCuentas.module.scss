@@ -817,3 +817,9 @@
     height: 44px;
   }
 }
+
+.accionesHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

@@ -3,6 +3,7 @@ import { RoleBasedRoute } from '@/components';
 
 import { UsersRouter, ValuationMethodsRouter } from '../pages';
 import { Configuracion } from '../pages/Configuracion/Configuracion';
+import { PlanesContables } from '../pages/PlanesContables/PlanesContables';
 import { MAIN_ROUTES, SETTINGS_ROUTES } from '../../../router';
 import { USER_ROLES } from '@/shared/constants';
 
@@ -26,6 +27,12 @@ export const Router = () => {
       <Route path={`${SETTINGS_ROUTES.VALUATION_METHODS}/*`} element={
         <RoleBasedRoute requiredRoles={[USER_ROLES.ADMIN]}>
           <ValuationMethodsRouter />
+        </RoleBasedRoute>
+      } />
+
+      <Route path={SETTINGS_ROUTES.PLANES_CONTABLES} element={
+        <RoleBasedRoute requiredRoles={[USER_ROLES.ADMIN]}>
+          <PlanesContables />
         </RoleBasedRoute>
       } />
 

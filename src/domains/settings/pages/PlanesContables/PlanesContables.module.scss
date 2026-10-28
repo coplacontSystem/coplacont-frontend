@@ -1,0 +1,203 @@
+// Planes de cuentas (administrador). Base: Asientos.module.scss.
+
+.planes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.plan {
+  padding: 18px 20px;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.planCab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  b {
+    font-size: 15px;
+    margin-right: 4px;
+  }
+}
+
+.cifras {
+  display: flex;
+  gap: 24px;
+  margin: 8px 0;
+
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  dt {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  dd {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+}
+
+.formulario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.ancho {
+  grid-column: 1 / -1;
+}
+
+.archivo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.previa {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.ok,
+.aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+
+  svg {
+    flex: none;
+    margin-top: 2px;
+  }
+}
+
+.ok {
+  background: var(--success-soft);
+  color: var(--success-text);
+}
+
+.aviso {
+  background: var(--warning-soft);
+  color: var(--warning-text);
+}
+
+.cambios {
+  font-size: 13px;
+
+  summary {
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  ul {
+    margin: 6px 0 0;
+    padding-left: 16px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+}
+
+.eqCab {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px 4px;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.buscar {
+  flex: 1 1 200px;
+}
+
+.resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 20px 12px;
+}
+
+.vacio {
+  padding: 16px 20px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.eqLista {
+  border-top: 1px solid var(--border);
+}
+
+.eqFila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 10px 20px;
+  font-size: 13px;
+
+  & + & {
+    border-top: 1px solid var(--border);
+  }
+}
+
+.eqPendiente {
+  box-shadow: inset 3px 0 0 var(--warning-text);
+}
+
+.eqOrigen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+
+  b {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.eqDestino {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.eqNombre {
+  color: var(--text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .eqFila {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 10px 16px;
+  }
+
+  .formulario {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

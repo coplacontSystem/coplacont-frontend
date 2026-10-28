@@ -25,6 +25,32 @@ export interface Plan {
   codigoSunat: string;
   vigenteDesde: string;
   vigenteHasta: string | null;
+  nota?: string | null;
+}
+
+export interface CambioPlan {
+  idPlan: number;
+  idPeriodoDesde?: number;
+  reasignar?: Record<string, string>;
+}
+
+export interface InformeCambioPlan {
+  planActual: { id: number; codigo: string; nombre: string };
+  planDestino: { id: number; codigo: string; nombre: string };
+  periodos: { id: number; año: number; pasa: boolean }[];
+  cuentasPropias: { codigo: string; nombre: string; nuevoCodigo: string | null; problema: string | null }[];
+  cuentasUsadas: {
+    codigo: string;
+    nombre: string;
+    usos: number;
+    destino: string | null;
+    nombreDestino: string | null;
+    problema: string | null;
+  }[];
+  areas: { nombre: string; actual: string | null; nuevo: string | null }[];
+  cuentasAutomaticas: { rol: string; actual: string; nuevo: string | null }[];
+  errores: string[];
+  avisos: string[];
 }
 
 export interface ResumenPlan {
@@ -65,6 +91,17 @@ export const planContableApi = apiSlice.injectEndpoints({
       query: ({ id, ...body }) => ({ url: `/plan-contable/cuentas/${id}`, method: 'PATCH', body }),
       invalidatesTags: [LISTA],
     }),
+    getPlanesContables: b.query<Plan[], void>({
+      query: () => '/plan-contable/planes',
+      providesTags: [LISTA],
+    }),
+    previsualizarCambioPlan: b.mutation<InformeCambioPlan, CambioPlan>({
+      query: (body) => ({ url: '/plan-contable/cambio/previsualizar', method: 'POST', body }),
+    }),
+    cambiarPlanContable: b.mutation<ResumenPlan, CambioPlan>({
+      query: (body) => ({ url: '/plan-contable', method: 'PUT', body }),
+      invalidatesTags: [LISTA, { type: 'Asientos', id: 'LIST' }, { type: 'Periodos', id: 'LIST' }],
+    }),
   }),
 });
 
@@ -75,4 +112,7 @@ export const {
   useLazyGetCuentaContableQuery,
   useCrearSubcuentaContableMutation,
   useActualizarSubcuentaContableMutation,
+  useGetPlanesContablesQuery,
+  usePrevisualizarCambioPlanMutation,
+  useCambiarPlanContableMutation,
 } = planContableApi;
