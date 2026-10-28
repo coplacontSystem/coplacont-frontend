@@ -2,170 +2,127 @@ import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LuArrowLeft,
+  LuArrowRight,
   LuCircleAlert,
   LuCircleCheck,
-  LuFileCode,
-  LuInfo,
+  LuCircleDashed,
+  LuCircleSlash,
   LuTriangleAlert,
   LuUpload,
-  LuX,
 } from 'react-icons/lu';
 import { ToastProvider, Switch } from '@/domains/settings/pages/Configuracion/ui';
 import { cx, useToast } from '@/domains/settings/pages/Configuracion/util';
 import { useGetCategoriesQuery, useGetProductsQuery, useGetWarehousesQuery } from '@/domains/maintainers/api';
 import { MAIN_ROUTES, TRANSACTIONS_ROUTES } from '@/router';
-import { CuentaSelector, type CuentaElegida } from '../manualJournalEntries/CuentaSelector';
 import { erroresDe } from '../manualJournalEntries/asientosApi';
 import { importe } from '../manualJournalEntries/formato';
 import {
   aBase64,
   useGetAreasContablesQuery,
   usePrevisualizarXmlMutation,
-  useRegistrarXmlMutation,
+  useRegistrarComprobanteMutation,
   type ArchivoPrevio,
   type ArchivoXml,
-  type LineaPrevia,
-  type ResolucionLinea,
-  type ResultadoRegistro,
+  type LineaManual,
 } from './importacionApi';
+import {
+  claveDecision,
+  claveItem,
+  cuadreManual,
+  decisionInicial,
+  destinoPayload,
+  faltaLinea,
+  lineasIniciales,
+  numero,
+  pendiente,
+  TIPO,
+  type Decision,
+  type LineaEscrita,
+} from './decision';
+import { DetalleManual, FilaXml } from './Lineas';
+import type { Catalogos } from './SelectorDestino';
 import base from '../manualJournalEntries/Asientos.module.scss';
 import styles from './ImportarXml.module.scss';
 
-/** Qué es una línea del XML. Se decide una vez por emisor y artículo. */
-interface Decision {
-  tipo: 'producto' | 'servicio';
-  modo: 'existente' | 'nuevo';
-  idProducto: number | null;
-  factor: string;
-  nombre: string;
-  idCategoria: number | null;
-  unidad: string;
-  cuenta: CuentaElegida | null;
-  idArea: number | null;
-  origen: string | null;
-  /** Las sugerencias por nombre parecido se confirman a mano */
-  confirmada: boolean;
-}
+type Estado =
+  | { tipo: 'pendiente' }
+  | { tipo: 'registrado'; correlativo?: string }
+  | { tipo: 'saltado' }
+  | { tipo: 'error'; mensaje: string };
 
-const TIPO: Record<string, string> = {
-  '01': 'Factura',
-  '03': 'Boleta',
-  '07': 'Nota de crédito',
-  '08': 'Nota de débito',
-};
-
-const UNIDAD: Record<string, string> = {
-  NIU: 'unidad',
-  KGM: 'kg',
-  GRM: 'gramo',
-  BX: 'caja',
-  PK: 'paquete',
-  DZN: 'docena',
-  LTR: 'litro',
-  GLL: 'galón',
-  MTR: 'metro',
-  TNE: 'tonelada',
-};
-
-const ORIGEN: Record<string, string> = {
-  equivalencia: 'Recordado',
-  codigo: 'Por código',
-  gtin: 'Por código de barras',
-  nombre: 'Nombre parecido: confírmalo',
-};
-
-const claveDe = (a: ArchivoPrevio, l: LineaPrevia) => `${a.documento?.emisor.numeroDocumento}|${l.clave}`;
-
-/** Unidad legible para un producto nuevo */
-const unidadDe = (u: string) => UNIDAD[u] ?? 'unidad';
-
-function decisionInicial(l: LineaPrevia): Decision {
-  const d: Decision = {
-    tipo: l.unidad === 'ZZ' ? 'servicio' : 'producto',
-    modo: 'existente',
-    idProducto: null,
-    factor: '1',
-    nombre: l.descripcion.slice(0, 255),
-    idCategoria: null,
-    unidad: unidadDe(l.unidad),
-    cuenta: null,
-    idArea: null,
-    origen: null,
-    confirmada: true,
-  };
-  const s = l.sugerencia;
-  if (s?.tipo === 'producto') {
-    return { ...d, tipo: 'producto', idProducto: s.idProducto, factor: String(s.factor), origen: s.origen, confirmada: s.segura };
-  }
-  if (s?.tipo === 'servicio') {
-    return { ...d, tipo: 'servicio', cuenta: { codigo: s.codigoCuenta, nombre: '' }, idArea: s.idArea, origen: s.origen };
-  }
-  return d;
-}
-
-function pendiente(d: Decision | undefined): string {
-  if (!d) return 'Decide qué es';
-  if (d.tipo === 'servicio') return d.cuenta ? '' : 'Elige la cuenta';
-  if (!(Number(d.factor) > 0)) return 'Factor inválido';
-  if (d.modo === 'nuevo') {
-    if (d.nombre.trim().length < 3) return 'Nombre del producto';
-    if (!d.idCategoria) return 'Elige la categoría';
-    return '';
-  }
-  if (!d.idProducto) return 'Elige el producto';
-  return d.confirmada ? '' : 'Confirma la sugerencia';
-}
+const ACEPTA = '.xml,.txt,text/xml,application/xml,text/plain';
+const MAXIMO = 200;
 
 export const ImportarXmlPage: React.FC<{ desde: 'compras' | 'ventas' }> = ({ desde }) => (
   <ToastProvider>
-    <ImportarXml desde={desde} />
+    <Importar desde={desde} />
   </ToastProvider>
 );
 
-const ImportarXml: React.FC<{ desde: 'compras' | 'ventas' }> = ({ desde }) => {
+/**
+ * Carga de comprobantes en cola: se suben XML o TXT de SIRE y se registran
+ * uno por uno. En cada uno el usuario elige los productos o el gasto de
+ * cada línea (o escribe el detalle si el archivo no lo trae) y lo registra.
+ */
+const Importar: React.FC<{ desde: 'compras' | 'ventas' }> = ({ desde }) => {
   const navigate = useNavigate();
   const toast = useToast();
   const volver = `${MAIN_ROUTES.TRANSACTIONS}${desde === 'compras' ? TRANSACTIONS_ROUTES.PURCHASES : TRANSACTIONS_ROUTES.SALES}`;
 
   const [previsualizar, { isLoading: leyendo }] = usePrevisualizarXmlMutation();
-  const [registrarXml, { isLoading: registrando }] = useRegistrarXmlMutation();
+  const [registrarComprobante, { isLoading: registrando }] = useRegistrarComprobanteMutation();
   const productos = useGetProductsQuery();
   const categorias = useGetCategoriesQuery();
   const almacenes = useGetWarehousesQuery();
   const areas = useGetAreasContablesQuery();
 
-  const [archivos, setArchivos] = useState<ArchivoXml[]>([]);
-  const [previa, setPrevia] = useState<ArchivoPrevio[] | null>(null);
+  const [archivos, setArchivos] = useState<Record<string, ArchivoXml>>({});
+  const [cola, setCola] = useState<ArchivoPrevio[] | null>(null);
+  const [actual, setActual] = useState(0);
+  const [estados, setEstados] = useState<Record<string, Estado>>({});
   const [decisiones, setDecisiones] = useState<Record<string, Decision>>({});
-  const [incluidos, setIncluidos] = useState<Set<number>>(new Set());
-  const [tiposCambio, setTiposCambio] = useState<Record<number, string>>({});
+  const [manuales, setManuales] = useState<Record<string, LineaEscrita[]>>({});
+  const [sinDetalle, setSinDetalle] = useState<Record<string, boolean>>({});
+  const [tiposCambio, setTiposCambio] = useState<Record<string, string>>({});
   const [idAlmacen, setIdAlmacen] = useState<number | null>(null);
   const [recordar, setRecordar] = useState(true);
-  const [resultados, setResultados] = useState<ResultadoRegistro[] | null>(null);
+  const [intentado, setIntentado] = useState(false);
   const [errores, setErrores] = useState<string[]>([]);
   const [arrastrando, setArrastrando] = useState(false);
   const entrada = useRef<HTMLInputElement>(null);
 
-  const listaProductos = useMemo(
-    () => (productos.data ?? []).filter((p) => p.tipo === 'producto' && p.estado),
-    [productos.data],
+  const catalogos: Catalogos = useMemo(
+    () => ({
+      productos: (productos.data ?? []).filter((p) => p.tipo === 'producto' && p.estado),
+      categorias: (categorias.data ?? []).filter((c) => c.tipo === 'producto' && c.estado),
+      areas: (areas.data ?? []).filter((a) => a.activa),
+    }),
+    [productos.data, categorias.data, areas.data],
   );
-  const categoriasProducto = (categorias.data ?? []).filter((c) => c.tipo === 'producto' && c.estado);
-  const areasActivas = (areas.data ?? []).filter((a) => a.activa);
 
-  const leer = async (lista: ArchivoXml[]) => {
+  const agregar = async (files: FileList | null) => {
+    const elegidos = Array.from(files ?? []).filter((f) => /\.(xml|txt)$/i.test(f.name));
     setErrores([]);
-    setResultados(null);
+    if (!elegidos.length) return setErrores(['Elige archivos .xml (comprobantes) o .txt (propuestas de SIRE).']);
+    if (elegidos.length > MAXIMO) return setErrores([`Puedes subir hasta ${MAXIMO} archivos por carga.`]);
+    const lista = await Promise.all(elegidos.map(async (f) => ({ nombre: f.name, contenido: await aBase64(f) })));
     try {
       const r = await previsualizar({ archivos: lista }).unwrap();
-      setArchivos(lista);
-      setPrevia(r);
-      setIncluidos(new Set(r.flatMap((a, i) => (a.valido ? [i] : []))));
-      setTiposCambio(Object.fromEntries(r.flatMap((a, i) => (a.tipoCambio ? [[i, String(a.tipoCambio)]] : []))));
-      // Lo ya decidido en esta sesión se respeta; lo nuevo parte de la sugerencia
+      setArchivos(Object.fromEntries(lista.map((a) => [a.nombre, a])));
+      setCola(r);
+      setActual(Math.max(0, r.findIndex((a) => a.valido)));
+      setEstados({});
+      setIntentado(false);
+      setTiposCambio(Object.fromEntries(r.flatMap((a) => (a.tipoCambio ? [[claveItem(a), String(a.tipoCambio)]] : []))));
+      setManuales(
+        Object.fromEntries(
+          r.filter((a) => !a.conDetalle && a.documento).map((a) => [claveItem(a), lineasIniciales(a.documento!.totales)]),
+        ),
+      );
+      setSinDetalle({});
       setDecisiones((prev) => {
         const sig = { ...prev };
-        for (const a of r) for (const l of a.lineas) sig[claveDe(a, l)] ??= decisionInicial(l);
+        for (const a of r) for (const l of a.lineas) sig[claveDecision(a, l)] ??= decisionInicial(l);
         return sig;
       });
     } catch (e) {
@@ -173,265 +130,423 @@ const ImportarXml: React.FC<{ desde: 'compras' | 'ventas' }> = ({ desde }) => {
     }
   };
 
-  const agregar = async (files: FileList | null) => {
-    const xml = Array.from(files ?? []).filter((f) => /\.xml$/i.test(f.name));
-    if (!xml.length) {
-      setErrores(['Elige archivos .xml de comprobantes electrónicos.']);
-      return;
-    }
-    if (xml.length > 200) {
-      setErrores(['Puedes subir hasta 200 XML por carga.']);
-      return;
-    }
-    const nuevos = await Promise.all(xml.map(async (f) => ({ nombre: f.name, contenido: await aBase64(f) })));
-    await leer(nuevos);
-  };
-
-  const cambiar = (clave: string, cambio: Partial<Decision>) =>
-    setDecisiones((ds) => ({ ...ds, [clave]: { ...ds[clave], ...cambio } }));
-
-  const elegidos = (previa ?? []).map((a, i) => ({ a, i })).filter(({ i }) => incluidos.has(i));
-  const pendientes = elegidos.reduce(
-    (n, { a }) => n + a.lineas.filter((l) => pendiente(decisiones[claveDe(a, l)])).length,
-    0,
-  );
-  const faltaTc = elegidos.filter(({ a, i }) => a.documento?.moneda === 'USD' && !(Number(tiposCambio[i]) > 0));
-  const hayProductos = elegidos.some(({ a }) =>
-    a.lineas.some((l) => decisiones[claveDe(a, l)]?.tipo === 'producto'),
-  );
-  const faltaAlmacen = hayProductos && !idAlmacen;
-  const listo = elegidos.length > 0 && pendientes === 0 && faltaTc.length === 0 && !faltaAlmacen;
-
-  const registrar = async () => {
-    if (!previa || !listo) return;
-    setErrores([]);
-    const payload = elegidos.map(({ a, i }) => ({
-      ...archivos[i],
-      tipoCambio: a.documento?.moneda === 'USD' ? Number(tiposCambio[i]) : undefined,
-      lineas: a.lineas.map((l): ResolucionLinea => {
-        const d = decisiones[claveDe(a, l)];
-        if (d.tipo === 'servicio') {
-          return { orden: l.orden, tipo: 'servicio', codigoCuenta: d.cuenta!.codigo, idArea: d.idArea ?? undefined, recordar };
-        }
-        return {
-          orden: l.orden,
-          tipo: 'producto',
-          factor: Number(d.factor),
-          recordar,
-          ...(d.modo === 'nuevo'
-            ? { nuevoProducto: { nombre: d.nombre.trim(), idCategoria: d.idCategoria!, unidadMedida: d.unidad } }
-            : { idProducto: d.idProducto! }),
-        };
-      }),
-    }));
-    try {
-      const r = await registrarXml({ idAlmacen: idAlmacen ?? undefined, archivos: payload }).unwrap();
-      setResultados(r);
-      const ok = r.filter((x) => x.ok).length;
-      toast(`${ok} de ${r.length} comprobantes registrados`);
-    } catch (e) {
-      setErrores(erroresDe(e));
-    }
-  };
-
   const reiniciar = () => {
-    setArchivos([]);
-    setPrevia(null);
-    setResultados(null);
+    setCola(null);
+    setArchivos({});
     setErrores([]);
   };
 
-  /* ---------- Resultado ---------- */
-  if (resultados) {
-    const fallidos = resultados.filter((r) => !r.ok);
+  /* ---------- Sin cola: subir archivos ---------- */
+  if (!cola) {
     return (
       <div className={base.pagina}>
         <Encabezado volver={() => navigate(volver)} desde={desde} />
-        <section className={cx(base.card, styles.resultado)}>
-          <span className={base.cardTitle}>
-            {resultados.length - fallidos.length} de {resultados.length} comprobantes registrados
-          </span>
-          <ul className={styles.listaResultado}>
-            {resultados.map((r) => (
-              <li key={r.nombre} className={r.ok ? styles.ok : styles.mal}>
-                {r.ok ? <LuCircleCheck /> : <LuCircleAlert />}
-                <b>{r.serieNumero ?? r.nombre}</b>
-                <span>{r.ok ? `Registrado como ${r.correlativo}` : r.error}</span>
-              </li>
-            ))}
-          </ul>
-          <div className={base.botonesFin}>
-            {fallidos.length > 0 && (
-              <button
-                type="button"
-                className={base.btnSecondary}
-                onClick={() => void leer(archivos.filter((f) => fallidos.some((x) => x.nombre === f.nombre)))}
-              >
-                Revisar los que fallaron
-              </button>
-            )}
-            <button type="button" className={base.btnSecondary} onClick={reiniciar}>
-              Cargar más XML
-            </button>
-            <button type="button" className={base.btnPrimary} onClick={() => navigate(volver)}>
-              Ver {desde}
-            </button>
+        <section
+          className={cx(base.card, styles.zona, arrastrando && styles.zonaActiva)}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setArrastrando(true);
+          }}
+          onDragLeave={() => setArrastrando(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setArrastrando(false);
+            void agregar(e.dataTransfer.files);
+          }}
+        >
+          <LuUpload className={styles.zonaIcono} />
+          <div className={styles.zonaTexto}>
+            <b>Arrastra aquí tus XML o el TXT de SIRE</b>
+            <span>
+              XML de facturas, boletas y notas, o la propuesta del Registro de Ventas o de Compras exportada de SIRE.
+              Compras y ventas se reconocen por tu RUC.
+            </span>
           </div>
+          <button type="button" className={base.btnSecondary} disabled={leyendo} onClick={() => entrada.current?.click()}>
+            {leyendo ? 'Leyendo…' : 'Elegir archivos'}
+          </button>
+          <input
+            ref={entrada}
+            type="file"
+            accept={ACEPTA}
+            multiple
+            hidden
+            onChange={(e) => {
+              void agregar(e.target.files);
+              e.target.value = '';
+            }}
+          />
         </section>
+        <Alertas errores={errores} />
       </div>
     );
   }
+
+  const estadoDe = (a: ArchivoPrevio): Estado => estados[claveItem(a)] ?? { tipo: 'pendiente' };
+  const porRegistrar = (a: ArchivoPrevio) => a.valido && ['pendiente', 'error'].includes(estadoDe(a).tipo);
+  const cuenta = (t: Estado['tipo']) => cola.filter((a) => a.valido && estadoDe(a).tipo === t).length;
+  const noValidos = cola.filter((a) => !a.valido).length;
+  const quedan = cola.filter(porRegistrar).length;
+
+  const item = cola[actual];
+  const k = claveItem(item);
+  const doc = item.documento;
+  const estado = estadoDe(item);
+  const editable = item.valido && estado.tipo !== 'registrado';
+  const sinDet = !!sinDetalle[k];
+  const escritas = manuales[k] ?? [];
+
+  // Qué falta para registrar el actual
+  const faltas: string[] = [];
+  if (editable) {
+    const lineasPendientes = item.conDetalle
+      ? item.lineas.filter((l) => pendiente(decisiones[claveDecision(item, l)])).length
+      : sinDet
+        ? 0
+        : escritas.filter((l) => faltaLinea(l)).length;
+    if (lineasPendientes) faltas.push(`${lineasPendientes} línea(s) por completar`);
+    if (!item.conDetalle && !sinDet && doc) {
+      if (!escritas.length) faltas.push('Agrega el detalle o regístralo sin detalle');
+      else if (cuadreManual(escritas, doc.totales).some((c) => !c.ok)) faltas.push('Las bases no cuadran con el registro');
+    }
+    if (doc?.moneda === 'USD' && !(Number(tiposCambio[k]) > 0)) faltas.push('Falta el tipo de cambio');
+    const hayProductos = item.conDetalle
+      ? item.lineas.some((l) => decisiones[claveDecision(item, l)]?.tipo === 'producto')
+      : !sinDet && escritas.some((l) => l.tipo === 'producto');
+    if (hayProductos && !idAlmacen) faltas.push('Elige el almacén');
+  }
+
+  const irA = (i: number) => {
+    setActual(i);
+    setIntentado(false);
+    setErrores([]);
+  };
+  const siguientePendiente = () => {
+    const resto = [...cola.slice(actual + 1), ...cola.slice(0, actual + 1)];
+    const sig = resto.find((a) => a !== item && porRegistrar(a));
+    if (sig) irA(cola.indexOf(sig));
+  };
+
+  const registrar = async () => {
+    setIntentado(true);
+    setErrores([]);
+    if (faltas.length || !doc) return;
+    const lineasManuales: LineaManual[] = escritas.map((l) => ({
+      ...destinoPayload(l),
+      cantidad: Number(l.cantidad),
+      valor: Number(l.valor),
+      afectacionIgv: l.afectacion,
+    }));
+    try {
+      const r = await registrarComprobante({
+        archivo: archivos[item.nombre],
+        indice: item.indice,
+        idAlmacen: idAlmacen ?? undefined,
+        tipoCambio: doc.moneda === 'USD' ? Number(tiposCambio[k]) : undefined,
+        ...(item.conDetalle
+          ? {
+              lineas: item.lineas.map((l) => {
+                const d = decisiones[claveDecision(item, l)];
+                return {
+                  orden: l.orden,
+                  ...destinoPayload(d),
+                  ...(d.tipo === 'producto' && { factor: Number(d.factor) }),
+                  recordar,
+                };
+              }),
+            }
+          : sinDet
+            ? { sinDetalle: true }
+            : { lineasManuales }),
+      }).unwrap();
+      setEstados((e) => ({ ...e, [k]: { tipo: 'registrado', correlativo: r.correlativo } }));
+      toast(`${TIPO[doc.tipoComprobante]} ${doc.serie}-${doc.numero} registrada`);
+      siguientePendiente();
+    } catch (e) {
+      const mensaje = erroresDe(e).join('. ');
+      setEstados((s) => ({ ...s, [k]: { tipo: 'error', mensaje } }));
+      setErrores([mensaje]);
+    }
+  };
+
+  const saltar = () => {
+    setEstados((e) => ({ ...e, [k]: { tipo: 'saltado' } }));
+    siguientePendiente();
+  };
 
   return (
     <div className={base.pagina}>
       <Encabezado volver={() => navigate(volver)} desde={desde} />
 
-      {/* ---------- Subida ---------- */}
-      <section
-        className={cx(base.card, styles.zona, arrastrando && styles.zonaActiva, previa && styles.zonaCompacta)}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setArrastrando(true);
-        }}
-        onDragLeave={() => setArrastrando(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setArrastrando(false);
-          void agregar(e.dataTransfer.files);
-        }}
-      >
-        <LuUpload className={styles.zonaIcono} />
-        <div className={styles.zonaTexto}>
-          <b>{previa ? `${previa.length} archivos leídos` : 'Arrastra aquí los XML de tus facturas, boletas y notas'}</b>
-          <span>
-            Compras y ventas se reconocen por tu RUC. Las notas de crédito y débito se registran después de su
-            comprobante.
-          </span>
+      {/* ---------- Opciones y avance ---------- */}
+      <section className={cx(base.card, styles.opciones)}>
+        <label className={base.campo}>
+          <span>Almacén de la carga</span>
+          <select
+            className={cx(base.input, intentado && faltas.includes('Elige el almacén') && base.inputError)}
+            value={idAlmacen ?? ''}
+            onChange={(e) => setIdAlmacen(e.target.value ? Number(e.target.value) : null)}
+          >
+            <option value="">Elegir almacén</option>
+            {(almacenes.data ?? [])
+              .filter((a) => a.estado !== false)
+              .map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.nombre}
+                </option>
+              ))}
+          </select>
+          <span className={base.hint}>Las líneas de producto entran o salen de este almacén.</span>
+        </label>
+        <div className={styles.recordar}>
+          <div className={styles.recordarFila}>
+            <Switch on={recordar} label="Recordar mis decisiones" onChange={setRecordar} />
+            <b>Recordar mis decisiones</b>
+          </div>
+          <span className={base.hint}>En los XML, el mismo artículo del mismo emisor se completa solo la próxima vez.</span>
         </div>
-        <button type="button" className={base.btnSecondary} disabled={leyendo} onClick={() => entrada.current?.click()}>
-          {leyendo ? 'Leyendo…' : previa ? 'Cambiar archivos' : 'Elegir archivos'}
-        </button>
-        <input
-          ref={entrada}
-          type="file"
-          accept=".xml,text/xml,application/xml"
-          multiple
-          hidden
-          onChange={(e) => {
-            void agregar(e.target.files);
-            e.target.value = '';
-          }}
-        />
+        <div className={styles.avance}>
+          <span>
+            <b>{cuenta('registrado')}</b> registrados
+          </span>
+          <span>
+            <b>{cuenta('saltado')}</b> saltados
+          </span>
+          <span>
+            <b>{quedan}</b> por registrar
+          </span>
+          {noValidos > 0 && (
+            <span>
+              <b>{noValidos}</b> no se pueden registrar
+            </span>
+          )}
+          <button type="button" className={base.btnLink} onClick={reiniciar}>
+            Cargar otros archivos
+          </button>
+        </div>
       </section>
 
-      {errores.length > 0 && (
-        <div role="alert" className={base.alertaError}>
-          <LuCircleAlert />
-          <ul>
-            {errores.map((e) => (
-              <li key={e}>{e}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <div className={styles.colaLayout}>
+        {/* ---------- Cola ---------- */}
+        <nav className={cx(base.card, styles.cola)} aria-label="Comprobantes de la carga">
+          <ol>
+            {cola.map((a, i) => {
+              const e = estadoDe(a);
+              const d = a.documento;
+              return (
+                <li key={claveItem(a)}>
+                  <button
+                    type="button"
+                    className={cx(styles.colaItem, i === actual && styles.colaItemActual)}
+                    aria-current={i === actual}
+                    onClick={() => irA(i)}
+                  >
+                    <IconoEstado valido={a.valido} estado={e} />
+                    <span className={styles.colaTexto}>
+                      <b>{d ? `${TIPO[d.tipoComprobante]} ${d.serie}-${d.numero}` : a.nombre}</b>
+                      <span>
+                        {a.contraparte?.razonSocial ?? (a.origen === 'txt' ? `Fila ${a.indice}` : a.nombre)}
+                      </span>
+                    </span>
+                    {d && (
+                      <span className={styles.colaMonto}>
+                        {d.moneda === 'USD' ? 'US$' : 'S/'} {importe(d.totales.total)}
+                      </span>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </nav>
 
-      {previa && (
-        <>
-          {/* ---------- Opciones de la carga ---------- */}
-          <section className={cx(base.card, styles.opciones)}>
-            <label className={base.campo}>
-              <span>Almacén de la carga</span>
-              <select
-                className={cx(base.input, faltaAlmacen && base.inputError)}
-                value={idAlmacen ?? ''}
-                onChange={(e) => setIdAlmacen(e.target.value ? Number(e.target.value) : null)}
-              >
-                <option value="">Elegir almacén</option>
-                {(almacenes.data ?? [])
-                  .filter((a) => a.estado !== false)
-                  .map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.nombre}
-                    </option>
-                  ))}
-              </select>
-              <span className={base.hint}>Las líneas de producto entran o salen de este almacén.</span>
-            </label>
-            <div className={styles.recordar}>
-              <div className={styles.recordarFila}>
-                <Switch on={recordar} label="Recordar mis decisiones" onChange={setRecordar} />
-                <b>Recordar mis decisiones</b>
+        {/* ---------- Comprobante actual ---------- */}
+        <div className={styles.actual}>
+          <section className={cx(base.card, styles.archivo)}>
+            <div className={styles.archivoCab}>
+              <div className={styles.archivoTitulo}>
+                <span className={styles.posicion}>
+                  {actual + 1} de {cola.length} · {item.origen === 'txt' ? `${item.nombre}, fila ${item.indice}` : item.nombre}
+                </span>
+                <b>{doc ? `${TIPO[doc.tipoComprobante]} ${doc.serie}-${doc.numero}` : 'No se pudo leer'}</b>
+                {doc && item.contraparte && (
+                  <span>
+                    {item.contraparte.razonSocial}
+                    {item.contraparte.numeroDocumento && ` · ${item.contraparte.numeroDocumento}`} · {doc.fechaEmision}
+                  </span>
+                )}
               </div>
-              <span className={base.hint}>
-                La próxima vez que llegue el mismo artículo del mismo emisor se completa solo.
-              </span>
+              {item.operacion && (
+                <span className={cx(base.badge, item.operacion === 'compra' ? base.tonoNeutral : base.tonoSuccess)}>
+                  {item.operacion === 'compra' ? 'Compra' : 'Venta'}
+                </span>
+              )}
+              {doc && (
+                <b className={styles.archivoTotal}>
+                  {doc.moneda === 'USD' ? 'US$ ' : 'S/ '}
+                  {importe(doc.totales.total)}
+                </b>
+              )}
             </div>
+
+            {doc && (
+              <dl className={styles.importes}>
+                {doc.totales.gravada > 0 && <Importe etiqueta="Gravada" valor={doc.totales.gravada} />}
+                {doc.totales.exonerada > 0 && <Importe etiqueta="Exonerada" valor={doc.totales.exonerada} />}
+                {doc.totales.inafecta > 0 && <Importe etiqueta="Inafecta" valor={doc.totales.inafecta} />}
+                <Importe etiqueta="IGV" valor={doc.totales.igv} />
+                {doc.totales.isc > 0 && <Importe etiqueta="ISC" valor={doc.totales.isc} />}
+                {item.afectado && <Importe etiqueta="Modifica a" texto={item.afectado.serieNumero} />}
+                {doc.fechaVencimiento && <Importe etiqueta="Vence" texto={doc.fechaVencimiento} />}
+              </dl>
+            )}
+
+            {estado.tipo === 'registrado' && (
+              <div className={cx(styles.mensajeEstado, styles.msgOk)}>
+                <LuCircleCheck /> Registrado{estado.correlativo ? ` como ${estado.correlativo}` : ''}.
+              </div>
+            )}
+            {(item.errores.length > 0 || item.avisos.length > 0) && (
+              <ul className={styles.mensajes}>
+                {item.errores.map((m) => (
+                  <li key={m} className={styles.msgError}>
+                    <LuCircleAlert /> {m}
+                  </li>
+                ))}
+                {item.avisos
+                  .filter((m) => !(item.origen === 'txt' && /no trae el detalle/.test(m)))
+                  .map((m) => (
+                    <li key={m} className={styles.msgAviso}>
+                      <LuTriangleAlert /> {m}
+                    </li>
+                  ))}
+              </ul>
+            )}
+
+            {editable && doc?.moneda === 'USD' && (
+              <label className={cx(base.campo, styles.tc)}>
+                <span>Tipo de cambio del {doc.fechaEmision}</span>
+                <input
+                  className={cx(base.input, base.inputImporte, intentado && !(Number(tiposCambio[k]) > 0) && base.inputError)}
+                  inputMode="decimal"
+                  placeholder="3.750"
+                  value={tiposCambio[k] ?? ''}
+                  onChange={(e) => setTiposCambio((t) => ({ ...t, [k]: numero(e.target.value) }))}
+                />
+              </label>
+            )}
           </section>
 
-          {/* ---------- Archivos ---------- */}
-          {previa.map((a, i) => (
-            <TarjetaArchivo
-              key={`${a.nombre}-${i}`}
-              archivo={a}
-              incluido={incluidos.has(i)}
-              onIncluir={(v) =>
-                setIncluidos((s) => {
-                  const n = new Set(s);
-                  if (v) n.add(i);
-                  else n.delete(i);
-                  return n;
-                })
-              }
-              tipoCambio={tiposCambio[i] ?? ''}
-              onTipoCambio={(v) => setTiposCambio((t) => ({ ...t, [i]: v }))}
-            >
-              {a.lineas.map((l) => {
-                const k = claveDe(a, l);
-                return (
-                  <FilaLinea
-                    key={l.orden}
-                    linea={l}
-                    moneda={a.documento?.moneda ?? 'PEN'}
-                    decision={decisiones[k]}
-                    marcar={incluidos.has(i)}
-                    productos={listaProductos}
-                    categorias={categoriasProducto}
-                    areas={areasActivas}
-                    onChange={(c) => cambiar(k, c)}
+          {editable && doc && (
+            <section className={cx(base.card, styles.archivo)}>
+              <div className={styles.detalleCab}>
+                <div>
+                  <span className={base.cardTitle}>Detalle</span>
+                  <span className={base.cardSub}>
+                    {item.conDetalle
+                      ? 'Elige a qué producto o gasto va cada línea del XML.'
+                      : 'El TXT no trae el detalle: escríbelo o registra solo los totales (no mueve inventario).'}
+                  </span>
+                </div>
+                {!item.conDetalle && (
+                  <div className={base.segmento} role="group" aria-label="Cómo registrar">
+                    <button type="button" className={cx(!sinDet && base.segmentoOn)} onClick={() => setSinDetalle((s) => ({ ...s, [k]: false }))}>
+                      Con detalle
+                    </button>
+                    <button type="button" className={cx(sinDet && base.segmentoOn)} onClick={() => setSinDetalle((s) => ({ ...s, [k]: true }))}>
+                      Solo totales
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className={styles.lineas}>
+                {item.conDetalle ? (
+                  item.lineas.map((l) => {
+                    const dk = claveDecision(item, l);
+                    return (
+                      <FilaXml
+                        key={l.orden}
+                        linea={l}
+                        moneda={doc.moneda}
+                        decision={decisiones[dk]}
+                        marcar={intentado}
+                        catalogos={catalogos}
+                        onChange={(c) => setDecisiones((ds) => ({ ...ds, [dk]: { ...ds[dk], ...c } }))}
+                      />
+                    );
+                  })
+                ) : sinDet ? (
+                  <p className={styles.soloTotales}>
+                    Se registrará con las bases, el IGV y el total del registro. No mueve inventario ni kardex.
+                  </p>
+                ) : (
+                  <DetalleManual
+                    lineas={escritas}
+                    totales={doc.totales}
+                    moneda={doc.moneda}
+                    marcar={intentado}
+                    catalogos={catalogos}
+                    onChange={(ls) => setManuales((m) => ({ ...m, [k]: ls }))}
                   />
-                );
-              })}
-            </TarjetaArchivo>
-          ))}
+                )}
+              </div>
+            </section>
+          )}
+
+          <Alertas errores={errores} />
 
           <div className={base.barraGuardar}>
             <span className={base.barraTexto}>
-              {elegidos.length === 0
-                ? 'No hay comprobantes para registrar.'
-                : faltaAlmacen
-                  ? 'Elige el almacén de la carga.'
-                  : faltaTc.length
-                    ? `Falta el tipo de cambio en ${faltaTc.length} comprobante(s) en dólares.`
-                    : pendientes
-                      ? `${pendientes} línea(s) por resolver.`
-                      : `${elegidos.length} comprobante(s) listos.`}
+              {quedan === 0
+                ? `Listo: ${cuenta('registrado')} registrados, ${cuenta('saltado')} saltados.`
+                : !editable
+                  ? estado.tipo === 'registrado'
+                    ? 'Ya registrado.'
+                    : 'Este comprobante no se puede registrar.'
+                  : intentado && faltas.length
+                    ? faltas.join(' · ')
+                    : `${quedan} por registrar`}
             </span>
+            {/* botonesFin va en orden inverso: el primero queda a la derecha */}
             <div className={base.botonesFin}>
+              {quedan === 0 ? (
+                <button type="button" className={base.btnPrimary} onClick={() => navigate(volver)}>
+                  Ver {desde}
+                </button>
+              ) : (
+                editable && (
+                  <>
+                    <button type="button" className={base.btnPrimary} disabled={registrando} onClick={() => void registrar()}>
+                      <LuCircleCheck /> {registrando ? 'Registrando…' : 'Registrar'}
+                    </button>
+                    <button type="button" className={base.btnSecondary} onClick={saltar}>
+                      Saltar
+                    </button>
+                  </>
+                )
+              )}
               <button
                 type="button"
-                className={base.btnPrimary}
-                disabled={!listo || registrando}
-                onClick={() => void registrar()}
+                className={base.btnSecondary}
+                disabled={actual === cola.length - 1}
+                onClick={() => irA(actual + 1)}
+                aria-label="Siguiente"
               >
-                {registrando ? 'Registrando…' : `Registrar ${elegidos.length}`}
+                <LuArrowRight />
               </button>
-              <button type="button" className={base.btnSecondary} onClick={reiniciar}>
-                Cancelar
+              <button
+                type="button"
+                className={base.btnSecondary}
+                disabled={actual === 0}
+                onClick={() => irA(actual - 1)}
+                aria-label="Anterior"
+              >
+                <LuArrowLeft />
               </button>
             </div>
           </div>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -442,262 +557,37 @@ const Encabezado: React.FC<{ volver: () => void; desde: 'compras' | 'ventas' }> 
       <button type="button" className={base.volver} onClick={volver}>
         <LuArrowLeft /> {desde === 'compras' ? 'Compras' : 'Ventas'}
       </button>
-      <h1 className={base.titulo}>Cargar XML</h1>
+      <h1 className={base.titulo}>Cargar comprobantes</h1>
       <span className={base.subtitulo}>
-        Registra de una vez los comprobantes electrónicos (UBL 2.1 de SUNAT). Revisa cada uno antes de registrar.
+        Sube XML o el TXT de SIRE y regístralos uno por uno: revisa cada comprobante, completa su detalle y regístralo.
       </span>
     </div>
   </div>
 );
 
-const TarjetaArchivo: React.FC<{
-  archivo: ArchivoPrevio;
-  incluido: boolean;
-  onIncluir: (v: boolean) => void;
-  tipoCambio: string;
-  onTipoCambio: (v: string) => void;
-  children: React.ReactNode;
-}> = ({ archivo: a, incluido, onIncluir, tipoCambio, onTipoCambio, children }) => {
-  const d = a.documento;
-  return (
-    <section className={cx(base.card, styles.archivo, !incluido && styles.archivoFuera)}>
-      <div className={styles.archivoCab}>
-        <LuFileCode className={styles.archivoIcono} />
-        <div className={styles.archivoTitulo}>
-          <b>{d ? `${TIPO[d.tipoComprobante]} ${d.serie}-${d.numero}` : a.nombre}</b>
-          {d && a.contraparte && (
-            <span>
-              {a.contraparte.razonSocial} · {a.contraparte.numeroDocumento} · {d.fechaEmision}
-            </span>
-          )}
-        </div>
-        {a.operacion && (
-          <span className={cx(base.badge, a.operacion === 'compra' ? base.tonoNeutral : base.tonoSuccess)}>
-            {a.operacion === 'compra' ? 'Compra' : 'Venta'}
-          </span>
-        )}
-        {d && (
-          <b className={styles.archivoTotal}>
-            {d.moneda === 'USD' ? 'US$ ' : 'S/ '}
-            {importe(d.totales.total)}
-          </b>
-        )}
-        {a.valido && <Switch on={incluido} label="Incluir en la carga" onChange={onIncluir} />}
-      </div>
-
-      {(a.errores.length > 0 || a.avisos.length > 0) && (
-        <ul className={styles.mensajes}>
-          {a.errores.map((m) => (
-            <li key={m} className={styles.msgError}>
-              <LuCircleAlert /> {m}
-            </li>
-          ))}
-          {a.avisos.map((m) => (
-            <li key={m} className={styles.msgAviso}>
-              <LuTriangleAlert /> {m}
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {a.valido && d?.moneda === 'USD' && (
-        <label className={cx(base.campo, styles.tc)}>
-          <span>Tipo de cambio del {d.fechaEmision}</span>
-          <input
-            className={cx(base.input, base.inputImporte, incluido && !(Number(tipoCambio) > 0) && base.inputError)}
-            inputMode="decimal"
-            placeholder="3.750"
-            value={tipoCambio}
-            onChange={(e) => onTipoCambio(e.target.value.replace(',', '.').replace(/[^\d.]/g, ''))}
-          />
-        </label>
-      )}
-
-      {a.valido && a.lineas.length > 0 && <div className={styles.lineas}>{children}</div>}
-    </section>
-  );
-};
-
-const FilaLinea: React.FC<{
-  linea: LineaPrevia;
-  moneda: string;
-  decision: Decision | undefined;
-  marcar: boolean;
-  productos: { id: number; nombre: string; codigo: string; unidadMedida: string }[];
-  categorias: { id: number; nombre: string }[];
-  areas: { id: number; nombre: string }[];
-  onChange: (c: Partial<Decision>) => void;
-}> = ({ linea: l, moneda, decision: d, marcar, productos, categorias, areas, onChange }) => {
-  const falta = marcar ? pendiente(d) : '';
-  const etiqueta = (p: { codigo: string; nombre: string }) => (p.codigo ? `${p.codigo} · ${p.nombre}` : p.nombre);
-  const elegido = productos.find((p) => p.id === d?.idProducto);
-  const [texto, setTexto] = useState<string | null>(null);
-  const listaId = `productos-${l.clave}`;
-  if (!d) return null;
-  const simbolo = moneda === 'USD' ? 'US$' : 'S/';
-
-  return (
-    <div className={cx(styles.linea, falta && styles.lineaPendiente)}>
-      <div className={styles.lineaXml}>
-        <b>{l.descripcion}</b>
-        <span>
-          {l.cantidad} {l.unidad}
-          {l.codigoVendedor && ` · cód. ${l.codigoVendedor}`} · {simbolo} {importe(l.subtotal + l.igv + l.isc)}
-          {l.gratuita && ' · gratuita'}
-        </span>
-      </div>
-
-      <div className={styles.lineaDecision}>
-        <div className={base.segmento} role="group" aria-label="Tipo de línea">
-          {(['producto', 'servicio'] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              className={cx(d.tipo === t && base.segmentoOn)}
-              onClick={() => onChange({ tipo: t, confirmada: true })}
-            >
-              {t === 'producto' ? 'Producto' : 'Gasto o servicio'}
-            </button>
-          ))}
-        </div>
-
-        {d.tipo === 'producto' ? (
-          <div className={styles.controles}>
-            {d.modo === 'existente' ? (
-              <>
-                <input
-                  className={cx(base.input, styles.crece, falta && !d.idProducto && base.inputError)}
-                  list={listaId}
-                  placeholder="Buscar producto por código o nombre"
-                  value={texto ?? (elegido ? etiqueta(elegido) : '')}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setTexto(v);
-                    const p = productos.find((x) => etiqueta(x) === v);
-                    if (p) {
-                      onChange({ idProducto: p.id, confirmada: true, origen: null });
-                      setTexto(null);
-                    }
-                  }}
-                  onBlur={() => setTexto(null)}
-                />
-                <datalist id={listaId}>
-                  {productos.map((p) => (
-                    <option key={p.id} value={etiqueta(p)} />
-                  ))}
-                </datalist>
-              </>
-            ) : (
-              <>
-                <input
-                  className={cx(base.input, styles.crece)}
-                  value={d.nombre}
-                  maxLength={255}
-                  aria-label="Nombre del producto nuevo"
-                  onChange={(e) => onChange({ nombre: e.target.value })}
-                />
-                <select
-                  className={cx(base.input, styles.medio, falta && !d.idCategoria && base.inputError)}
-                  value={d.idCategoria ?? ''}
-                  aria-label="Categoría"
-                  onChange={(e) => onChange({ idCategoria: e.target.value ? Number(e.target.value) : null })}
-                >
-                  <option value="">Categoría</option>
-                  {categorias.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nombre}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  className={cx(base.input, styles.corto)}
-                  value={d.unidad}
-                  maxLength={50}
-                  aria-label="Unidad del producto"
-                  onChange={(e) => onChange({ unidad: e.target.value })}
-                />
-              </>
-            )}
-            <label className={styles.factor} title="Unidades tuyas por cada unidad del XML">
-              <span>
-                1 {l.unidad} =
-              </span>
-              <input
-                className={cx(base.input, base.inputImporte, styles.mini)}
-                inputMode="decimal"
-                value={d.factor}
-                aria-label="Factor de conversión"
-                onChange={(e) => onChange({ factor: e.target.value.replace(',', '.').replace(/[^\d.]/g, '') })}
-              />
-              <span>{d.modo === 'nuevo' ? d.unidad : (elegido?.unidadMedida ?? 'und.')}</span>
-            </label>
-            <button
-              type="button"
-              className={base.btnLink}
-              onClick={() =>
-                onChange({
-                  modo: d.modo === 'nuevo' ? 'existente' : 'nuevo',
-                  confirmada: true,
-                  idCategoria: d.idCategoria ?? categorias[0]?.id ?? null,
-                })
-              }
-            >
-              {d.modo === 'nuevo' ? 'Elegir existente' : 'Crear producto'}
-            </button>
-          </div>
-        ) : (
-          <div className={styles.controles}>
-            <div className={styles.crece}>
-              <CuentaSelector
-                valor={d.cuenta}
-                error={!!falta && !d.cuenta}
-                onChange={(c) => onChange({ cuenta: c, origen: null })}
-              />
-            </div>
-            <select
-              className={cx(base.input, styles.medio)}
-              value={d.idArea ?? ''}
-              aria-label="Área"
-              onChange={(e) => onChange({ idArea: e.target.value ? Number(e.target.value) : null })}
-            >
-              <option value="">Sin área</option>
-              {areas.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        <div className={styles.estadoLinea}>
-          {d.origen && (
-            <span className={cx(styles.origen, d.confirmada ? styles.origenOk : styles.origenRevisar)}>
-              {d.confirmada ? <LuCircleCheck /> : <LuInfo />}{' '}
-              {d.confirmada && d.origen === 'nombre' ? 'Elegido por nombre parecido' : (ORIGEN[d.origen] ?? d.origen)}
-            </span>
-          )}
-          {!d.confirmada && (
-            <>
-              <button type="button" className={base.btnLink} onClick={() => onChange({ confirmada: true })}>
-                <LuCircleCheck /> Confirmar
-              </button>
-              <button
-                type="button"
-                className={base.btnLink}
-                onClick={() => onChange({ idProducto: null, origen: null, confirmada: true })}
-              >
-                <LuX /> No es este
-              </button>
-            </>
-          )}
-          {falta && d.confirmada && (
-            <span className={base.errorMsg}>
-              <LuCircleAlert /> {falta}
-            </span>
-          )}
-        </div>
-      </div>
+const Alertas: React.FC<{ errores: string[] }> = ({ errores }) =>
+  errores.length > 0 ? (
+    <div role="alert" className={base.alertaError}>
+      <LuCircleAlert />
+      <ul>
+        {errores.map((e) => (
+          <li key={e}>{e}</li>
+        ))}
+      </ul>
     </div>
-  );
+  ) : null;
+
+const IconoEstado: React.FC<{ valido: boolean; estado: Estado }> = ({ valido, estado }) => {
+  if (!valido) return <LuCircleSlash className={styles.icoNo} aria-label="No se puede registrar" />;
+  if (estado.tipo === 'registrado') return <LuCircleCheck className={styles.icoOk} aria-label="Registrado" />;
+  if (estado.tipo === 'error') return <LuCircleAlert className={styles.icoError} aria-label="Con error" />;
+  if (estado.tipo === 'saltado') return <LuArrowRight className={styles.icoNo} aria-label="Saltado" />;
+  return <LuCircleDashed className={styles.icoPendiente} aria-label="Pendiente" />;
 };
+
+const Importe: React.FC<{ etiqueta: string; valor?: number; texto?: string }> = ({ etiqueta, valor, texto }) => (
+  <div>
+    <dt>{etiqueta}</dt>
+    <dd>{texto ?? importe(valor ?? 0)}</dd>
+  </div>
+);

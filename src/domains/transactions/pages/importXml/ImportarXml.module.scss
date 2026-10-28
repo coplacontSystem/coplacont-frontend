@@ -1,4 +1,4 @@
-// Carga de XML. Reutiliza Asientos.module.scss (botones, inputs, tarjetas);
+// Carga de comprobantes en cola (XML y TXT de SIRE). Reutiliza Asientos.module.scss (botones, inputs, tarjetas);
 // aquí solo lo propio. Breakpoints del panel: tablet < 900, móvil < 560.
 
 .zona {
@@ -19,9 +19,6 @@
   background: var(--accent-soft);
 }
 
-.zonaCompacta {
-  padding: 14px 18px;
-}
 
 .zonaIcono {
   font-size: 26px;
@@ -73,9 +70,6 @@
   overflow: visible;
 }
 
-.archivoFuera {
-  opacity: 0.6;
-}
 
 .archivoCab {
   display: flex;
@@ -85,10 +79,6 @@
   padding: 16px 20px;
 }
 
-.archivoIcono {
-  font-size: 20px;
-  color: var(--text-3);
-}
 
 .archivoTitulo {
   flex: 1;
@@ -255,44 +245,290 @@
   color: var(--warning-text);
 }
 
-.resultado {
-  padding: 20px;
-  gap: 16px;
-}
 
-.listaResultado {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+
+
+
+/* ---------- Avance ---------- */
+
+.avance {
+  grid-column: 1 / -1;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-2);
 
-  li {
-    display: grid;
-    grid-template-columns: auto auto minmax(0, 1fr);
-    align-items: center;
-    gap: 10px;
-    padding: 10px 0;
-    font-size: 13px;
+  b {
+    color: var(--text);
+  }
 
-    & + li {
-      border-top: 1px solid var(--border);
-    }
+  button {
+    margin-left: auto;
   }
 }
 
-.ok svg {
+/* ---------- Cola y comprobante actual ---------- */
+
+.colaLayout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.cola {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  padding: 6px;
+
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.colaItem {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 10px;
+  align-items: start;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  svg {
+    margin-top: 2px;
+    font-size: 16px;
+  }
+
+  &:hover {
+    background: var(--surface-2);
+  }
+}
+
+.colaItemActual {
+  background: var(--accent-soft) !important;
+}
+
+.colaTexto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  b {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  span {
+    font-size: 12px;
+    color: var(--text-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.colaMonto {
+  grid-column: 2;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.icoOk {
   color: var(--success-text);
 }
 
-.mal {
-  svg,
-  span {
-    color: var(--error-text);
+.icoError {
+  color: var(--error-text);
+}
+
+.icoNo {
+  color: var(--text-3);
+}
+
+.icoPendiente {
+  color: var(--warning-text);
+}
+
+.actual {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.posicion {
+  font-size: 12px !important;
+  color: var(--text-3);
+}
+
+.importes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 0;
+  padding: 0 20px 16px;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  dt {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  dd {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
   }
 }
 
+.mensajeEstado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 20px 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.msgOk {
+  background: var(--success-soft);
+  color: var(--success-text);
+}
+
+.detalleCab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px 12px;
+
+  > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.soloTotales {
+  margin: 0;
+  padding: 16px 20px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+/* ---------- Detalle escrito (TXT) ---------- */
+
+.manual {
+  display: flex;
+  flex-direction: column;
+}
+
+.lineaManual {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.manualMontos {
+  display: grid;
+  grid-template-columns: auto minmax(0, 120px) minmax(0, 160px) minmax(0, 160px) auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.numLinea {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.montoCampo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  span {
+    font-size: 12px;
+    color: var(--text-2);
+  }
+}
+
+.manualPie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.cuadres {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.cuadre {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.cuadreOk {
+  background: var(--success-soft);
+  color: var(--success-text);
+}
+
+.cuadreMal {
+  background: var(--warning-soft);
+  color: var(--warning-text);
+}
+
+.cuadreIgv {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
 @container as (max-width: 899px) {
+  .colaLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cola {
+    position: static;
+    max-height: 220px;
+  }
+
   .linea {
     grid-template-columns: minmax(0, 1fr);
     gap: 10px;
@@ -300,6 +536,22 @@
 }
 
 @container as (max-width: 559px) {
+  .manualMontos {
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) auto;
+
+    .montoCampo:nth-of-type(3) {
+      grid-column: 2 / 4;
+      grid-row: 2;
+    }
+  }
+
+  .importes,
+  .detalleCab,
+  .manualPie {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
   .opciones {
     grid-template-columns: minmax(0, 1fr);
     padding: 16px;
@@ -325,11 +577,4 @@
     max-width: none;
   }
 
-  .listaResultado li {
-    grid-template-columns: auto minmax(0, 1fr);
-
-    span {
-      grid-column: 2;
-    }
-  }
 }

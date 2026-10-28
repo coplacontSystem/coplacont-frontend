@@ -48,6 +48,11 @@ export interface LineaPrevia {
 
 export interface ArchivoPrevio {
   nombre: string;
+  /** Fila del TXT; 0 en un XML */
+  indice: number;
+  origen: 'xml' | 'txt';
+  /** El archivo trae el detalle (XML); si no, se escribe o se registra sin él */
+  conDetalle: boolean;
   valido: boolean;
   errores: string[];
   avisos: string[];
@@ -61,7 +66,15 @@ export interface ArchivoPrevio {
     moneda: string;
     emisor: ParteCpe;
     receptor: ParteCpe;
-    totales: { gravada: number; exonerada: number; inafecta: number; igv: number; total: number };
+    totales: {
+      gravada: number;
+      exonerada: number;
+      inafecta: number;
+      igv: number;
+      isc: number;
+      otrosTributos: number;
+      total: number;
+    };
     formaPago: 'contado' | 'credito' | null;
   } | null;
   contraparte: {
@@ -91,6 +104,28 @@ export interface ResolucionLinea {
   recordar?: boolean;
 }
 
+export interface LineaManual {
+  tipo: 'producto' | 'servicio';
+  idProducto?: number;
+  nuevoProducto?: { nombre: string; idCategoria: number; unidadMedida: string };
+  codigoCuenta?: string;
+  idArea?: number;
+  descripcion?: string;
+  cantidad: number;
+  valor: number;
+  afectacionIgv: '10' | '20' | '30';
+}
+
+export interface RegistrarItem {
+  archivo: ArchivoXml;
+  indice: number;
+  idAlmacen?: number;
+  tipoCambio?: number;
+  lineas?: ResolucionLinea[];
+  lineasManuales?: LineaManual[];
+  sinDetalle?: boolean;
+}
+
 export interface ResultadoRegistro {
   nombre: string;
   ok: boolean;
@@ -113,11 +148,8 @@ export const importacionApi = apiSlice.injectEndpoints({
     previsualizarXml: builder.mutation<ArchivoPrevio[], { archivos: ArchivoXml[] }>({
       query: (body) => ({ url: '/importacion/cpe/previsualizar', method: 'POST', body }),
     }),
-    registrarXml: builder.mutation<
-      ResultadoRegistro[],
-      { idAlmacen?: number; archivos: (ArchivoXml & { tipoCambio?: number; lineas: ResolucionLinea[] })[] }
-    >({
-      query: (body) => ({ url: '/importacion/cpe/registrar', method: 'POST', body }),
+    registrarComprobante: builder.mutation<ResultadoRegistro, RegistrarItem>({
+      query: (body) => ({ url: '/importacion/registrar-uno', method: 'POST', body }),
       invalidatesTags: [
         'Purchases',
         'Sales',
@@ -137,7 +169,7 @@ export const importacionApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const { usePrevisualizarXmlMutation, useRegistrarXmlMutation, useGetAreasContablesQuery } =
+export const { usePrevisualizarXmlMutation, useRegistrarComprobanteMutation, useGetAreasContablesQuery } =
   importacionApi;
 
 /** Contenido de un archivo en base64 (respeta la codificación original del XML) */
