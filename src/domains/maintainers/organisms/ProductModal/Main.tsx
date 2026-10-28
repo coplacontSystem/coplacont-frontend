@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styles from "./Main.module.scss";
+
+const cx = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(" ");
 import { Modal, ModalActions, Button, Text, Input, ComboBox } from "@/components";
 import type { Category } from "@/domains/maintainers/types";
 import { useGetCategoriesQuery } from "@/domains/maintainers/api/categoryApi";
+import {
+ useGetTiposExistenciaQuery,
+ useGetUnidadesSunatQuery,
+} from "@/domains/maintainers/api/catalogosApi";
+import { CcnuSelector } from "./CcnuSelector";
 
 interface CreateProductModalProps {
  isOpen: boolean;
  onClose: () => void;
- onSubmit: (data: {
-  nombre: string;
-  descripcion: string;
-  unidadMedida: string;
-  idCategoria: number;
- }) => void | Promise<void>;
+ onSubmit: (data: DatosProducto) => void | Promise<void>;
  title?: string;
  description?: string;
  submitLabel?: string;
@@ -22,7 +24,21 @@ interface CreateProductModalProps {
   descripcion: string;
   unidadMedida: string;
   categoriaId: number;
+  codigoSunat?: string | null;
+  tipoExistencia?: string | null;
+  codigoUnidad?: string | null;
  };
+}
+
+export interface DatosProducto {
+ nombre: string;
+ descripcion: string;
+ unidadMedida: string;
+ idCategoria: number;
+ /** null quita el código */
+ codigoSunat: string | null;
+ tipoExistencia: string | null;
+ codigoUnidad: string | null;
 }
 
 export const Main: React.FC<CreateProductModalProps> = ({
@@ -39,6 +55,12 @@ export const Main: React.FC<CreateProductModalProps> = ({
  const [descripcion, setDescripcion] = useState("");
  const [unidadMedida, setUnidadMedida] = useState("");
  const [categoriaId, setCategoriaId] = useState("");
+ const [codigoSunat, setCodigoSunat] = useState("");
+ const [tipoExistencia, setTipoExistencia] = useState("01");
+ const [codigoUnidad, setCodigoUnidad] = useState("");
+
+ const tiposExistencia = useGetTiposExistenciaQuery(undefined, { skip: !isOpen });
+ const unidades = useGetUnidadesSunatQuery(undefined, { skip: !isOpen });
 
  const {
   data: allCategories = [],
@@ -74,11 +96,17 @@ export const Main: React.FC<CreateProductModalProps> = ({
    setDescripcion(initialValues.descripcion || "");
    setUnidadMedida(initialValues.unidadMedida || "");
    setCategoriaId(initialValues.categoriaId?.toString() || "");
+   setCodigoSunat(initialValues.codigoSunat || "");
+   setTipoExistencia(initialValues.tipoExistencia || "01");
+   setCodigoUnidad(initialValues.codigoUnidad || "");
   } else {
    setNombre("");
    setDescripcion("");
    setUnidadMedida("");
    setCategoriaId("");
+   setCodigoSunat("");
+   setTipoExistencia("01");
+   setCodigoUnidad("");
   }
  }, [initialValues, isOpen]);
 
@@ -87,26 +115,33 @@ export const Main: React.FC<CreateProductModalProps> = ({
   label: cat.nombre,
  }));
 
- const unitOptions = [
-  { label: "Unidad", value: "unidad" },
-  { label: "Kilogramo", value: "kg" },
-  { label: "Litro", value: "litro" },
-  { label: "Tonelada", value: "tonelada" },
-  { label: "Caja", value: "caja" },
-  { label: "Paquete", value: "paquete" },
-  { label: "Saco", value: "saco" },
- ];
+ // Tabla 6 de SUNAT; la unidad visible (unidadMedida) sale de la elegida
+ const unitOptions = (unidades.data ?? [])
+  .filter((u) => u.codigo !== "ZZ")
+  .map((u) => ({ label: `${u.nombre} (${u.codigo})`, value: u.codigo }));
+ const existenciaOptions = (tiposExistencia.data ?? []).map((t) => ({
+  label: `${t.codigo} · ${t.nombre}`,
+  value: t.codigo,
+ }));
+ const elegirUnidad = (codigo: string) => {
+  setCodigoUnidad(codigo);
+  const u = unidades.data?.find((x) => x.codigo === codigo);
+  if (u) setUnidadMedida(u.corto);
+ };
 
  const handleSubmit = async () => {
   if (!nombre?.trim() || (!isService && !unidadMedida) || !categoriaId) return;
 
-  const dataToSubmit = {
+  const dataToSubmit: DatosProducto = {
    nombre: nombre?.trim() || "",
    descripcion: descripcion?.trim() || "",
    unidadMedida: isService
     ? unidadMedida?.trim() || "servicio"
     : unidadMedida?.trim() || "",
    idCategoria: parseInt(categoriaId),
+   codigoSunat: codigoSunat || null,
+   tipoExistencia: isService ? null : tipoExistencia || null,
+   codigoUnidad: isService ? "ZZ" : codigoUnidad || null,
   };
 
   await onSubmit(dataToSubmit);
@@ -154,12 +189,35 @@ export const Main: React.FC<CreateProductModalProps> = ({
        options={unitOptions}
        size="xs"
        variant="createSale"
-       value={unidadMedida}
-       onChange={(v) => setUnidadMedida(v as string)}
+       value={codigoUnidad}
+       onChange={(v) => elegirUnidad(v as string)}
+       placeholder={unidadMedida && !codigoUnidad ? `${unidadMedida} (elige la de SUNAT)` : "Seleccionar"}
+      />
+     </div>
+    )}
+
+    {!isService && (
+     <div className={styles.formField}>
+      <Text size="xs" color="neutral-primary">
+       Tipo de existencia (Tabla 5)
+      </Text>
+      <ComboBox
+       options={existenciaOptions}
+       size="xs"
+       variant="createSale"
+       value={tipoExistencia}
+       onChange={(v) => setTipoExistencia(v as string)}
        placeholder="Seleccionar"
       />
      </div>
     )}
+
+    <div className={cx(styles.formField, styles.ancho)}>
+     <Text size="xs" color="neutral-primary">
+      Código de producto SUNAT (CCNU) <span className={styles.opcional}>(opcional)</span>
+     </Text>
+     <CcnuSelector value={codigoSunat} onChange={setCodigoSunat} />
+    </div>
 
     <div className={styles.formField}>
      <Text size="xs" color="neutral-primary">

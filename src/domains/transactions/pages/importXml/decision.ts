@@ -11,6 +11,9 @@ export interface Destino {
   unidad: string;
   cuenta: CuentaElegida | null;
   idArea: number | null;
+  /** Del XML, para el producto nuevo: código SUNAT (CCNU) y unidad UN/ECE */
+  codigoSunat?: string | null;
+  codigoUnidad?: string | null;
 }
 
 /** Línea del XML: su destino, el factor y de dónde salió la sugerencia */
@@ -60,6 +63,7 @@ export const ORIGEN: Record<string, string> = {
   codigo: 'Por código',
   gtin: 'Por código de barras',
   nombre: 'Nombre parecido: confírmalo',
+  ccnu: 'Mismo código SUNAT: confírmalo',
   plantilla: 'Cuenta de la plantilla',
 };
 
@@ -85,6 +89,8 @@ export function decisionInicial(l: LineaPrevia): Decision {
   const d: Decision = {
     ...destinoVacio(l.descripcion.slice(0, 255), l.unidad === 'ZZ' ? 'servicio' : 'producto'),
     unidad: UNIDAD[l.unidad] ?? 'unidad',
+    codigoSunat: l.codigoSunat,
+    codigoUnidad: l.unidad,
     factor: '1',
     origen: null,
     confirmada: true,
@@ -129,7 +135,13 @@ export function destinoPayload(d: Destino) {
   return d.modo === 'nuevo'
     ? {
         tipo: 'producto' as const,
-        nuevoProducto: { nombre: d.nombre.trim(), idCategoria: d.idCategoria!, unidadMedida: d.unidad },
+        nuevoProducto: {
+          nombre: d.nombre.trim(),
+          idCategoria: d.idCategoria!,
+          unidadMedida: d.unidad,
+          codigoSunat: d.codigoSunat ?? undefined,
+          codigoUnidad: d.codigoUnidad ?? undefined,
+        },
       }
     : { tipo: 'producto' as const, idProducto: d.idProducto! };
 }

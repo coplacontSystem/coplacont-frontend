@@ -77,6 +77,8 @@ export interface ComboBoxProps {
   variant?: 'default' | 'createSale';
   /** Tamaño del componente */
   size?: 'xs' | 'small' | 'medium' | 'large';
+  /** Las opciones ya vienen filtradas (búsqueda en el servidor) */
+  filtroExterno?: boolean;
 }
 
 /**
@@ -95,6 +97,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
   name,
   variant = 'createSale',
   size = 'medium',
+  filtroExterno = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<ComboBoxOption | null>(
@@ -134,9 +137,11 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
   /**
    * Filtra las opciones basándose en el texto ingresado
    */
-  const filteredOptions = options.filter(option =>
-    option.label.toLowerCase().includes(filterText.toLowerCase())
-  );
+  const filteredOptions = filtroExterno
+    ? options
+    : options.filter((option) =>
+        option.label.toLowerCase().includes(filterText.toLowerCase()),
+      );
 
   /**
    * Maneja la selección de una opción

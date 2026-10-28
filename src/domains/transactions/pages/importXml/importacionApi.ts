@@ -18,7 +18,7 @@ export type Sugerencia =
       codigo: string | null;
       unidadMedida: string;
       factor: number;
-      origen: 'equivalencia' | 'codigo' | 'gtin' | 'nombre';
+      origen: 'equivalencia' | 'codigo' | 'gtin' | 'ccnu' | 'nombre';
       segura: boolean;
     }
   | {
@@ -36,6 +36,7 @@ export interface LineaPrevia {
   descripcion: string;
   codigoVendedor: string | null;
   codigoGtin: string | null;
+  codigoSunat: string | null;
   valorUnitario: number;
   subtotal: number;
   igv: number;
@@ -97,7 +98,14 @@ export interface ResolucionLinea {
   orden: number;
   tipo: 'producto' | 'servicio';
   idProducto?: number;
-  nuevoProducto?: { nombre: string; idCategoria: number; unidadMedida: string; codigo?: string };
+  nuevoProducto?: {
+    nombre: string;
+    idCategoria: number;
+    unidadMedida: string;
+    codigo?: string;
+    codigoSunat?: string;
+    codigoUnidad?: string;
+  };
   factor?: number;
   codigoCuenta?: string;
   idArea?: number;
@@ -107,7 +115,13 @@ export interface ResolucionLinea {
 export interface LineaManual {
   tipo: 'producto' | 'servicio';
   idProducto?: number;
-  nuevoProducto?: { nombre: string; idCategoria: number; unidadMedida: string };
+  nuevoProducto?: {
+    nombre: string;
+    idCategoria: number;
+    unidadMedida: string;
+    codigoSunat?: string;
+    codigoUnidad?: string;
+  };
   codigoCuenta?: string;
   idArea?: number;
   descripcion?: string;

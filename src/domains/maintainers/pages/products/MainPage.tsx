@@ -15,6 +15,7 @@ import {
 } from "@/domains/maintainers/api/productApi";
 import type { Product } from "@/domains/maintainers/types";
 import { ProductModal } from "@/domains/maintainers/organisms";
+import type { DatosProducto } from "@/domains/maintainers/organisms/ProductModal/Main";
 
 export const MainPage: React.FC = () => {
  const {
@@ -53,12 +54,7 @@ export const MainPage: React.FC = () => {
   });
  };
 
- const handleCreateProduct = async (data: {
-  nombre: string;
-  descripcion?: string;
-  unidadMedida: string;
-  idCategoria: number;
- }) => {
+ const handleCreateProduct = async (data: DatosProducto) => {
   try {
    const payload = {
     ...data,
@@ -75,12 +71,7 @@ export const MainPage: React.FC = () => {
   }
  };
 
- const handleEditProduct = async (data: {
-  nombre: string;
-  descripcion: string;
-  unidadMedida: string;
-  idCategoria: number;
- }) => {
+ const handleEditProduct = async (data: DatosProducto) => {
   if (!selectedProduct) return;
 
   try {
@@ -117,6 +108,7 @@ export const MainPage: React.FC = () => {
 
  const headers = [
   "Código",
+  "Cód. SUNAT",
   "Nombre",
   "Descripción",
   "Unidad",
@@ -129,6 +121,7 @@ export const MainPage: React.FC = () => {
   id: p.id,
   cells: [
    p.codigo || "No asignado",
+   p.codigoSunat || "—",
    p.nombre || "Sin nombre",
    p.descripcion || "Sin descripción",
    p.unidadMedida || "Sin unidad",
@@ -156,7 +149,7 @@ export const MainPage: React.FC = () => {
   ],
  }));
 
- const gridTemplate = "1.5fr 2fr 1.5fr 1fr 1.5fr 1fr 2.5fr";
+ const gridTemplate = "1fr 1fr 1.8fr 1.4fr 0.9fr 1.3fr 1fr 1.1fr";
 
  return (
   <PageLayout
@@ -211,6 +204,9 @@ export const MainPage: React.FC = () => {
          descripcion: selectedProduct.descripcion,
          unidadMedida: selectedProduct.unidadMedida,
          categoriaId: selectedProduct.categoria?.id ?? 0,
+         codigoSunat: selectedProduct.codigoSunat,
+         tipoExistencia: selectedProduct.tipoExistencia,
+         codigoUnidad: selectedProduct.codigoUnidad,
         }
       : newProduct
     }
