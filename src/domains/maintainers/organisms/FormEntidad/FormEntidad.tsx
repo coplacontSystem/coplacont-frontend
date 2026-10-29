@@ -7,6 +7,8 @@ import type {
 } from "../../services/entitiesService";
 import { Text, ComboBox, Input, Button, ModalActions } from "@/components";
 import { useUpdateEntityMutation } from "../../api/entitiesApi";
+import type { Contribuyente } from "../../api/contribuyentesApi";
+import { ConsultaSunat } from "./ConsultaSunat";
 
 type FormEntidadProps = {
  entidad: Entidad | EntidadParcial;
@@ -41,6 +43,18 @@ export const FormEntidad = ({
  });
 
  const [isEdit, setIsEdit] = useState(false);
+
+ /** Completa el alta con los datos de SUNAT/RENIEC sin pisar lo ya escrito */
+ const completarDatos = (c: Contribuyente) => {
+  const poner = (campo: "razonSocial" | "nombre" | "apellidoPaterno" | "apellidoMaterno" | "direccion", valor?: string) => {
+   if (valor && !entidad[campo]) onChange(campo, valor);
+  };
+  poner("razonSocial", c.razonSocial);
+  poner("nombre", c.nombres);
+  poner("apellidoPaterno", c.apellidoPaterno);
+  poner("apellidoMaterno", c.apellidoMaterno);
+  if (c.direccion && c.direccion.length >= 5) poner("direccion", c.direccion.slice(0, 255));
+ };
 
  const handleUpdateEntidad = async () => {
   setLoading(true);
@@ -98,9 +112,15 @@ export const FormEntidad = ({
      size="xs"
      variant="createSale"
      value={entidad.numeroDocumento}
-     onChange={(e) => onChange("numeroDocumento", e.target.value)}
+     onChange={(e) => onChange("numeroDocumento", e.target.value.replace(/\D/g, ""))}
     />
    </div>
+
+   <ConsultaSunat
+    tipo={entidad.tipo}
+    numero={entidad.numeroDocumento}
+    onDatos={readOnly ? undefined : completarDatos}
+   />
 
    {/* Razon Social o Datos Naturales */}
    {entidad.tipo === "JURIDICA" && (
