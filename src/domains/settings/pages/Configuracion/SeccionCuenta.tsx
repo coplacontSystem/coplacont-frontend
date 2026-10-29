@@ -7,6 +7,7 @@ import {
   LuEyeOff,
   LuKeyRound,
   LuLogIn,
+  LuLogOut,
   LuTrash2,
   LuX,
   LuZoomIn,
@@ -18,6 +19,7 @@ import {
   useActualizarCuentaMutation,
   useCambiarContrasenaMutation,
   useCambiarCorreoMutation,
+  useCerrarSesionesMutation,
   useGetCuentaQuery,
   useGuardarAvatarMutation,
   type Perfil,
@@ -235,6 +237,7 @@ export const SeccionCuenta: React.FC<SeccionProps> = ({ onDirty }) => {
             </span>
           </div>
         </div>
+        <CerrarSesiones />
       </Card>
 
       {recorte && (
@@ -246,6 +249,54 @@ export const SeccionCuenta: React.FC<SeccionProps> = ({ onDirty }) => {
         />
       )}
     </>
+  );
+};
+
+/* ---------- Sesiones ---------- */
+
+/** Invalida todos los tokens del usuario (por ejemplo, si olvidó cerrar sesión en otra PC). */
+const CerrarSesiones: React.FC = () => {
+  const { logout } = useAuth();
+  const toast = useToast();
+  const [cerrar, { isLoading }] = useCerrarSesionesMutation();
+  const [confirmar, setConfirmar] = useState(false);
+
+  const ejecutar = async () => {
+    try {
+      await cerrar().unwrap();
+      logout();
+      window.location.href = '/auth/login';
+    } catch {
+      toast('No se pudieron cerrar las sesiones');
+    }
+  };
+
+  return (
+    <div className={styles.segFila}>
+      <span className={styles.segIcono}><LuLogOut /></span>
+      <div className={styles.segTexto}>
+        <span>Sesiones abiertas</span>
+        <span>
+          {confirmar
+            ? 'Se cerrará la sesión en todos los dispositivos, también en este.'
+            : 'Cierra la sesión en todos los equipos donde hayas ingresado.'}
+        </span>
+      </div>
+      {confirmar ? (
+        <div className={styles.btnRow}>
+          <button type="button" className={styles.btnGhost} onClick={() => setConfirmar(false)}>
+            Cancelar
+          </button>
+          <button type="button" className={styles.btnPeligro} disabled={isLoading} onClick={() => void ejecutar()}>
+            {isLoading ? 'Cerrando…' : 'Cerrar todas'}
+          </button>
+        </div>
+      ) : (
+        <button type="button" className={cx(styles.btnSecondary, styles.anchoMovil)} onClick={() => setConfirmar(true)}>
+          Cerrar en todos los dispositivos
+        </button>
+      )}
+    </div>
   );
 };
 

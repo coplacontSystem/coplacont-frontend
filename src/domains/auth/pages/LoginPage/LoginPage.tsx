@@ -38,16 +38,6 @@ export const LoginPage: React.FC = () => {
       // Llamada al servicio de autenticación
       const response = await AuthService.login(loginRequest);
       
-      console.log('Respuesta del backend recibida:', {
-        success: response.success,
-        nombre: response.nombre,
-        hasEmail: !!response.email,
-        hasJwt: !!response.jwt,
-        hasPersona: !!response.persona,
-        hasRoles: !!response.roles,
-        message: response.message,
-        fullResponse: response
-      });
 
 
       if (response.success && response.email && response.jwt && response.roles) {

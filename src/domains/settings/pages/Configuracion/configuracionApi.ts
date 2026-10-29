@@ -81,6 +81,9 @@ export const configuracionApi = apiSlice.injectEndpoints({
       query: (body) => ({ url: '/cuenta/contrasena', method: 'PATCH', body }),
       invalidatesTags: [{ type: 'Cuenta', id: 'ME' }],
     }),
+    cerrarSesiones: b.mutation<{ message: string }, void>({
+      query: () => ({ url: '/auth/cerrar-sesiones', method: 'POST' }),
+    }),
     guardarAvatar: b.mutation<Perfil, string | null>({
       query: (imagen) =>
         imagen
@@ -149,6 +152,7 @@ export const configuracionApi = apiSlice.injectEndpoints({
 
 export const {
   useGetCuentaQuery,
+  useCerrarSesionesMutation,
   useActualizarCuentaMutation,
   useCambiarCorreoMutation,
   useCambiarContrasenaMutation,
