@@ -32,7 +32,9 @@ export const AppHeader: React.FC = () => {
         .sort((a, b) => b.to.length - a.to.length)[0];
       if (match) {
         const extra = path.startsWith(match.to + "/") ? ["Detalle"] : [];
-        if (path.endsWith("/register")) extra.splice(0, 1, "Nuevo registro");
+        if (path.endsWith("/register") || path.endsWith("/nuevo")) extra.splice(0, 1, "Nuevo registro");
+        if (path.endsWith("/editar")) extra.splice(0, 1, "Edición");
+        if (path.endsWith("/bulk-register")) extra.splice(0, 1, "Cargar comprobantes");
         return [group.label, match.label, ...extra];
       }
     }

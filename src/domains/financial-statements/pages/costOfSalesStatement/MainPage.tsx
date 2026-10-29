@@ -69,8 +69,8 @@ export const MainPage: React.FC = () => {
    const requestParams: import("../../api/financialStatementsApi").CostOfSalesParams =
     {
      año: parseInt(selectedYear, 10),
-     idAlmacen: selectedWarehouseId ? parseInt(selectedWarehouseId, 10) : 0,
-     idProducto: selectedProductId ? parseInt(selectedProductId, 10) : 0,
+     idAlmacen: selectedWarehouseId ? parseInt(selectedWarehouseId, 10) : undefined,
+     idProducto: selectedProductId ? parseInt(selectedProductId, 10) : undefined,
     };
 
    const response =

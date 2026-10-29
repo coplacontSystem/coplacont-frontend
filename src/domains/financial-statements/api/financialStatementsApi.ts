@@ -3,8 +3,8 @@ import { FINANCIAL_STATEMENTS_ENDPOINTS } from "./endpoints";
 
 interface CostOfSalesParams {
   año: number;
-  idAlmacen: number;
-  idProducto: number;
+  idAlmacen?: number;
+  idProducto?: number;
 }
 
 export const financialStatementsApi = {

@@ -31,3 +31,43 @@
     grid-column: 1 / -1;
   }
 }
+.FormEntidad__Sunat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -6px 0 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-color-muted);
+  background: var(--accent-soft);
+
+  svg {
+    flex: none;
+  }
+
+  &--ok {
+    color: var(--success-text);
+    background: var(--success-soft);
+  }
+
+  &--aviso {
+    color: var(--warning-text);
+    background: var(--warning-soft);
+  }
+
+  &--error {
+    color: var(--error-text);
+    background: var(--warning-soft);
+  }
+}
+
+.FormEntidad__Girando {
+  animation: girar 1s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}

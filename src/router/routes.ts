@@ -87,6 +87,7 @@ export const SETTINGS_ROUTES = {
   EMPRESA: '/empresa',
   PERIODOS: '/periodos',
   PARAMETROS: '/parametros',
+  PLANES_CONTABLES: '/planes-contables',
 } as const;
 
 // Rutas comunes de páginas

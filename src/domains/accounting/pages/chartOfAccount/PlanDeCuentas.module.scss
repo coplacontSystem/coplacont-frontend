@@ -1,0 +1,825 @@
+// Plan de cuentas. Breakpoints del ancho del panel (container queries):
+// escritorio ≥ 900, tablet 560–899, móvil < 560. El drawer va en portal.
+
+.pagina {
+  container: pc / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: var(--text);
+  min-width: 0;
+
+  svg {
+    flex: none;
+  }
+}
+
+/* ---------- Tonos ---------- */
+
+.tonoAccent {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.tonoWarning {
+  background: var(--warning-soft);
+  color: var(--warning-text);
+}
+.tonoNeutral {
+  background: var(--neutral-soft);
+  color: var(--neutral-text);
+}
+.tonoSuccess {
+  background: var(--success-soft);
+  color: var(--success-text);
+}
+.tonoPropia {
+  background: var(--active-bg);
+  color: var(--active-text);
+}
+
+/* ---------- Encabezado ---------- */
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.headerTexto {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.titulo {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.subtitulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.norma {
+  height: 24px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--neutral-soft);
+  color: var(--neutral-text);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ---------- Botones ---------- */
+
+%btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+
+  svg {
+    font-size: 16px;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.btnPrimary {
+  @extend %btn;
+  background: var(--primary);
+  color: var(--on-primary);
+
+  &:hover:not(:disabled) {
+    background: var(--primary-hover);
+  }
+}
+
+.btnSecondary {
+  @extend %btn;
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+
+  &:hover:not(:disabled) {
+    background: var(--surface-2);
+  }
+}
+
+.btnLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--accent-text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--accent-soft);
+  }
+}
+
+.btnIcono {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 15px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--border-strong);
+    background: var(--surface);
+    color: var(--accent-text);
+  }
+}
+
+/* ---------- Elementos ---------- */
+
+.elementos {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.elemento {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text-2);
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--border-strong);
+  }
+}
+
+.elementoOn {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+  background: var(--active-bg);
+  color: var(--active-text);
+
+  .elementoNum {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+}
+
+.elementoNum {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.elementoNombre {
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.elementoCant {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.selectElemento {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+
+  > span:first-child {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+  }
+}
+
+.selectCaja {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  select {
+    appearance: none;
+    width: 100%;
+    height: 44px;
+    padding: 0 40px 0 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  svg {
+    position: absolute;
+    right: 14px;
+    color: var(--text-3);
+    pointer-events: none;
+  }
+}
+
+/* ---------- Tarjeta y barra ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.buscador {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 320px;
+  min-width: 0;
+  max-width: 560px;
+
+  input {
+    width: 100%;
+    height: 40px;
+    padding: 0 36px 0 38px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+
+    &:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+  }
+
+  button {
+    position: absolute;
+    right: 4px;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-3);
+    cursor: pointer;
+  }
+}
+
+.buscadorIcono {
+  position: absolute;
+  left: 12px;
+  font-size: 16px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-2);
+
+  button {
+    margin-top: 0;
+  }
+}
+
+.cabeceraLista {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 20px;
+  background: var(--surface-2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-3);
+
+  .btnLink {
+    text-transform: none;
+    letter-spacing: normal;
+  }
+}
+
+.cardSub {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--text-3);
+}
+
+/* ---------- Filas del árbol ---------- */
+
+.lista {
+  display: flex;
+  flex-direction: column;
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 4px 16px 4px calc(12px + var(--sangria, 0px));
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+
+  &:hover {
+    background: var(--surface-2);
+
+    .acciones {
+      opacity: 1;
+    }
+  }
+}
+
+.filaCuenta {
+  background: color-mix(in srgb, var(--surface-2) 45%, transparent);
+
+  .codigo,
+  .nombre {
+    font-weight: 600;
+  }
+}
+
+.filaInactiva {
+  opacity: 0.55;
+}
+
+.filaResaltada {
+  background: var(--accent-soft) !important;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.filaPrincipal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.plegar,
+.plegarVacio {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+
+.plegar {
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 16px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--border);
+  }
+}
+
+.codigo {
+  flex: none;
+  min-width: 64px;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.nombre {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.ruta {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-3);
+}
+
+.filaMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.badge {
+  height: 22px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badgeNat {
+  min-width: 70px;
+  justify-content: center;
+}
+
+.acciones {
+  display: flex;
+  gap: 2px;
+  width: 64px;
+  justify-content: flex-end;
+  opacity: 0.55;
+}
+
+.resultado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 6px 20px;
+  border: none;
+  border-top: 1px solid var(--border);
+  background: transparent;
+  text-align: left;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+
+  .nombre {
+    flex: 1;
+  }
+
+  &:hover {
+    background: var(--surface-2);
+  }
+}
+
+.leyendaPie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 12px;
+  color: var(--text-3);
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+/* ---------- Estados ---------- */
+
+.skel {
+  border-radius: 8px;
+  background: var(--surface-2);
+  animation: latido 1.4s ease-in-out infinite;
+}
+
+@keyframes latido {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.skelLista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 20px;
+}
+
+.vacio {
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.vacioIcono {
+  font-size: 26px;
+  color: var(--text-3);
+}
+
+.estadoTitulo {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.estadoTexto {
+  max-width: 420px;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--text-2);
+}
+
+/* ---------- Formulario del drawer ---------- */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  > span:first-child {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+}
+
+.input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+
+  &:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+}
+
+.inputCodigo {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  letter-spacing: 0.04em;
+}
+
+.inputError {
+  border-color: var(--error);
+}
+
+.hint {
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--text-3);
+}
+
+.padreInfo {
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--text-2);
+
+  b {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    color: var(--text);
+  }
+
+  span {
+    color: var(--text-3);
+  }
+}
+
+.aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: 13px;
+  line-height: 19px;
+
+  svg {
+    font-size: 16px;
+    margin-top: 1px;
+  }
+}
+
+.datoFijo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+
+  > span:first-child {
+    font-weight: 500;
+  }
+
+  b {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 16px;
+  }
+}
+
+.filaSwitch {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+.pieDrawer {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ---------- Tablet ---------- */
+
+@container pc (max-width: 899px) {
+  .elementos {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .elemento {
+    flex: 0 0 168px;
+  }
+
+  .badgeNat {
+    display: none;
+  }
+}
+
+/* ---------- Móvil ---------- */
+
+@container pc (max-width: 559px) {
+  .titulo {
+    font-size: 24px;
+  }
+
+  .anchoMovil {
+    width: 100%;
+    height: 44px;
+  }
+
+  .elementos {
+    display: none;
+  }
+
+  .selectElemento {
+    display: flex;
+  }
+
+  .barra {
+    padding: 12px;
+  }
+
+  .buscador {
+    flex-basis: 100%;
+
+    input {
+      height: 44px;
+    }
+  }
+
+  .cabeceraLista {
+    padding: 10px 12px;
+  }
+
+  .fila {
+    flex-wrap: wrap;
+    padding: 8px 12px 8px calc(4px + var(--sangria, 0px) * 0.6);
+    gap: 4px 8px;
+  }
+
+  .filaMeta {
+    width: 100%;
+    padding-left: 32px;
+  }
+
+  .acciones {
+    margin-left: auto;
+    opacity: 1;
+  }
+
+  .codigo {
+    min-width: 0;
+  }
+
+  .resultado {
+    flex-wrap: wrap;
+    padding: 8px 12px;
+
+    .filaMeta {
+      padding-left: 0;
+    }
+  }
+}
+
+@media (max-width: 559px) {
+  .pieDrawer {
+    display: grid;
+    grid-template-columns: 1fr;
+
+    button {
+      height: 44px;
+    }
+  }
+
+  .input {
+    height: 44px;
+  }
+}
+
+.accionesHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

@@ -14,6 +14,12 @@ export interface Product {
   stockMinimo: number;
   estado: boolean;
   categoria: Category;
+  /** Código de producto SUNAT (CCNU) */
+  codigoSunat: string | null;
+  /** Tabla 5 SUNAT */
+  tipoExistencia: string | null;
+  /** Tabla 6 SUNAT (UN/ECE) */
+  codigoUnidad: string | null;
   fechaCreacion: string;
   fechaActualizacion: string;
 }
@@ -28,6 +34,9 @@ export interface CreateProductPayload {
   unidadMedida: string;
   estado: boolean;
   categoriaId: number;
+  codigoSunat?: string | null;
+  tipoExistencia?: string | null;
+  codigoUnidad?: string | null;
 }
 
 /**
@@ -42,4 +51,7 @@ export interface UpdateProductPayload {
   stockMinimo?: number;
   estado?: boolean;
   categoriaId?: number;
+  codigoSunat?: string | null;
+  tipoExistencia?: string | null;
+  codigoUnidad?: string | null;
 }

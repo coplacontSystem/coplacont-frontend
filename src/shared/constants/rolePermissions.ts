@@ -24,6 +24,7 @@ export const ADMIN_ALLOWED_ROUTES = [
   `${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.USERS}`, // Gestión de usuarios
   `${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.VALUATION_METHODS}`, // Métodos de valoración
   `${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.CUENTA}`, // Mi cuenta
+  `${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.PLANES_CONTABLES}`, // Planes de cuentas
 ] as const;
 
 /**
@@ -32,6 +33,7 @@ export const ADMIN_ALLOWED_ROUTES = [
  */
 export const EMPRESA_RESTRICTED_ROUTES = [
   `${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.USERS}`, // Gestión de usuarios
+  `${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.PLANES_CONTABLES}`, // Planes de cuentas (administrador)
   `${MAIN_ROUTES.SETTINGS}${SETTINGS_ROUTES.VALUATION_METHODS}`, // Métodos de valoración
 ] as const;
 

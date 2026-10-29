@@ -61,3 +61,27 @@ export async function descargarReporte(
     nombreDeArchivo(respuesta.headers.get('Content-Disposition'), `${clave}.${formato}`),
   );
 }
+
+/**
+ * Descarga un archivo de cualquier ruta del backend (p. ej. el TXT del PLE)
+ * con el nombre que indica el servidor.
+ */
+export async function descargarArchivo(
+  ruta: string,
+  parametros: FiltrosReporte,
+  porDefecto: string,
+): Promise<void> {
+  const query = new URLSearchParams();
+  for (const [nombre, valor] of Object.entries(parametros)) {
+    if (valor !== undefined && valor !== null && valor !== '') query.set(nombre, String(valor));
+  }
+  const token = localStorage.getItem('jwt');
+  const respuesta = await fetch(`${API_BASE_URL}${ruta}?${query}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!respuesta.ok) throw new Error(await mensajeDeError(respuesta));
+  downloadFile(
+    await respuesta.blob(),
+    nombreDeArchivo(respuesta.headers.get('Content-Disposition'), porDefecto),
+  );
+}

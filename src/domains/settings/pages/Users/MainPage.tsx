@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import styles from "./MainPage.module.scss";
 
 import {
@@ -56,6 +57,18 @@ export const MainPage: React.FC = () => {
   /**
    * Maneja los cambios en los campos del formulario
    */
+  // ?nueva=1 (desde el panel) abre directo el alta de empresa
+  const [params, setParams] = useSearchParams();
+  useEffect(() => {
+    if (params.get("nueva") === "1") {
+      setIsCreate(true);
+      setIsView(false);
+      setError("");
+      setIsOpen(true);
+      setParams({}, { replace: true });
+    }
+  }, [params, setParams]);
+
   const handlePersonaChange = (
     field: keyof EmpresaParcial,
     value: string | number | boolean
